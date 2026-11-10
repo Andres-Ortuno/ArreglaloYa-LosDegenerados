@@ -1,0 +1,18 @@
+# Base de datos PostgreSQL para desarrollo.
+# Si el [5] ya creó un docker-compose.yml, usen el suyo y ajusten el .env del backend a sus valores.
+services:
+  db:
+    image: postgres:18
+    container_name: arreglaloya-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: arreglaloya
+      POSTGRES_PASSWORD: arreglaloya_dev
+      POSTGRES_DB: arreglaloya
+    ports:
+      - "5432:5432"
+    volumes:
+      - arreglaloya_datos:/var/lib/postgresql
+
+volumes:
+  arreglaloya_datos:

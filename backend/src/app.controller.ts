@@ -1,12 +1,12 @@
 import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service.js';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Salud')
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
-
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  /** Comprueba que el backend está encendido: GET /api/health */
+  @Get('health')
+  health() {
+    return { estado: 'ok', hora: new Date().toISOString() };
   }
 }

@@ -1,29 +1,26 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { Test } from '@nestjs/testing';
+import type { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { App } from 'supertest/types.js';
-import { AppModule } from './../src/app.module.js';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { AppController } from '../src/app.controller.js';
 
-describe('AppController (e2e)', () => {
-  let app: INestApplication<App>;
+// Prueba sin base de datos: solo levanta el controlador de salud.
+describe('GET /api/health (e2e)', () => {
+  let app: INestApplication;
 
-  beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
+  beforeAll(async () => {
+    const moduleRef = await Test.createTestingModule({ controllers: [AppController] }).compile();
+    app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
     await app.init();
   });
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
+  afterAll(async () => {
+    await app.close();
   });
 
-  afterEach(async () => {
-    await app.close();
+  it('responde 200 con estado ok', async () => {
+    const respuesta = await request(app.getHttpServer()).get('/api/health').expect(200);
+    expect(respuesta.body.estado).toBe('ok');
   });
 });

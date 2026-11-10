@@ -1,22 +1,37 @@
 import { Module } from '@nestjs/common';
-import { createObserveModule } from '@nestjs/observe';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller.js';
-import { AppService } from './app.service.js';
-
-export const { ObserveModule, ObserveInstrument } = createObserveModule();
+import { AuthModule } from './auth/auth.module.js';
+import { CatalogosModule } from './catalogos/catalogos.module.js';
+import { CuentasModule } from './cuentas/cuentas.module.js';
+import { SeedModule } from './seed/seed.module.js';
+import { TrabajadoresModule } from './trabajadores/trabajadores.module.js';
 
 @Module({
   imports: [
-    // Distributed tracing, auto-correlated logs, request/job metrics, error
-    // telemetry, alarms, and more — out of the box. Sign up at https://observe.nestjs.com,
-    // then run `npx @nestjs/observe link` to write your key pair into .env.
-    ObserveModule.forRoot({
-      appKey: process.env.OBSERVE_APP_KEY ?? 'YOUR_APP_KEY',
-      appSecret: process.env.OBSERVE_APP_SECRET ?? 'YOUR_APP_SECRET',
-      serviceId: 'backend',
+    // Lee el archivo .env (en backend/ o, si no está ahí, en la carpeta principal)
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: ['.env', '../.env'] }),
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        type: 'postgres' as const,
+        host: config.get<string>('DB_HOST', 'localhost'),
+        port: Number(config.get<string>('DB_PORT', '5432')),
+        username: config.get<string>('DB_USER'),
+        password: config.get<string>('DB_PASSWORD'),
+        database: config.get<string>('DB_NAME', 'arreglaloya'),
+        autoLoadEntities: true,
+        // true = TypeORM crea/ajusta las tablas solo. Úsalo únicamente en desarrollo.
+        synchronize: config.get<string>('DB_SYNCHRONIZE', 'true') === 'true',
+      }),
     }),
+    CuentasModule,
+    AuthModule,
+    CatalogosModule,
+    TrabajadoresModule,
+    SeedModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}
