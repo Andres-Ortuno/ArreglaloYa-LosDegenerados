@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="ArreglaloYa · Prototipo visual HTML y CSS de servicios de reparación en Cochabamba.">
+<title>Buscar trabajadores | ArreglaloYa</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="index.html" aria-label="ArreglaloYa, volver al inicio"><span class="brand-mark" aria-hidden="true">AY</span><span>Arreglalo<span class="accent">Ya</span></span></a>
+    <nav class="nav-links" aria-label="Navegación principal">
+      <a href="index.html">Inicio</a>
+      <a href="buscar.html" class="active" aria-current="page">Buscar trabajadores</a>
+      <a href="solicitar.html">Solicitar trabajo</a>
+    </nav>
+    <div class="header-actions"><a class="btn btn-ghost btn-sm" href="ingresar.html">Ingresar</a><a class="btn btn-sm" href="registro.html">Crear cuenta</a></div>
+  </div>
+</header>
+<div class="demo-banner"><strong>Vista de demostración:</strong> pantallas de HTML y CSS con información ficticia. Sin conexión al sistema ni pagos reales.</div>
+
+<main id="contenido">
+<section class="page-head"><div class="container"><nav class="breadcrumb" aria-label="Ruta"><a href="index.html">Inicio</a> <span>/</span> Buscar trabajadores</nav><span class="eyebrow">RF-07 · CU-03</span><h1>Encuentra a alguien para tu arreglo</h1><p>Busca por zona y especialidad, revisa las calificaciones y conoce el perfil antes de contratar.</p></div></section>
+<section class="content-area"><div class="container">
+ <form class="search-tools"><div class="field"><label for="busca-zona">Zona</label><select id="busca-zona"><option>Todas las zonas</option><option>Cercado</option><option>Sacaba</option><option>Tiquipaya</option><option>Quillacollo</option></select></div><div class="field"><label for="busca-servicio">Especialidad</label><select id="busca-servicio"><option>Todas las especialidades</option><option>Albañilería</option><option>Reparación de electrodomésticos</option></select></div><a href="#resultados" class="btn">Ver resultados de ejemplo</a></form>
+ <div class="notice">Estos resultados y calificaciones son <strong>ficticios</strong> para demostrar el diseño. En la aplicación real solo se mostrarán trabajadores con cuenta <strong>Activa</strong>; los filtros se conectarán a la API.</div>
+ <div class="results-toolbar" id="resultados"><div><h2>Perfiles de ejemplo</h2><p>Diseño de tarjetas, opiniones y filtros por zona.</p></div><span class="tag">Resultados demostrativos</span></div>
+ <div class="results">
+  <article class="worker-card"><div class="worker-top"><div class="avatar">CM</div><span class="status status-green">Activo*</span></div><div><h3>Carlos Mendoza</h3><p>Técnico de electrodomésticos</p></div><div class="rating"><span class="star">★</span> 4.8 <span class="text-muted text-small" style="font-weight:500">(24 opiniones)*</span></div><div class="worker-meta"><span>⌖ Cercado</span><span>⌁ 5 años de experiencia*</span></div><div class="row"><span class="tag">Lavadoras</span><span class="tag">Cocinas</span></div><a href="perfil-trabajador.html" class="btn btn-secondary btn-wide">Ver perfil</a></article>
+  <article class="worker-card"><div class="worker-top"><div class="avatar amber">ML</div><span class="status status-green">Activo*</span></div><div><h3>María López</h3><p>Albañilería y mantenimiento</p></div><div class="rating"><span class="star">★</span> 4.9 <span class="text-muted text-small" style="font-weight:500">(18 opiniones)*</span></div><div class="worker-meta"><span>⌖ Sacaba</span><span>⌁ 6 años de experiencia*</span></div><div class="row"><span class="tag">Paredes</span><span class="tag">Revoque</span></div><a href="perfil-trabajador.html" class="btn btn-secondary btn-wide">Ver diseño de perfil</a></article>
+  <article class="worker-card"><div class="worker-top"><div class="avatar green">JR</div><span class="status status-green">Activo*</span></div><div><h3>Jorge Rojas</h3><p>Reparación de electrodomésticos</p></div><div class="rating"><span class="star">★</span> 4.7 <span class="text-muted text-small" style="font-weight:500">(12 opiniones)*</span></div><div class="worker-meta"><span>⌖ Tiquipaya</span><span>⌁ 3 años de experiencia*</span></div><div class="row"><span class="tag">Refrigeradores</span><span class="tag">Secadoras</span></div><a href="perfil-trabajador.html" class="btn btn-secondary btn-wide">Ver diseño de perfil</a></article>
+ </div>
+ <p class="text-tiny" style="margin-top:15px">* Datos de ejemplo. El estado, los años de experiencia y las calificaciones no representan personas reales.</p>
+</div></section>
+</main>
+
+<footer class="site-footer">
+ <div class="container">
+  <div class="footer-main"><div><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">AY</span><span>Arreglalo<span class="accent">Ya</span></span></a><p>Servicios para el hogar en Cochabamba, Bolivia.</p></div>
+    <nav class="footer-links" aria-label="Enlaces del pie de página"><a href="index.html">Inicio</a><a href="buscar.html">Trabajadores</a><a href="solicitar.html">Solicitar</a><a href="editar-perfil.html">Perfil trabajador</a></nav>
+  </div>
+  <div class="footer-bottom"><small>Prototipo visual V1 · Trabajo de HTML y CSS · Datos de demostración</small></div>
+ </div>
+</footer>
+
+</body>
+</html>
