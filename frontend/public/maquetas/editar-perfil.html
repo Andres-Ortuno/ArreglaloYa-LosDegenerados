@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="ArreglaloYa · Prototipo visual HTML y CSS de servicios de reparación en Cochabamba.">
+<title>Editar perfil de trabajador | ArreglaloYa</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="index.html" aria-label="ArreglaloYa, volver al inicio"><span class="brand-mark" aria-hidden="true">AY</span><span>Arreglalo<span class="accent">Ya</span></span></a>
+    <nav class="nav-links" aria-label="Navegación principal">
+      <a href="index.html">Inicio</a>
+      <a href="buscar.html">Buscar trabajadores</a>
+      <a href="solicitar.html">Solicitar trabajo</a>
+    </nav>
+    <div class="header-actions"><a class="btn btn-ghost btn-sm" href="ingresar.html">Ingresar</a><a class="btn btn-sm" href="registro.html">Crear cuenta</a></div>
+  </div>
+</header>
+<div class="demo-banner"><strong>Vista de demostración:</strong> pantallas de HTML y CSS con información ficticia. Sin conexión al sistema ni pagos reales.</div>
+
+<main id="contenido">
+<section class="page-head"><div class="container"><nav class="breadcrumb" aria-label="Ruta"><a href="index.html">Inicio</a><span>/</span><a href="registro.html">Registro</a><span>/</span>Perfil del trabajador</nav><span class="eyebrow">HU-07 · HU-08 · RF-02 · RF-03</span><h1>Construye tu perfil profesional</h1><p>Comparte las especialidades y la zona en la que trabajas para que los clientes puedan encontrarte.</p></div></section>
+<section class="content-area"><div class="container layout-2">
+ <section class="panel form-panel"><div class="panel-heading"><h2>Datos del trabajador</h2><p>Completa la información de tu experiencia y servicios.</p><div class="progress"><span class="done"></span><span></span><span></span> <b>Paso 1 de 3*</b></div></div>
+ <form class="stack"><div class="form-grid">
+  <div class="field full"><label for="perfil-especialidad">Especialidad principal *</label><select id="perfil-especialidad" required><option value="">Selecciona tu especialidad</option><option>Albañilería</option><option>Reparación de electrodomésticos</option></select></div>
+  <div class="field full"><label for="perfil-otras">Servicios o especialidades adicionales</label><input id="perfil-otras" placeholder="Ej.: lavadoras, refrigeradores, mantenimiento"></div>
+  <div class="field"><label for="perfil-zona">Zona de trabajo *</label><select id="perfil-zona" required><option value="">Selecciona tu zona</option><option>Cercado</option><option>Sacaba</option><option>Tiquipaya</option><option>Quillacollo</option></select></div>
+  <div class="field"><label for="perfil-experiencia">Años de experiencia</label><input id="perfil-experiencia" type="number" min="0" max="80" placeholder="Ej.: 5"></div>
+  <div class="field full"><label for="perfil-presentacion">Preséntate y describe tu experiencia *</label><textarea id="perfil-presentacion" required placeholder="Cuéntale al cliente qué trabajos realizas y qué experiencia tienes..."></textarea></div>
+  <div class="field full"><label for="perfil-historial">Historial de trabajos (opcional)</label><textarea id="perfil-historial" placeholder="Describe trabajos anteriores relevantes"></textarea></div>
+ </div>
+ <div class="notice"><strong>Tu privacidad primero:</strong> el perfil público mostrará la zona donde trabajas, nunca tu dirección exacta (RN-11).</div>
+ <div class="upload-area"><strong>Documentos para la verificación</strong><p>Posteriormente será necesario subir identidad, antecedentes y experiencia. Solo los administradores podrán acceder a ellos.</p><span class="tag">Paso 2 · Pendiente de implementación</span></div>
+ <button type="button" class="btn btn-wide">Guardar perfil y continuar</button><p class="field-help">Prototipo: no se guardan datos. Los pasos 2 y 3 representan el flujo futuro de verificación administrativa.</p>
+ </form></section>
+ <aside class="stack"><div class="sidebar-card"><h3>Así se verá tu perfil</h3><div class="row"><div class="avatar">CM</div><div><strong>Tu nombre profesional</strong><p class="text-small" style="margin:0">Especialidad · Zona</p></div></div><hr class="divider"><p>Al completar el registro, tus clientes podrán consultar especialidades, zona y opiniones autorizadas.</p><a href="perfil-trabajador.html" class="btn btn-secondary btn-wide">Ver perfil público de ejemplo</a></div><div class="sidebar-card"><h3>Recuerda</h3><ul class="summary-list"><li><b>✓</b> El registro y la revisión son procesos separados.</li><li><b>✓</b> Tu zona es visible; tu domicilio no.</li><li><b>✓</b> Un administrador revisará los documentos.</li></ul></div></aside>
+</div></section>
+</main>
+
+<footer class="site-footer">
+ <div class="container">
+  <div class="footer-main"><div><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">AY</span><span>Arreglalo<span class="accent">Ya</span></span></a><p>Servicios para el hogar en Cochabamba, Bolivia.</p></div>
+    <nav class="footer-links" aria-label="Enlaces del pie de página"><a href="index.html">Inicio</a><a href="buscar.html">Trabajadores</a><a href="solicitar.html">Solicitar</a><a href="editar-perfil.html">Perfil trabajador</a></nav>
+  </div>
+  <div class="footer-bottom"><small>Prototipo visual V1 · Trabajo de HTML y CSS · Datos de demostración</small></div>
+ </div>
+</footer>
+
+</body>
+</html>

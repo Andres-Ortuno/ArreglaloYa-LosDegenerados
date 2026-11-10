@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="ArreglaloYa · Prototipo visual HTML y CSS de servicios de reparación en Cochabamba.">
+<title>Crear cuenta | ArreglaloYa</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="index.html" aria-label="ArreglaloYa, volver al inicio"><span class="brand-mark" aria-hidden="true">AY</span><span>Arreglalo<span class="accent">Ya</span></span></a>
+    <nav class="nav-links" aria-label="Navegación principal">
+      <a href="index.html">Inicio</a>
+      <a href="buscar.html">Buscar trabajadores</a>
+      <a href="solicitar.html">Solicitar trabajo</a>
+    </nav>
+    <div class="header-actions"><a class="btn btn-ghost btn-sm" href="ingresar.html">Ingresar</a><a class="btn btn-sm" href="registro.html">Crear cuenta</a></div>
+  </div>
+</header>
+<div class="demo-banner"><strong>Vista de demostración:</strong> pantallas de HTML y CSS con información ficticia. Sin conexión al sistema ni pagos reales.</div>
+
+<main id="contenido">
+<section class="auth-shell"><div class="container auth-grid">
+ <aside class="auth-aside"><span class="eyebrow" style="color:#c5ddff">Únete a la comunidad</span><h1>Un lugar para clientes y trabajadores.</h1><p>Registra una sola cuenta y elige cómo utilizar ArreglaloYa. Las empresas solo podrán registrarse como clientes.</p><div class="aside-feature"><span aria-hidden="true">✓</span> Encuentra oportunidades de reparación</div><div class="aside-feature"><span aria-hidden="true">✓</span> Usa tu cuenta como cliente o trabajador</div></aside>
+ <section class="panel" aria-labelledby="register-title"><div class="panel-heading"><span class="eyebrow">Crear una cuenta</span><h2 id="register-title">Comencemos</h2><p>Completa tus datos para continuar.</p></div>
+ <form class="stack">
+  <div class="form-grid">
+   <div class="field full"><label for="tipo-cuenta">Tipo de cuenta</label><select id="tipo-cuenta" name="tipo-cuenta"><option>Persona</option><option>Empresa (solo cliente)</option></select></div>
+   <fieldset class="field full plain"><legend>¿Cómo utilizarás ArreglaloYa?</legend><div class="role-options"><label class="role-box"><input type="radio" name="rol" value="cliente" checked><span><strong>Soy cliente</strong><small>Necesito un arreglo</small></span></label><label class="role-box"><input type="radio" name="rol" value="trabajador"><span><strong>Soy trabajador</strong><small>Quiero ofrecer servicios</small></span></label></div></fieldset>
+   <div class="field"><label for="nombres">Nombre</label><input id="nombres" name="nombres" autocomplete="given-name" placeholder="Tu nombre" required></div>
+   <div class="field"><label for="apellidos">Apellido</label><input id="apellidos" name="apellidos" autocomplete="family-name" placeholder="Tu apellido" required></div>
+   <div class="field full"><label for="registro-correo">Correo electrónico</label><input id="registro-correo" type="email" autocomplete="email" placeholder="ejemplo@correo.com" required></div>
+   <div class="field full"><label for="registro-clave">Contraseña</label><input id="registro-clave" type="password" autocomplete="new-password" placeholder="Crea una contraseña segura" required></div>
+   <div class="field full"><label for="registro-repetir">Confirmar contraseña</label><input id="registro-repetir" type="password" autocomplete="new-password" placeholder="Repite la contraseña" required></div>
+  </div>
+  <div class="notice"><strong>Roles:</strong> una cuenta personal podrá ser cliente y trabajador. Las empresas solo pueden ser clientes (RN-01 / RN-02). Esta regla se validará durante la integración.</div>
+  <label class="check-line"><input type="checkbox" required> Acepto las condiciones de uso de la futura plataforma.</label>
+  <button class="btn btn-wide" type="button">Crear mi cuenta</button><p class="field-help">Prototipo visual: no se almacenan datos ni se registran usuarios.</p>
+ </form><hr class="divider"><p style="margin:0;text-align:center;font-size:.9rem">¿Ya tienes cuenta? <a href="ingresar.html" style="color:var(--principal);font-weight:800">Ingresa aquí</a></p>
+ </section>
+</div></section>
+</main>
+
+<footer class="site-footer">
+ <div class="container">
+  <div class="footer-main"><div><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">AY</span><span>Arreglalo<span class="accent">Ya</span></span></a><p>Servicios para el hogar en Cochabamba, Bolivia.</p></div>
+    <nav class="footer-links" aria-label="Enlaces del pie de página"><a href="index.html">Inicio</a><a href="buscar.html">Trabajadores</a><a href="solicitar.html">Solicitar</a><a href="editar-perfil.html">Perfil trabajador</a></nav>
+  </div>
+  <div class="footer-bottom"><small>Prototipo visual V1 · Trabajo de HTML y CSS · Datos de demostración</small></div>
+ </div>
+</footer>
+
+</body>
+</html>
