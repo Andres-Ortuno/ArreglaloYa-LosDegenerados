@@ -247,3 +247,8 @@ fieldset.plain legend{margin-bottom:10px}
   .page-head{padding:33px 0}.content-area{padding:22px 0 48px}.footer-main{flex-direction:column;align-items:flex-start}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.btn{transition:none}}
+
+/* Avisos generados por controladores TypeScript. No cambian el diseño original. */
+[hidden] { display:none !important; }
+.mensaje-interactivo { border:1px solid #cbdcf0; border-radius:11px; padding:12px 14px; margin:12px 0 0; background:#eef5ff; color:#244e80; font-size:.85rem; }
+.mensaje-interactivo.mensaje-error { background:#fff0ee; color:#963e2c; border-color:#edb8af; }
