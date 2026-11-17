@@ -22,8 +22,9 @@ import { TrabajadoresModule } from './trabajadores/trabajadores.module.js';
         password: config.get<string>('DB_PASSWORD'),
         database: config.get<string>('DB_NAME', 'arreglaloya'),
         autoLoadEntities: true,
-        // true = TypeORM crea/ajusta las tablas solo. Úsalo únicamente en desarrollo.
-        synchronize: config.get<string>('DB_SYNCHRONIZE', 'true') === 'true',
+        // Las tablas las crea el script SQL del grupo. Debe quedar en false: si fuera true,
+        // TypeORM intentaría "corregir" el esquema según las entidades y podría alterarlo.
+        synchronize: config.get<string>('DB_SYNCHRONIZE', 'false') === 'true',
       }),
     }),
     CuentasModule,

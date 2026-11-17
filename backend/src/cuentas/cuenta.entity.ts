@@ -5,44 +5,44 @@ export enum TipoCuenta {
   EMPRESA = 'empresa',
 }
 
-/** Usuario registrado. Puede ser cliente, trabajador o ambos (RN-01). */
-@Entity('cuentas')
+/** Tabla "cuenta" del script SQL. Puede ser cliente, trabajador, administrador o varios (RN-01). */
+@Entity('cuenta')
 export class Cuenta {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
-  @Column({ length: 100 })
-  nombres: string;
-
-  @Column({ length: 100 })
-  apellidos: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column({ length: 150, unique: true })
   correo: string;
 
-  @Column({ name: 'password_hash', length: 100 })
+  @Column({ name: 'password_hash', length: 255 })
   passwordHash: string;
 
-  @Column({ name: 'tipo_cuenta', type: 'varchar', length: 10, default: TipoCuenta.PERSONA })
-  tipoCuenta: TipoCuenta;
+  @Column({ length: 120 })
+  nombre: string;
 
-  @Column({ name: 'es_cliente', type: 'boolean', default: false })
+  /** Número para los avisos por WhatsApp (RF-17). */
+  @Column({ name: 'telefono_whatsapp', length: 20 })
+  telefonoWhatsapp: string;
+
+  @Column({ type: 'enum', enum: TipoCuenta, enumName: 'tipo_cuenta', default: TipoCuenta.PERSONA })
+  tipo: TipoCuenta;
+
+  @Column({ name: 'es_cliente', type: 'boolean', default: true })
   esCliente: boolean;
 
   @Column({ name: 'es_trabajador', type: 'boolean', default: false })
   esTrabajador: boolean;
 
-  /** Bloqueo permanente (por ejemplo, por robo). Lo aplica un administrador (RN-09). */
-  @Column({ type: 'boolean', default: false })
-  bloqueada: boolean;
+  @Column({ name: 'es_administrador', type: 'boolean', default: false })
+  esAdministrador: boolean;
 
-  @Column({ name: 'intentos_fallidos', type: 'int', default: 0 })
+  @Column({ name: 'intentos_fallidos', type: 'smallint', default: 0 })
   intentosFallidos: number;
 
-  /** Bloqueo temporal tras 5 intentos fallidos de inicio de sesión (RF-33). */
-  @Column({ name: 'bloqueada_hasta', type: 'timestamptz', nullable: true })
+  /** Bloqueo temporal de 15 minutos tras 5 intentos fallidos (RF-33, RNF-02). */
+  @Column({ name: 'bloqueada_hasta', type: 'timestamp', nullable: true })
   bloqueadaHasta: Date | null;
 
-  @CreateDateColumn({ name: 'creado_en' })
-  creadoEn: Date;
+  @CreateDateColumn({ name: 'creada_en', type: 'timestamp' })
+  creadaEn: Date;
 }

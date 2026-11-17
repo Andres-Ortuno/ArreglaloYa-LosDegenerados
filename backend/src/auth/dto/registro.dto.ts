@@ -1,6 +1,15 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsEmail, IsIn, IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsIn,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Matches,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class RegistroDto {
   @ApiProperty({ enum: ['persona', 'empresa'] })
@@ -11,17 +20,22 @@ export class RegistroDto {
   @IsIn(['cliente', 'trabajador'])
   rol: 'cliente' | 'trabajador';
 
-  @ApiProperty({ example: 'Carlos' })
+  @ApiProperty({ example: 'Carlos Mendoza', description: 'Nombre completo (o nombre del contacto)' })
   @IsString()
   @IsNotEmpty()
-  @MaxLength(100)
-  nombres: string;
+  @MaxLength(120)
+  nombre: string;
 
-  @ApiProperty({ example: 'Mendoza' })
+  @ApiProperty({ example: '+59170000000', description: 'Número de WhatsApp para los avisos (RF-17)' })
+  @Matches(/^\+?\d{7,15}$/, { message: 'El teléfono debe tener entre 7 y 15 dígitos (puede empezar con +)' })
+  @MaxLength(20)
+  telefonoWhatsapp: string;
+
+  @ApiPropertyOptional({ example: 'Constructora Andina S.R.L.', description: 'Obligatorio si es empresa' })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  @MaxLength(100)
-  apellidos: string;
+  @MaxLength(150)
+  razonSocial?: string;
 
   @ApiProperty({ example: 'carlos@correo.com' })
   @Transform(({ value }: { value: unknown }) =>

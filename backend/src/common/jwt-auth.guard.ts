@@ -23,7 +23,9 @@ export class JwtAuthGuard implements CanActivate {
     }
     try {
       const payload = await this.jwt.verifyAsync<{ sub: string; correo: string }>(token);
-      request.usuario = { id: payload.sub, correo: payload.correo };
+      const id = Number(payload.sub);
+      if (!Number.isInteger(id)) throw new Error('sub inválido');
+      request.usuario = { id, correo: payload.correo };
     } catch {
       throw new UnauthorizedException('El token es inválido o venció');
     }
