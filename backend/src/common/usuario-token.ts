@@ -1,5 +1,6 @@
 /** Datos del usuario que vienen dentro del token JWT. */
 export interface UsuarioToken {
-  id: string;
+  /** cuenta.id (número, como en la base de datos) */
+  id: number;
   correo: string;
 }

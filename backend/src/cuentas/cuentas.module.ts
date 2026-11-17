@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Trabajador } from '../trabajadores/trabajador.entity.js';
+import { Cliente } from './cliente.entity.js';
 import { Cuenta } from './cuenta.entity.js';
 import { CuentasController } from './cuentas.controller.js';
 import { CuentasService } from './cuentas.service.js';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Cuenta])],
+  imports: [TypeOrmModule.forFeature([Cuenta, Cliente, Trabajador])],
   controllers: [CuentasController],
   providers: [CuentasService],
   exports: [CuentasService],

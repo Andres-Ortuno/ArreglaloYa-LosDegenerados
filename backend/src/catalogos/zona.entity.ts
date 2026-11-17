@@ -1,6 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity('zonas')
+/** Tabla "zona" del script SQL. */
+@Entity('zona')
 export class Zona {
   @PrimaryGeneratedColumn()
   id: number;

@@ -27,7 +27,7 @@ export class AuthService {
     const errorCredenciales = new UnauthorizedException('Correo o contraseña incorrectos');
     if (!cuenta) throw errorCredenciales;
 
-    if (cuenta.bloqueada) {
+    if (await this.cuentas.estaBloqueadaPermanente(cuenta.id)) {
       throw new ForbiddenException('Esta cuenta está bloqueada. Contacta al equipo de ArreglaloYa.');
     }
     if (cuenta.bloqueadaHasta && cuenta.bloqueadaHasta > new Date()) {
@@ -55,12 +55,12 @@ export class AuthService {
     return this.respuestaConToken(cuenta);
   }
 
-  async miCuenta(id: string) {
+  async miCuenta(id: number) {
     return cuentaPublica(await this.cuentas.obtener(id));
   }
 
   private async respuestaConToken(cuenta: Cuenta) {
-    const accessToken = await this.jwt.signAsync({ sub: cuenta.id, correo: cuenta.correo });
+    const accessToken = await this.jwt.signAsync({ sub: String(cuenta.id), correo: cuenta.correo });
     return { accessToken, cuenta: cuentaPublica(cuenta) };
   }
 }

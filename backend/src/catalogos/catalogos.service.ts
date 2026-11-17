@@ -1,35 +1,16 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Especialidad } from './especialidad.entity.js';
 import { Zona } from './zona.entity.js';
 
-// Datos iniciales de la V1 (los mismos que usan las maquetas)
-const ZONAS = ['Cercado', 'Sacaba', 'Tiquipaya', 'Quillacollo', 'Colcapirhua'];
-const ESPECIALIDADES = ['Albañilería', 'Reparación de electrodomésticos'];
-
+/** Las zonas y especialidades iniciales las carga el script SQL (sección 10), no el backend. */
 @Injectable()
-export class CatalogosService implements OnModuleInit {
+export class CatalogosService {
   constructor(
     @InjectRepository(Zona) private readonly zonas: Repository<Zona>,
     @InjectRepository(Especialidad) private readonly especialidades: Repository<Especialidad>,
   ) {}
-
-  onModuleInit() {
-    return this.sembrar();
-  }
-
-  /** Crea las zonas y especialidades iniciales si las tablas están vacías. */
-  async sembrar() {
-    if ((await this.zonas.count()) === 0) {
-      await this.zonas.save(ZONAS.map((nombre) => this.zonas.create({ nombre })));
-    }
-    if ((await this.especialidades.count()) === 0) {
-      await this.especialidades.save(
-        ESPECIALIDADES.map((nombre) => this.especialidades.create({ nombre })),
-      );
-    }
-  }
 
   listarZonas() {
     return this.zonas.find({ order: { nombre: 'ASC' } });
@@ -43,15 +24,11 @@ export class CatalogosService implements OnModuleInit {
     return this.zonas.findOne({ where: { id } });
   }
 
-  buscarEspecialidad(id: number) {
-    return this.especialidades.findOne({ where: { id } });
+  buscarZonaPorNombre(nombre: string) {
+    return this.zonas.findOne({ where: { nombre } });
   }
 
   buscarEspecialidadPorNombre(nombre: string) {
     return this.especialidades.findOne({ where: { nombre } });
-  }
-
-  buscarZonaPorNombre(nombre: string) {
-    return this.zonas.findOne({ where: { nombre } });
   }
 }

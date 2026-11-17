@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Put, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Put, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../common/jwt-auth.guard.js';
 import { UsuarioActual } from '../common/usuario-actual.decorator.js';
@@ -36,7 +36,7 @@ export class TrabajadoresController {
 
   /** Pública. Pantalla "Perfil del trabajador". */
   @Get(':id')
-  obtener(@Param('id', ParseUUIDPipe) id: string) {
+  obtener(@Param('id', ParseIntPipe) id: number) {
     return this.trabajadores.obtenerPublico(id);
   }
 }
