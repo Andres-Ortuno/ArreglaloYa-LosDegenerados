@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module.js';
 import { CatalogosModule } from './catalogos/catalogos.module.js';
 import { CuentasModule } from './cuentas/cuentas.module.js';
 import { SeedModule } from './seed/seed.module.js';
+import { SolicitudesModule } from './solicitudes/solicitudes.module.js';
 import { TrabajadoresModule } from './trabajadores/trabajadores.module.js';
 
 @Module({
@@ -31,6 +32,7 @@ import { TrabajadoresModule } from './trabajadores/trabajadores.module.js';
     AuthModule,
     CatalogosModule,
     TrabajadoresModule,
+    SolicitudesModule,
     SeedModule,
   ],
   controllers: [AppController],
