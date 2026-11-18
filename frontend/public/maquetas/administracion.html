@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="ArreglaloYa · Plataforma de servicios para el hogar en Cochabamba. Prototipo académico.">
+<title>Administración | ArreglaloYa</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="index.html" aria-label="ArreglaloYa, ir al inicio"><span class="brand-mark" aria-hidden="true">AY</span><span>Arreglalo<span class="accent">Ya</span></span></a>
+    <nav class="nav-links" aria-label="Navegación principal">
+      <a href="index.html">Inicio</a>
+      <a href="buscar.html">Buscar</a>
+      <a href="solicitar.html">Solicitar trabajo</a>
+      <a href="pedidos.html">Mis pedidos</a>
+      <a href="panel-trabajador.html">Panel trabajador</a>
+    </nav>
+    <div class="header-actions"><a class="btn btn-ghost btn-sm" href="ingresar.html">Ingresar</a><a class="btn btn-sm" href="registro.html">Crear cuenta</a></div>
+  </div>
+</header>
+<div class="demo-banner">Prototipo académico · Datos de ejemplo · Sin operaciones reales</div>
+<main id="contenido">
+<section class="page-head"><div class="container"><nav class="breadcrumb" aria-label="Ruta"><a href="index.html">Inicio</a><span>/</span>Administración</nav><span class="eyebrow">Área administrativa</span><h1>Panel de administración</h1><p>Revisión de trabajadores, reportes y seguimiento de pagos. Datos totalmente simulados.</p></div></section>
+<section class="content-area"><div class="container">
+<div class="notice" style="margin-bottom:24px"><strong>Solo para demostrar la interfaz:</strong> esta página estática no tiene autenticación ni permisos de administrador. En Angular y el backend deberá protegerse el acceso. No contiene documentos personales reales.</div>
+<div class="metrics-grid"><article class="metric-card"><span>Perfiles en revisión</span><strong>3</strong><small>Ejemplo</small></article><article class="metric-card"><span>Reportes pendientes</span><strong>2</strong><small>Ejemplo</small></article><article class="metric-card"><span>Pagos simulados retenidos</span><strong>Bs 550</strong><small>Ejemplo</small></article></div>
+<nav class="section-menu section-spacer" aria-label="Secciones de administración"><a href="#verificacion">Verificación</a><a href="#reportes">Reportes y sanciones</a><a href="#economia">Resumen económico</a></nav>
+<section id="verificacion"><div class="section-heading-row"><div><span class="eyebrow">HU-12 · RF-04</span><h2>Verificación de trabajadores</h2><p>Para activar un perfil el equipo debe revisar identidad, antecedentes y experiencia.</p></div><span class="tag">3 solicitudes de ejemplo</span></div>
+<div class="panel table-panel"><div class="table-wrap"><table class="data-table"><thead><tr><th>Trabajador de ejemplo</th><th>Zona</th><th>Documentos</th><th>Estado</th><th>Acciones de prueba</th></tr></thead><tbody>
+<tr data-candidato="María López"><td><strong>María López</strong><small>Albañilería</small></td><td>Sacaba</td><td>3 referencias ficticias</td><td><span class="status status-blue" data-estado>En revisión</span></td><td class="table-actions"><button class="btn btn-sm" type="button" data-admin-accion="aprobar">Simular aprobación</button><button class="btn btn-secondary btn-sm" type="button" data-admin-accion="rechazar">Simular rechazo</button></td></tr>
+<tr data-candidato="Jorge Rojas"><td><strong>Jorge Rojas</strong><small>Electrodomésticos</small></td><td>Tiquipaya</td><td>3 referencias ficticias</td><td><span class="status status-blue" data-estado>En revisión</span></td><td class="table-actions"><button class="btn btn-sm" type="button" data-admin-accion="aprobar">Simular aprobación</button><button class="btn btn-secondary btn-sm" type="button" data-admin-accion="rechazar">Simular rechazo</button></td></tr>
+<tr data-candidato="Ana Torres"><td><strong>Ana Torres</strong><small>Albañilería</small></td><td>Cercado</td><td>3 referencias ficticias</td><td><span class="status status-blue" data-estado>En revisión</span></td><td class="table-actions"><button class="btn btn-sm" type="button" data-admin-accion="aprobar">Simular aprobación</button><button class="btn btn-secondary btn-sm" type="button" data-admin-accion="rechazar">Simular rechazo</button></td></tr>
+</tbody></table></div><div class="field" style="padding:16px 20px 5px"><label for="admin-motivo">Motivo del rechazo (obligatorio para rechazar)</label><input id="admin-motivo" placeholder="Ej.: falta constancia de experiencia" maxlength="160"></div><p class="field-help" id="mensaje-admin" role="status" aria-live="polite">Las acciones solo cambian los estados visibles en esta página; no se guardan decisiones.</p></div></section>
+<section id="reportes" class="section-spacer"><div class="section-heading-row"><div><span class="eyebrow">HU-13 · RF-20/21</span><h2>Reportes y sanciones</h2><p>Los reportes reales deben validarse antes de decidir una suspensión o bloqueo.</p></div></div>
+<div class="task-cards"><article class="task-card"><div class="between"><span class="tag">Incumplimiento</span><span class="status status-blue">En revisión</span></div><h3>Retraso en servicio</h3><p>Pedido de ejemplo AY-002. Pendiente de validación administrativa.</p><span class="text-small text-muted">Suspensiones escalonadas: 1, 2, 3, 5, 8 y 13 horas.</span></article><article class="task-card"><div class="between"><span class="tag">Posible estafa</span><span class="status status-blue">En revisión</span></div><h3>Reporte de un cliente</h3><p>Pedido de ejemplo AY-004. Requiere análisis y evidencia.</p><span class="text-small text-muted">El bloqueo por robo exige denuncia policial; más de 10 clientes distintos reportando estafa activa una sanción global.</span></article></div>
+</section>
+<section id="economia" class="section-spacer"><div class="section-heading-row"><div><span class="eyebrow">HU-14 · RF-23</span><h2>Flujo económico</h2><p>Resumen visual para la futura integración con la base de datos.</p></div></div>
+<div class="metrics-grid"><article class="metric-card"><span>Anticipos retenidos</span><strong>Bs 550</strong><small>Dato ficticio</small></article><article class="metric-card"><span>Pagos liberados</span><strong>Bs 1.150</strong><small>Dato ficticio</small></article><article class="metric-card"><span>Comisión (3 %)</span><strong>Bs 34,50</strong><small>Escenario activado · ficticio</small></article></div>
+<div class="panel section-spacer-sm"><h3>Bitácora ilustrativa</h3><div class="table-wrap"><table class="data-table"><thead><tr><th>Fecha de ejemplo</th><th>Pedido</th><th>Acción</th><th>Resultado</th></tr></thead><tbody><tr><td>10/11/2026</td><td>AY-001</td><td>Selección de propuesta</td><td>Bajo revisión</td></tr><tr><td>11/11/2026</td><td>AY-002</td><td>Trabajo iniciado</td><td>En proceso</td></tr><tr><td>12/11/2026</td><td>AY-003</td><td>Trabajo terminado</td><td>Finalizado</td></tr></tbody></table></div></div>
+</section>
+</div></section></main>
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-main">
+      <div><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">AY</span><span>Arreglalo<span class="accent">Ya</span></span></a><p>Servicios para el hogar en Cochabamba, Bolivia.</p></div>
+      <nav class="footer-links" aria-label="Otras páginas"><a href="index.html">Inicio</a><a href="buscar.html">Trabajadores</a><a href="solicitar.html">Solicitar</a><a href="pedidos.html">Mis pedidos</a><a href="panel-trabajador.html">Panel trabajador</a><a href="administracion.html">Administración</a></nav>
+    </div>
+    <div class="footer-bottom"><small>ArreglaloYa · Interfaz académica V1 · Información ilustrativa</small></div>
+  </div>
+</footer>
+<script defer src="app.js"></script>
+</body>
+</html>
