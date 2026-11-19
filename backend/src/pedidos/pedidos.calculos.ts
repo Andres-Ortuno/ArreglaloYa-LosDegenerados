@@ -9,8 +9,7 @@ export function redondear2(valor: number): number {
 
 /**
  * RN-04 / RF-11: anticipo = el mayor entre el porcentaje del monto (25 %) y el mínimo del trabajador.
- * Nunca supera el monto del trabajo. [CONFIRMAR con el docente cuál prevalece; el script de ejemplo
- * del grupo usa el mayor]
+ * Nunca supera el monto del trabajo.
  * Ejemplo: monto 200, 25 % => 50. Con mínimo 80 => 80.
  */
 export function calcularAnticipo(monto: number, porcentaje: number, minimoTrabajador: number | null): number {
