@@ -1,0 +1,23 @@
+
+.inicio {
+  text-align: center;
+  padding: 50px 20px;
+}
+
+h1 {
+  color: #2158ad;
+  font-size: 36px;
+}
+
+h2 {
+  color: #333;
+}
+
+button {
+  background: #2158ad;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+}
