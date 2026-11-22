@@ -5,7 +5,9 @@ import { AppController } from './app.controller.js';
 import { AuthModule } from './auth/auth.module.js';
 import { CatalogosModule } from './catalogos/catalogos.module.js';
 import { CuentasModule } from './cuentas/cuentas.module.js';
+import { AdministradorModule } from './administrador/administrador.module.js';
 import { CalificacionesModule } from './calificaciones/calificaciones.module.js';
+import { DocumentosModule } from './documentos/documentos.module.js';
 import { PedidosModule } from './pedidos/pedidos.module.js';
 import { SeedModule } from './seed/seed.module.js';
 import { SolicitudesModule } from './solicitudes/solicitudes.module.js';
@@ -37,6 +39,8 @@ import { TrabajadoresModule } from './trabajadores/trabajadores.module.js';
     SolicitudesModule,
     PedidosModule,
     CalificacionesModule,
+    DocumentosModule,
+    AdministradorModule,
     SeedModule,
   ],
   controllers: [AppController],
