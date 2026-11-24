@@ -1,1 +1,69 @@
-<p>buscar works!</p>
+
+<main class="section">
+  <div class="container">
+
+    <div class="section-head">
+      <span class="eyebrow">ArreglaloYa</span>
+
+      <h1>Buscar trabajadores</h1>
+
+      <p>
+        Encuentra profesionales por especialidad
+        o zona de Cochabamba.
+      </p>
+    </div>
+
+    <div class="buscador">
+      <label for="buscar-trabajador">
+        Buscar por especialidad o zona
+      </label>
+
+      <input
+        id="buscar-trabajador"
+        type="search"
+        placeholder="Ejemplo: Albañilería o Sacaba"
+        [(ngModel)]="busqueda"
+      />
+    </div>
+
+    <p>
+      Resultados encontrados:
+      {{ trabajadoresFiltrados.length }}
+    </p>
+
+    <div class="fichas">
+
+      @for (trabajador of trabajadoresFiltrados; track trabajador.id) {
+<article class="ficha">
+  <h2>{{ trabajador.nombre }}</h2>
+
+  <p>
+    <strong>Especialidad:</strong>
+    {{ trabajador.especialidad }}
+  </p>
+
+  <p>
+    <strong>Zona:</strong>
+    {{ trabajador.zona }}
+  </p>
+
+  <a
+    class="btn"
+    [routerLink]="['/perfil-trabajador', trabajador.id]"
+  >
+    Ver perfil
+  </a>
+</article>
+
+      } @empty {
+
+        <p>
+          No encontramos trabajadores con esa búsqueda.
+        </p>
+
+      }
+
+    </div>
+
+  </div>
+</main>

@@ -1,0 +1,420 @@
+
+<main class="panel-page">
+
+  <div class="panel-contenedor">
+
+    <a class="volver" routerLink="/">
+      ← Volver al inicio
+    </a>
+
+    <header class="panel-header">
+      <span class="etiqueta">ArreglaloYa</span>
+      <h1>Panel del trabajador</h1>
+
+      <p>
+        Administra tu perfil y revisa oportunidades
+        de trabajo en Cochabamba.
+      </p>
+    </header>
+
+    <div class="aviso-demo">
+      Prototipo académico:
+      todos los datos y solicitudes son ficticios.
+    </div>
+
+    <!-- EDITAR PERFIL -->
+    <section class="panel-card">
+
+      <h2>Mi perfil profesional</h2>
+
+      <p class="ayuda">
+        Completa la información que aparecería
+        en tu perfil de trabajador.
+      </p>
+
+<a
+  routerLink="/editar-perfil"
+  class="boton-secundario"
+>
+  Editar mi perfil
+</a>
+
+<a
+  routerLink="/perfil-trabajador/1"
+  class="boton-secundario enlace-editar"
+>
+  Ver mi perfil público
+</a>
+
+      <form
+        #formularioPerfil="ngForm"
+        (ngSubmit)="guardarPerfil(formularioPerfil)"
+        novalidate
+      >
+      
+
+        <div class="campo">
+          <label for="nombre">
+            Nombre profesional *
+          </label>
+
+          <input
+            id="nombre"
+            type="text"
+            name="nombre"
+            [(ngModel)]="perfil.nombre"
+            #campoNombre="ngModel"
+            required
+            minlength="3"
+          />
+
+          @if (
+            campoNombre.invalid &&
+            (campoNombre.touched || formularioPerfil.submitted)
+          ) {
+            <p class="error">
+              Introduce al menos 3 caracteres.
+            </p>
+          }
+        </div>
+
+        <div class="campo">
+          <label for="especialidad">
+            Especialidad *
+          </label>
+
+          <select
+            id="especialidad"
+            name="especialidad"
+            [(ngModel)]="perfil.especialidad"
+            required
+          >
+            <option value="Albañilería">
+              Albañilería
+            </option>
+            <option value="Electrodomésticos">
+              Electrodomésticos
+            </option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label for="zona">
+            Zona de trabajo *
+          </label>
+
+          <input
+            id="zona"
+            type="text"
+            name="zona"
+            [(ngModel)]="perfil.zona"
+            #campoZona="ngModel"
+            required
+            minlength="3"
+          />
+
+          @if (
+            campoZona.invalid &&
+            (campoZona.touched || formularioPerfil.submitted)
+          ) {
+            <p class="error">
+              Indica tu zona general de trabajo.
+            </p>
+          }
+
+          <small>
+            No publiques una dirección particular.
+          </small>
+        </div>
+
+        <div class="campo">
+          <label for="descripcion">
+            Descripción profesional *
+          </label>
+
+          <textarea
+            id="descripcion"
+            name="descripcion"
+            rows="4"
+            [(ngModel)]="perfil.descripcion"
+            #campoDescripcion="ngModel"
+            required
+            minlength="15"
+          ></textarea>
+
+          @if (
+            campoDescripcion.invalid &&
+            (campoDescripcion.touched || formularioPerfil.submitted)
+          ) {
+            <p class="error">
+              La descripción debe tener
+              al menos 15 caracteres.
+            </p>
+          }
+        </div>
+
+        <div class="campo">
+          <label for="disponibilidad">
+            Disponibilidad *
+          </label>
+
+          <select
+            id="disponibilidad"
+            name="disponibilidad"
+            [(ngModel)]="perfil.disponibilidad"
+            required
+          >
+            <option value="Mañanas">Mañanas</option>
+            <option value="Tardes">Tardes</option>
+            <option value="Fines de semana">
+              Fines de semana
+            </option>
+            <option value="A coordinar">
+              A coordinar
+            </option>
+          </select>
+        </div>
+
+        <button type="submit" class="boton-principal">
+          Guardar perfil de prueba
+        </button>
+
+        @if (mensajePerfil) {
+          <p class="mensaje" role="status">
+            {{ mensajePerfil }}
+          </p>
+        }
+
+      </form>
+
+      @if (perfilGuardado; as datos) {
+        <div class="resumen">
+          <h3>Vista previa del perfil guardado</h3>
+          <p><strong>Nombre:</strong> {{ datos.nombre }}</p>
+          <p><strong>Especialidad:</strong> {{ datos.especialidad }}</p>
+          <p><strong>Zona:</strong> {{ datos.zona }}</p>
+          <p><strong>Disponibilidad:</strong> {{ datos.disponibilidad }}</p>
+        </div>
+      }
+
+    </section>
+
+    <!-- DOCUMENTOS -->
+    <section class="panel-card">
+
+      <h2>Documentos del trabajador</h2>
+
+      <p class="ayuda">
+        Aquí se incorporará posteriormente
+        el sistema de verificación de trabajadores.
+      </p>
+
+      <div class="campo">
+        <label for="documento">
+          Seleccionar archivo de ejemplo
+        </label>
+
+        <input
+          id="documento"
+          type="file"
+          accept=".pdf,.png,.jpg,.jpeg"
+          (change)="seleccionarDocumento($event)"
+        />
+
+        @if (nombreDocumento) {
+          <p class="mensaje">
+            Archivo seleccionado:
+            {{ nombreDocumento }}
+          </p>
+        }
+
+        <small>
+          Solo se muestra el nombre.
+          No se sube ni se guarda el archivo.
+          No utilices documentos personales reales.
+        </small>
+      </div>
+
+    </section>
+
+    <!-- TRABAJOS DISPONIBLES -->
+    <section class="panel-card">
+
+      <h2>Solicitudes disponibles</h2>
+
+      <p class="ayuda">
+        Estas solicitudes son ejemplos
+        para practicar la preparación de propuestas.
+      </p>
+
+      <div class="solicitudes-grid">
+
+        @for (solicitud of solicitudes; track solicitud.id) {
+
+          <article class="solicitud-item">
+
+            <span class="etiqueta">
+              {{ solicitud.especialidad }}
+            </span>
+
+            <h3>{{ solicitud.titulo }}</h3>
+
+            <p>{{ solicitud.descripcion }}</p>
+
+            <p>
+              <strong>Zona:</strong>
+              {{ solicitud.zona }}
+            </p>
+
+            <button
+              type="button"
+              class="boton-secundario"
+              (click)="seleccionarSolicitud(solicitud.id)"
+            >
+              Seleccionar solicitud
+            </button>
+
+            @if (solicitudSeleccionadaId === solicitud.id) {
+              <p class="seleccionada">
+                ✓ Solicitud seleccionada
+              </p>
+            }
+
+          </article>
+
+        }
+
+      </div>
+
+    </section>
+
+    <!-- PREPARAR PROPUESTA -->
+    <section class="panel-card">
+
+      <h2>Preparar una propuesta</h2>
+
+      <p class="ayuda">
+        Selecciona una solicitud de la lista anterior
+        y escribe tu propuesta económica.
+      </p>
+
+      @if (solicitudSeleccionadaId !== null) {
+        <p class="seleccionada">
+          Solicitud seleccionada:
+          N.º {{ solicitudSeleccionadaId }}
+        </p>
+      }
+
+      <form
+        #formularioPropuesta="ngForm"
+        (ngSubmit)="prepararPropuesta(formularioPropuesta)"
+        novalidate
+      >
+
+        <div class="campo">
+          <label for="monto">
+            Monto propuesto (Bs) *
+          </label>
+
+          <input
+            id="monto"
+            type="number"
+            name="monto"
+            min="1"
+            step="1"
+            [(ngModel)]="monto"
+            #campoMonto="ngModel"
+            required
+            placeholder="Ejemplo: 150"
+          />
+
+          @if (
+            campoMonto.invalid &&
+            (campoMonto.touched || formularioPropuesta.submitted)
+          ) {
+            <p class="error">
+              Introduce un monto válido mayor que cero.
+            </p>
+          }
+        </div>
+
+        <div class="campo">
+          <label for="detalle">
+            Descripción de la propuesta *
+          </label>
+
+          <textarea
+            id="detalle"
+            name="detalle"
+            rows="4"
+            [(ngModel)]="detallePropuesta"
+            #campoDetalle="ngModel"
+            required
+            minlength="10"
+            placeholder="Describe el servicio que ofrecerías..."
+          ></textarea>
+
+          @if (
+            campoDetalle.invalid &&
+            (campoDetalle.touched || formularioPropuesta.submitted)
+          ) {
+            <p class="error">
+              Introduce al menos 10 caracteres.
+            </p>
+          }
+        </div>
+
+        <button
+          type="submit"
+          class="boton-principal"
+        >
+          Preparar propuesta
+        </button>
+
+        @if (mensajePropuesta) {
+          <p class="mensaje" role="status">
+            {{ mensajePropuesta }}
+          </p>
+        }
+
+      </form>
+
+    </section>
+
+    <!-- PROPUESTAS PREPARADAS -->
+    <section class="panel-card">
+
+      <h2>Mis propuestas de prueba</h2>
+
+      @for (propuesta of propuestas; track propuesta.id) {
+
+        <article class="propuesta-item">
+
+          <h3>{{ propuesta.solicitud }}</h3>
+
+          <p>
+            <strong>Monto:</strong>
+            Bs {{ propuesta.monto }}
+          </p>
+
+          <p>{{ propuesta.detalle }}</p>
+
+          <span class="etiqueta">
+            Borrador de demostración
+          </span>
+
+        </article>
+
+      } @empty {
+
+        <p class="ayuda">
+          Todavía no preparaste ninguna propuesta.
+        </p>
+
+      }
+
+    </section>
+
+  </div>
+
+</main>

@@ -1,0 +1,130 @@
+
+.registro-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 50px 20px;
+  background: #f5f7fb;
+}
+
+.registro-card {
+  width: 100%;
+  max-width: 520px;
+  padding: 35px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.07);
+}
+
+.volver {
+  display: inline-block;
+  margin-bottom: 25px;
+  color: #2158ad;
+  text-decoration: none;
+}
+
+h1 {
+  color: #183967;
+  font-size: 28px;
+  margin-bottom: 12px;
+}
+
+.descripcion {
+  color: #64748b;
+  margin-bottom: 25px;
+}
+
+.campo {
+  margin-bottom: 20px;
+}
+
+.campo label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.campo input,
+.campo select {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  font-size: 16px;
+  box-sizing: border-box;
+  background: white;
+}
+
+.campo input:focus,
+.campo select:focus {
+  outline: 2px solid #2158ad;
+  outline-offset: 1px;
+}
+
+.datos-trabajador {
+  margin-bottom: 22px;
+  padding: 20px;
+  background: #f1f6ff;
+  border-radius: 12px;
+}
+
+.datos-trabajador h2 {
+  color: #183967;
+  font-size: 19px;
+  margin-bottom: 18px;
+}
+
+.boton-registro {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 9px;
+  background: #2158ad;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.boton-registro:hover {
+  background: #17478e;
+}
+
+.error {
+  color: #b91c1c;
+  font-size: 13px;
+  margin-top: 7px;
+}
+
+.mensaje {
+  margin-top: 20px;
+  padding: 14px;
+  border-radius: 9px;
+  background: #eaf4ff;
+  color: #17498d;
+}
+
+.iniciar-sesion {
+  margin-top: 25px;
+  text-align: center;
+}
+
+.iniciar-sesion a {
+  color: #2158ad;
+  font-weight: 600;
+}
+
+.aviso {
+  margin-top: 20px;
+  font-size: 13px;
+  color: #64748b;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .registro-card {
+    padding: 24px;
+  }
+}
