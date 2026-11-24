@@ -252,3 +252,44 @@ fieldset.plain legend{margin-bottom:10px}
 [hidden] { display:none !important; }
 .mensaje-interactivo { border:1px solid #cbdcf0; border-radius:11px; padding:12px 14px; margin:12px 0 0; background:#eef5ff; color:#244e80; font-size:.85rem; }
 .mensaje-interactivo.mensaje-error { background:#fff0ee; color:#963e2c; border-color:#edb8af; }
+
+/* Pantallas definitivas V1: panel de trabajador, pedidos y administración */
+[hidden]{display:none!important}
+.section-menu{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 26px}
+.section-menu a{padding:10px 16px;border:1px solid #cbdcf0;background:#fff;border-radius:12px;color:var(--principal);font-size:.87rem;font-weight:760}
+.section-menu a:hover{background:var(--principal-claro)}
+.section-spacer{margin-top:42px;scroll-margin-top:20px}
+.section-spacer-sm{margin-top:24px}
+.section-heading-row{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:18px;flex-wrap:wrap}
+.section-heading-row h2{margin:6px 0 7px}
+.section-heading-row p{margin:0}
+.task-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.task-card{background:var(--papel);padding:25px;border:1px solid var(--linea);border-radius:19px;box-shadow:0 8px 25px #21436e0a;display:flex;flex-direction:column;gap:11px}
+.task-card h3,.task-card p{margin:0}.task-card .btn{align-self:flex-start;margin-top:auto}
+.metrics-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.metric-card{background:#fff;border:1px solid var(--linea);padding:22px;border-radius:16px;display:flex;flex-direction:column;gap:6px}
+.metric-card span{font-size:.88rem;color:var(--suave)}.metric-card strong{font-size:clamp(1.35rem,2.2vw,1.9rem);color:#19477f;line-height:1.2}.metric-card small{font-size:.75rem;color:#71859a}
+.proposal-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin-bottom:19px}
+.proposal-summary>div{padding:13px;border:1px solid #e2eaf5;border-radius:11px;background:#f9fbfe}
+.proposal-summary span{display:block;color:#668098;font-size:.76rem}.proposal-summary strong{font-size:.95rem;color:#1b3d63}
+.timeline{padding:0 0 0 22px;margin:17px 0 0;list-style:none;border-left:2px solid #dce7f5}
+.timeline li{position:relative;margin:0 0 23px;padding-left:10px;color:#687d93;font-weight:650;font-size:.87rem}
+.timeline li::before{content:"";position:absolute;left:-30px;top:4px;width:12px;height:12px;border-radius:50%;background:#e8eef7;border:2px solid #95a9c0}
+.timeline li.done{color:#176f58}.timeline li.done::before{background:#1b9b77;border-color:#1b9b77}.timeline li:last-child{margin-bottom:0}
+.timeline small{display:block;font-weight:400;color:#71849a;font-size:.75rem;margin-top:2px}
+.table-panel{padding:0;overflow:hidden}.table-wrap{overflow-x:auto;max-width:100%}
+.data-table{width:100%;border-collapse:collapse;font-size:.86rem;min-width:650px}
+.data-table th{text-align:left;background:#f4f8fe;color:#4c6580;padding:17px 19px;font-size:.75rem;text-transform:uppercase;letter-spacing:.04em}
+.data-table td{padding:16px 19px;border-top:1px solid var(--linea);vertical-align:middle}
+.data-table td small{display:block;color:var(--suave)}.table-actions{display:flex;gap:7px;flex-wrap:wrap}.table-actions .btn{font-size:.75rem;padding:8px 11px}
+.table-panel>.field-help{padding:14px 20px;border-top:1px solid var(--linea)}
+.mensaje-interactivo{padding:12px 15px;background:#ebf5ff;border-radius:11px;border-left:4px solid var(--principal);color:#244a76;font-weight:630;margin:0;font-size:.86rem}
+.mensaje-interactivo.mensaje-error{background:#fff0f0;color:#912f36;border-color:#c74b57}
+.demo-banner{background:#eef4fd;color:#385b83;font-size:.73rem;padding:6px 12px}
+/* Reduce el ruido visual y mantiene todas las acciones alcanzables en móvil. */
+@media(max-width:1120px){.header-inner{gap:12px}.nav-links{gap:12px;font-size:.85rem}.header-actions{gap:5px}.header-actions .btn{font-size:.8rem;padding:9px 12px}}
+@media(max-width:800px){.task-cards{grid-template-columns:1fr}.metrics-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:560px){.metrics-grid{grid-template-columns:1fr}.task-card .btn{width:100%}.proposal-summary{grid-template-columns:1fr}.section-heading-row>.btn{width:100%}.section-menu{flex-wrap:nowrap;overflow-x:auto;padding-bottom:5px}.section-menu a{white-space:nowrap}.table-actions{min-width:230px}.panel,.sidebar-card{padding:22px}.form-grid{grid-template-columns:1fr}}
+
+.mock-qr-row{display:flex;align-items:center;gap:20px;border:1px dashed #bed1e9;padding:15px;margin:16px 0;border-radius:14px;background:#f7faff}
+.mock-qr-row p{font-size:.83rem;margin:0}.mock-qr{background:repeating-conic-gradient(#1d426c 0% 25%,#fff 0% 50%) 50%/15px 15px;color:#173e72;display:grid;place-content:center;text-align:center;border:9px solid #fff;outline:1px solid #d2def0;width:93px;height:93px;flex-shrink:0;font-weight:900;text-shadow:1px 1px #fff,-1px -1px #fff;line-height:1.1}.mock-qr small{font-size:.55rem;letter-spacing:.1em}

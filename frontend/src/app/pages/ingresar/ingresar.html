@@ -1,1 +1,128 @@
-<p>ingresar works!</p>
+
+<main class="ingresar-page">
+
+  <div class="ingresar-contenedor">
+
+    <a routerLink="/" class="volver">
+      ← Volver al inicio
+    </a>
+
+    <section class="ingresar-card">
+
+      <span class="etiqueta">ArreglaloYa</span>
+
+      <h1>Iniciar sesión</h1>
+
+      <p class="descripcion">
+        Ingresa los datos de tu cuenta
+        para continuar.
+      </p>
+
+      <form
+        #formulario="ngForm"
+        (ngSubmit)="ingresar(formulario)"
+        novalidate
+      >
+
+        <!-- CORREO ELECTRÓNICO -->
+        <div class="campo">
+
+          <label for="correo">
+            Correo electrónico *
+          </label>
+
+          <input
+            id="correo"
+            type="email"
+            name="correo"
+            [(ngModel)]="correo"
+            #campoCorreo="ngModel"
+            required
+            email
+            autocomplete="username"
+            placeholder="ejemplo@correo.com"
+          />
+
+          @if (
+            campoCorreo.invalid &&
+            (campoCorreo.touched || formulario.submitted)
+          ) {
+            <p class="error" role="alert">
+              Introduce un correo electrónico válido.
+            </p>
+          }
+
+        </div>
+
+        <!-- CONTRASEÑA -->
+        <div class="campo">
+
+          <label for="contrasena">
+            Contraseña *
+          </label>
+
+          <input
+            id="contrasena"
+            type="password"
+            name="contrasena"
+            [(ngModel)]="contrasena"
+            #campoContrasena="ngModel"
+            required
+            minlength="8"
+            autocomplete="current-password"
+            placeholder="Introduce tu contraseña"
+          />
+
+          @if (
+            campoContrasena.invalid &&
+            (campoContrasena.touched || formulario.submitted)
+          ) {
+            <p class="error" role="alert">
+              La contraseña debe tener
+              al menos 8 caracteres.
+            </p>
+          }
+
+        </div>
+
+        <!-- BOTÓN -->
+        <button
+          type="submit"
+          class="boton-ingresar"
+        >
+          Ingresar
+        </button>
+
+        <!-- MENSAJE -->
+        @if (mensaje) {
+          <p
+            class="mensaje"
+            [class.exito]="formularioValido"
+            role="status"
+          >
+            {{ mensaje }}
+          </p>
+        }
+
+      </form>
+
+      <!-- REGISTRO -->
+      <p class="registro-enlace">
+        ¿Todavía no tienes una cuenta?
+
+        <a routerLink="/registro">
+          Crear cuenta
+        </a>
+      </p>
+
+      <p class="aviso">
+        Prototipo académico.
+        No se inicia una sesión real.
+        Utiliza únicamente datos ficticios.
+      </p>
+
+    </section>
+
+  </div>
+
+</main>

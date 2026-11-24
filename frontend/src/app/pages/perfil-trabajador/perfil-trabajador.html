@@ -1,1 +1,146 @@
-<p>perfil-trabajador works!</p>
+
+<main class="perfil-pagina">
+
+  <div class="perfil-contenedor">
+
+    <a class="volver" routerLink="/buscar">
+      ← Volver a buscar trabajadores
+    </a>
+
+    @if (trabajador; as perfil) {
+
+      <!-- ENCABEZADO DEL PERFIL -->
+      <section class="perfil-card">
+
+        <div class="perfil-encabezado">
+
+          <div class="perfil-avatar" aria-hidden="true">
+            {{ perfil.iniciales }}
+          </div>
+
+          <div class="perfil-info">
+
+            <span class="etiqueta">
+              Perfil de trabajador
+            </span>
+
+            <h1>{{ perfil.nombre }}</h1>
+
+            <p class="especialidad">
+              {{ perfil.especialidad }}
+            </p>
+
+            <p class="zona">
+              Zona de trabajo: {{ perfil.zona }}
+            </p>
+
+@if (perfil.disponibilidad) {
+  <p class="zona">
+    Disponibilidad: {{ perfil.disponibilidad }}
+  </p>
+}
+
+            <span class="calificacion">
+              ★ {{ perfil.calificacion }}
+            </span>
+
+          </div>
+
+        </div>
+
+        <p class="aviso-datos">
+          Perfil y calificaciones ficticios.
+          Información utilizada para demostrar
+          el funcionamiento de ArreglaloYa.
+        </p>
+
+      </section>
+
+      <!-- INFORMACIÓN DEL TRABAJADOR -->
+      <section class="perfil-card">
+
+        <h2>Acerca del trabajador</h2>
+
+        <p class="descripcion">
+          {{ perfil.descripcion }}
+        </p>
+
+      </section>
+
+      <!-- SERVICIOS -->
+      <section class="perfil-card">
+
+        <h2>Servicios que ofrece</h2>
+
+        <div class="servicios">
+
+          @for (servicio of perfil.servicios; track servicio) {
+
+            <article class="servicio">
+
+              <span class="servicio-icono"
+                    aria-hidden="true">
+                ✓
+              </span>
+
+              <span>{{ servicio }}</span>
+
+            </article>
+
+          }
+
+        </div>
+
+      </section>
+
+      <!-- CONTACTAR MEDIANTE UNA SOLICITUD -->
+      <section class="perfil-card contacto">
+
+        <h2>¿Necesitas un servicio?</h2>
+
+        <p>
+          Describe qué necesitas reparar
+          para preparar una solicitud de trabajo.
+        </p>
+
+        <a
+          class="boton-solicitar"
+          routerLink="/solicitar"
+        >
+          Solicitar un trabajo
+        </a>
+
+        <p class="nota">
+          Demostración académica:
+          este botón abre el formulario de solicitudes.
+          Todavía no contacta al trabajador.
+        </p>
+
+      </section>
+
+    } @else {
+
+      <!-- PERFIL NO ENCONTRADO -->
+      <section class="perfil-card">
+
+        <h1>Trabajador no encontrado</h1>
+
+        <p>
+          No existe un perfil de demostración
+          con ese identificador.
+        </p>
+
+        <a
+          class="boton-solicitar"
+          routerLink="/buscar"
+        >
+          Volver a buscar
+        </a>
+
+      </section>
+
+    }
+
+  </div>
+
+</main>

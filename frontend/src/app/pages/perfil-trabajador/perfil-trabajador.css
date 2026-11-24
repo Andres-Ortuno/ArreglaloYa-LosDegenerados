@@ -1,0 +1,163 @@
+
+.perfil-pagina {
+  min-height: 100vh;
+  padding: 45px 20px;
+  background: #f5f7fb;
+}
+
+.perfil-contenedor {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.volver {
+  display: inline-block;
+  margin-bottom: 25px;
+  color: #2158ad;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.perfil-card {
+  background: white;
+  padding: 30px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  margin-bottom: 22px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.04);
+}
+
+.perfil-encabezado {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+.perfil-avatar {
+  width: 100px;
+  height: 100px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #dbeafe;
+  color: #2158ad;
+  border-radius: 20px;
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.etiqueta {
+  color: #2158ad;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+h1 {
+  color: #183967;
+  font-size: 30px;
+  margin: 10px 0;
+}
+
+h2 {
+  color: #183967;
+  font-size: 23px;
+  margin-bottom: 18px;
+}
+
+.especialidad {
+  color: #2158ad;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.zona {
+  color: #64748b;
+  margin-bottom: 12px;
+}
+
+.calificacion {
+  display: inline-block;
+  background: #fff7db;
+  color: #8a5a00;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.aviso-datos {
+  margin-top: 22px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.descripcion {
+  color: #475569;
+  line-height: 1.8;
+}
+
+.servicios {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(220px, 1fr)
+  );
+  gap: 15px;
+}
+
+.servicio {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f1f6ff;
+  border-radius: 10px;
+  padding: 15px;
+}
+
+.servicio-icono {
+  color: #2158ad;
+  font-weight: 700;
+}
+
+.contacto {
+  background: #eef5ff;
+}
+
+.contacto p {
+  margin-bottom: 20px;
+  color: #475569;
+}
+
+.boton-solicitar {
+  display: inline-block;
+  padding: 13px 22px;
+  background: #2158ad;
+  color: white;
+  border-radius: 9px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.boton-solicitar:hover {
+  background: #17478e;
+}
+
+.nota {
+  margin-top: 15px;
+  font-size: 13px;
+}
+
+@media (max-width: 600px) {
+  .perfil-encabezado {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .perfil-card {
+    padding: 22px;
+  }
+
+  h1 {
+    font-size: 25px;
+  }
+}

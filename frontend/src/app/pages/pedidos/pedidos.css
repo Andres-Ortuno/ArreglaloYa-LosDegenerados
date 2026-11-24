@@ -1,0 +1,298 @@
+
+.pedidos-page {
+  min-height: 100vh;
+  padding: 45px 20px;
+  background: #f5f7fb;
+}
+
+.pedidos-contenedor {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.volver {
+  display: inline-block;
+  margin-bottom: 25px;
+  color: #2158ad;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.encabezado {
+  margin-bottom: 25px;
+}
+
+.etiqueta {
+  color: #2158ad;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+h1,
+h2,
+h3 {
+  color: #183967;
+}
+
+h1 {
+  font-size: 34px;
+  margin: 10px 0;
+}
+
+h2 {
+  font-size: 23px;
+}
+
+h3 {
+  font-size: 19px;
+  margin-bottom: 15px;
+}
+
+.encabezado p,
+.nota {
+  color: #64748b;
+}
+
+.aviso-demo {
+  padding: 15px;
+  background: #fff7e6;
+  border: 1px solid #f0d9a5;
+  border-radius: 10px;
+  margin-bottom: 25px;
+  color: #795000;
+}
+
+.filtros {
+  margin-bottom: 25px;
+}
+
+.filtros label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.filtros select {
+  width: 100%;
+  max-width: 320px;
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  background: white;
+}
+
+.contador {
+  margin-top: 12px;
+  color: #64748b;
+}
+
+.pedido-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 28px;
+  margin-bottom: 24px;
+}
+
+.pedido-encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 22px;
+}
+
+.pedido-encabezado h2 {
+  margin: 8px 0;
+}
+
+.estado {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.estado-pendiente {
+  background: #fff1d6;
+  color: #955700;
+}
+
+.estado-proceso {
+  background: #e1efff;
+  color: #2158ad;
+}
+
+.estado-finalizado {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.pedido-datos {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(220px, 1fr)
+  );
+  gap: 12px;
+}
+
+.pedido-datos p {
+  margin: 0;
+  color: #475569;
+}
+
+.seguimiento,
+.pago,
+.calificacion {
+  border-top: 1px solid #e2e8f0;
+  margin-top: 25px;
+  padding-top: 25px;
+}
+
+.pasos {
+  display: flex;
+  gap: 10px;
+  padding: 0;
+  list-style: none;
+  margin-bottom: 20px;
+}
+
+.pasos li {
+  flex: 1;
+  text-align: center;
+  padding: 12px 8px;
+  background: #e2e8f0;
+  color: #64748b;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.pasos li.paso-completado {
+  background: #dbeafe;
+  color: #17498d;
+  font-weight: 700;
+}
+
+.boton-principal,
+.boton-secundario {
+  display: inline-block;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 9px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.boton-principal {
+  background: #2158ad;
+  color: white;
+}
+
+.boton-secundario {
+  background: #eaf2ff;
+  color: #2158ad;
+}
+
+.boton-principal:hover {
+  background: #17478e;
+}
+
+.estrellas {
+  display: flex;
+  gap: 8px;
+  margin: 15px 0;
+}
+
+.estrella {
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  font-size: 35px;
+  cursor: pointer;
+}
+
+.estrella.seleccionada {
+  color: #e5a72d;
+}
+
+.label-comentario {
+  display: block;
+  margin: 20px 0 9px;
+  font-weight: 600;
+}
+
+.calificacion textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  font: inherit;
+  resize: vertical;
+  margin-bottom: 15px;
+}
+
+.mensaje {
+  margin-top: 18px;
+  padding: 14px;
+  background: #eaf4ff;
+  color: #17498d;
+  border-radius: 9px;
+}
+
+.mensaje-correcto {
+  color: #176b45;
+  font-weight: 700;
+}
+
+.sin-pedidos {
+  background: white;
+  padding: 35px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.acciones-finales {
+  margin-top: 25px;
+}
+
+@media (max-width: 600px) {
+  .pedido-card {
+    padding: 20px;
+  }
+
+  .pedido-encabezado {
+    flex-direction: column;
+  }
+
+  .pasos {
+    flex-direction: column;
+  }
+
+  h1 {
+    font-size: 27px;
+  }
+
+.propuesta-recibida {
+  margin-top: 25px;
+  padding: 22px;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  background: #eff6ff;
+}
+
+.propuesta-recibida h3 {
+  margin-bottom: 15px;
+  color: #183967;
+}
+
+.propuesta-recibida p {
+  margin-bottom: 12px;
+  color: #475569;
+}
+
+}

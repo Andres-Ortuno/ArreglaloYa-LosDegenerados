@@ -1,0 +1,130 @@
+
+.ingresar-page {
+  min-height: 100vh;
+  padding: 55px 20px;
+  background: #f5f7fb;
+}
+
+.ingresar-contenedor {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.volver {
+  display: inline-block;
+  margin-bottom: 25px;
+  color: #2158ad;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.ingresar-card {
+  padding: 35px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.06);
+}
+
+.etiqueta {
+  color: #2158ad;
+  font-weight: 700;
+}
+
+h1 {
+  margin: 12px 0;
+  color: #183967;
+  font-size: 30px;
+}
+
+.descripcion {
+  margin-bottom: 30px;
+  color: #64748b;
+}
+
+.campo {
+  margin-bottom: 23px;
+}
+
+.campo label {
+  display: block;
+  margin-bottom: 9px;
+  color: #334155;
+  font-weight: 600;
+}
+
+.campo input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  font: inherit;
+}
+
+.campo input:focus {
+  outline: 2px solid #2158ad;
+  outline-offset: 1px;
+}
+
+.error {
+  margin-top: 7px;
+  color: #b91c1c;
+  font-size: 13px;
+}
+
+.boton-ingresar {
+  width: 100%;
+  padding: 14px;
+  background: #2158ad;
+  border: none;
+  border-radius: 9px;
+  color: white;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.boton-ingresar:hover {
+  background: #17478e;
+}
+
+.mensaje {
+  margin-top: 20px;
+  padding: 14px;
+  background: #fef2f2;
+  color: #991b1b;
+  border-radius: 9px;
+}
+
+.mensaje.exito {
+  background: #e8f7ed;
+  color: #166534;
+}
+
+.registro-enlace {
+  margin-top: 25px;
+  text-align: center;
+}
+
+.registro-enlace a {
+  color: #2158ad;
+  font-weight: 600;
+}
+
+.aviso {
+  margin-top: 25px;
+  font-size: 13px;
+  color: #64748b;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .ingresar-card {
+    padding: 22px;
+  }
+
+  h1 {
+    font-size: 26px;
+  }
+}

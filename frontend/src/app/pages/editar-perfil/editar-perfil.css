@@ -1,0 +1,145 @@
+
+.editar-page {
+  min-height: 100vh;
+  padding: 45px 20px;
+  background: #f5f7fb;
+}
+
+.editar-contenedor {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.volver {
+  display: inline-block;
+  margin-bottom: 25px;
+  color: #2158ad;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.editar-card {
+  background: white;
+  padding: 35px;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.06);
+}
+
+.etiqueta {
+  color: #2158ad;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+h1 {
+  color: #183967;
+  font-size: 31px;
+  margin: 12px 0;
+}
+
+.descripcion {
+  color: #64748b;
+  margin-bottom: 28px;
+}
+
+.campo {
+  margin-bottom: 23px;
+}
+
+.campo label {
+  display: block;
+  margin-bottom: 9px;
+  color: #334155;
+  font-weight: 600;
+}
+
+.campo input,
+.campo select,
+.campo textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  font: inherit;
+  background: white;
+}
+
+.campo textarea {
+  resize: vertical;
+}
+
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus {
+  outline: 2px solid #2158ad;
+  outline-offset: 1px;
+}
+
+.campo small {
+  display: block;
+  margin-top: 8px;
+  color: #64748b;
+}
+
+.error {
+  margin-top: 7px;
+  color: #b91c1c;
+  font-size: 13px;
+}
+
+.boton-guardar {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 9px;
+  background: #2158ad;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.boton-guardar:hover {
+  background: #17478e;
+}
+
+.mensaje {
+  margin-top: 20px;
+  padding: 14px;
+  border-radius: 9px;
+  background: #eaf4ff;
+  color: #17498d;
+}
+
+.aviso {
+  margin-top: 24px;
+  color: #64748b;
+  font-size: 13px;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .editar-card {
+    padding: 22px;
+  }
+
+  h1 {
+    font-size: 25px;
+  }
+
+
+.mensaje-exito {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+
+.mensaje-error {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+}
