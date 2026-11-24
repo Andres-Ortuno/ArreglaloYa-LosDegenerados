@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 
 .inicio {
   text-align: center;
@@ -22,7 +22,7 @@ button {
   border-radius: 8px;
   cursor: pointer;
 }
-=======
+
 
 .panel-page {
   min-height: 100vh;
@@ -369,4 +369,4 @@ button {
 
 
 }
->>>>>>> 83b566d (preparar servicio http y pruebas del frontend)
+
