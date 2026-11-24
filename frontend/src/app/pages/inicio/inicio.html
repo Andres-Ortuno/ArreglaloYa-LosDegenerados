@@ -1,1 +1,548 @@
-<p>inicio works!</p>
+<<<<<<< HEAD
+
+<main class="inicio">
+  <h1>Bienvenido a ArreglaloYa</h1>
+
+  <p>
+    Encuentra trabajadores de confianza en Cochabamba.
+  </p>
+
+  <section>
+    <h2>¿Qué necesitas reparar?</h2>
+
+    <p>
+      Encuentra profesionales para solucionar
+      problemas de tu hogar.
+    </p>
+
+    <button type="button">
+      Buscar trabajadores
+    </button>
+  </section>
+</main>
+=======
+<!-- ACCESIBILIDAD -->
+<a class="skip" href="#contenido">Saltar al contenido</a>
+
+<!-- ENCABEZADO -->
+<header class="site-header">
+  <div class="container header-inner">
+
+    <!-- LOGO -->
+    <a class="brand" routerLink="/" aria-label="ArreglaloYa, ir al inicio">
+      <span class="brand-mark" aria-hidden="true">AY</span>
+      <span>Arreglalo<span class="accent">Ya</span></span>
+    </a>
+
+    <!-- MENÚ DE NAVEGACIÓN -->
+    <nav class="nav-links" aria-label="Navegación principal">
+      <a routerLink="/" class="active" aria-current="page">Inicio</a>
+      <a routerLink="/buscar">Trabajadores</a>
+
+      @if (rolActual() === 'cliente') {
+        <a routerLink="/solicitar">Solicitar trabajo</a>
+        <a routerLink="/pedidos">Mis pedidos</a>
+      }
+
+      @if (rolActual() === 'trabajador') {
+        <a routerLink="/panel-trabajador">Panel trabajador</a>
+        <a routerLink="/editar-perfil">Editar perfil</a>
+      }
+
+      @if (rolActual() === 'administrador') {
+        <a routerLink="/administracion">Administración</a>
+      }
+    </nav>
+
+    <!-- BOTONES DE CUENTA -->
+    <div class="header-actions">
+      @if (rolActual() === 'visitante') {
+        <a class="btn btn-ghost btn-sm" routerLink="/ingresar">Ingresar</a>
+        <a class="btn btn-sm" routerLink="/registro">Crear cuenta</a>
+      } @else {
+        <span class="rol-actual">Modo demo: {{ rolActual() }}</span>
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm"
+          (click)="cambiarRol('visitante')"
+        >
+          Volver a visitante
+        </button>
+      }
+    </div>
+
+  </div>
+</header>
+
+<!-- AVISO DEL PROTOTIPO -->
+<div class="demo-banner">
+  Prototipo académico · Datos de ejemplo · Sin operaciones reales
+</div>
+
+<!-- SELECTOR DE ROL DE DEMOSTRACIÓN -->
+<section class="roles-demo">
+
+  <strong>Probar como:</strong>
+
+  <div class="roles-botones">
+
+    <button
+      type="button"
+      [class.elegido]="rolActual() === 'visitante'"
+      [attr.aria-pressed]="rolActual() === 'visitante'"
+      (click)="cambiarRol('visitante')"
+    >
+      Visitante
+    </button>
+
+    <button
+      type="button"
+      [class.elegido]="rolActual() === 'cliente'"
+      [attr.aria-pressed]="rolActual() === 'cliente'"
+      (click)="cambiarRol('cliente')"
+    >
+      Cliente
+    </button>
+
+    <button
+      type="button"
+      [class.elegido]="rolActual() === 'trabajador'"
+      [attr.aria-pressed]="rolActual() === 'trabajador'"
+      (click)="cambiarRol('trabajador')"
+    >
+      Trabajador
+    </button>
+
+    <button
+      type="button"
+      [class.elegido]="rolActual() === 'administrador'"
+      [attr.aria-pressed]="rolActual() === 'administrador'"
+      (click)="cambiarRol('administrador')"
+    >
+      Administrador
+    </button>
+
+  </div>
+
+  <small>
+    Selector de demostración. No inicia
+    sesión ni concede permisos reales.
+  </small>
+
+</section>
+
+<!-- DIAGNÓSTICO HTTP DE DEMOSTRACIÓN -->
+@if (rolActual() === 'administrador') {
+
+  <section class="api-demo">
+
+    <h2>Prueba de conexión HTTP</h2>
+
+    <p>
+      Esta sección permite comprobar los estados
+      de carga y los mensajes de error.
+    </p>
+
+    <div class="api-demo-botones">
+
+      <button
+        type="button"
+        (click)="probarPedidos()"
+        [disabled]="pedidosApi.estado.cargando()"
+      >
+        Probar API de pedidos
+      </button>
+
+      <button
+        type="button"
+        (click)="probarPerfiles()"
+        [disabled]="perfilesApi.estado.cargando()"
+      >
+        Probar API de perfiles
+      </button>
+
+    </div>
+
+    <!-- ESTADO DE PEDIDOS -->
+    @if (pedidosApi.estado.cargando()) {
+      <p role="status">
+        Cargando pedidos...
+      </p>
+    }
+
+    @if (pedidosApi.estado.error(); as errorPedidos) {
+      <p class="api-error" role="alert">
+        Pedidos: {{ errorPedidos }}
+      </p>
+    }
+
+    @if (pedidosApi.estado.exito(); as exitoPedidos) {
+      <p class="api-exito" role="status">
+        {{ exitoPedidos }}
+      </p>
+    }
+
+    <!-- ESTADO DE PERFILES -->
+    @if (perfilesApi.estado.cargando()) {
+      <p role="status">
+        Cargando perfiles...
+      </p>
+    }
+
+    @if (perfilesApi.estado.error(); as errorPerfiles) {
+      <p class="api-error" role="alert">
+        Perfiles: {{ errorPerfiles }}
+      </p>
+    }
+
+    @if (perfilesApi.estado.exito(); as exitoPerfiles) {
+      <p class="api-exito" role="status">
+        {{ exitoPerfiles }}
+      </p>
+    }
+
+    <small>
+      Prueba académica. Los endpoints son
+      provisionales y pueden no estar disponibles.
+    </small>
+
+  </section>
+
+}
+
+<!-- CONTENIDO PRINCIPAL -->
+<main id="contenido">
+
+  <!-- SECCIÓN DE BIENVENIDA -->
+  <section class="hero">
+    <div class="container hero-grid">
+
+      <div>
+        <span class="eyebrow">
+          Tu hogar en buenas manos · Cochabamba
+        </span>
+
+        <h1>
+          Los arreglos de casa,
+          <em>más sencillos.</em>
+        </h1>
+
+        <p class="lead">
+          Encuentra trabajadores por zona y especialidad,
+          consulta sus perfiles y solicita ayuda para
+          reparar lo que necesitas.
+        </p>
+
+        <!-- BOTONES PRINCIPALES -->
+        <div class="hero-cta">
+          @if (rolActual() === 'cliente') {
+            <a class="btn" routerLink="/solicitar">
+              Solicitar un trabajo
+              <span aria-hidden="true">→</span>
+            </a>
+            <a class="btn btn-secondary" routerLink="/pedidos">Mis pedidos</a>
+          }
+
+          @if (rolActual() === 'trabajador') {
+            <a class="btn" routerLink="/panel-trabajador">
+              Abrir panel del trabajador
+              <span aria-hidden="true">→</span>
+            </a>
+          }
+
+          @if (rolActual() === 'administrador') {
+            <a class="btn" routerLink="/administracion">
+              Abrir administración
+              <span aria-hidden="true">→</span>
+            </a>
+          }
+
+          <a class="btn btn-secondary" routerLink="/buscar">Buscar trabajadores</a>
+        </div>
+
+        <!-- INFORMACIÓN DE CONFIANZA -->
+        <div class="trust-line">
+          <div class="trust-avatars" aria-hidden="true">
+            <span>C</span>
+            <span>M</span>
+            <span>J</span>
+          </div>
+
+          <span>
+            Perfiles y calificaciones de ejemplo
+            para mostrar el diseño.
+          </span>
+        </div>
+      </div>
+
+      <!-- ILUSTRACIÓN DEL SERVICIO -->
+      <div
+        class="hero-art"
+        aria-label="Vista ilustrativa de una solicitud de trabajo"
+      >
+        <div class="art-orbit" aria-hidden="true"></div>
+        <div class="art-halo" aria-hidden="true"></div>
+
+        <div class="art-card">
+
+          <div class="art-top">
+            <span class="art-icon" aria-hidden="true">🔧</span>
+
+            <span class="status status-blue">
+              Solicitud pendiente
+            </span>
+          </div>
+
+          <h3>Reparación de lavadora</h3>
+
+          <p>
+            Necesito ayuda con un electrodoméstico
+            que no enciende.
+          </p>
+
+          <div class="art-person">
+
+            <span
+              class="avatar green"
+              style="width:41px;height:41px;border-radius:11px;font-size:.8rem"
+            >
+              CM
+            </span>
+
+            <div>
+              <strong>Perfil de trabajador</strong>
+              <span>Técnico · Zona Cercado</span>
+            </div>
+
+            <span style="margin-left:auto;color:#e2a13b">
+              ★
+            </span>
+
+          </div>
+        </div>
+
+        <div class="art-toast">
+          <strong>✓</strong>
+          Consulta especialidades y opiniones
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN DE SERVICIOS -->
+  <section class="section" id="servicios">
+    <div class="container">
+
+      <div class="section-head">
+        <span class="eyebrow">
+          Oficios disponibles en la V1
+        </span>
+
+        <h2>¿Qué necesitas arreglar?</h2>
+
+        <p>
+          Empezamos con dos áreas de servicio.
+          Más categorías podrán incorporarse
+          en otras versiones.
+        </p>
+      </div>
+
+      <div class="service-grid">
+
+        <!-- ALBAÑILERÍA -->
+        <article class="service-card">
+          <div class="service-art" aria-hidden="true">
+            🧱
+          </div>
+
+          <div>
+            <h3>Albañilería</h3>
+
+            <p>
+              Reparaciones de muros, paredes
+              y arreglos generales del hogar.
+            </p>
+          </div>
+        </article>
+
+        <!-- ELECTRODOMÉSTICOS -->
+        <article class="service-card">
+          <div class="service-art" aria-hidden="true">
+            ⚙️
+          </div>
+
+          <div>
+            <h3>Electrodomésticos</h3>
+
+            <p>
+              Revisión y reparación de lavadoras,
+              cocinas y otros equipos.
+            </p>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN CÓMO FUNCIONA -->
+  <section
+    class="section section-alt"
+    id="como-funciona"
+  >
+    <div class="container">
+
+      <div class="section-head">
+        <span class="eyebrow">Paso a paso</span>
+
+        <h2>Así funciona ArreglaloYa</h2>
+
+        <p>
+          Una experiencia clara para el cliente
+          y oportunidades de trabajo para
+          profesionales independientes.
+        </p>
+      </div>
+
+      <div class="cards-3">
+
+        <!-- PASO 1 -->
+        <article class="feature-card">
+          <div class="mini-icon" aria-hidden="true">
+            ①
+          </div>
+
+          <strong class="number">01</strong>
+
+          <h3>Cuenta qué necesitas</h3>
+
+          <p>
+            Describe el problema, indica la zona
+            y un horario. Las fotografías son opcionales.
+          </p>
+        </article>
+
+        <!-- PASO 2 -->
+        <article class="feature-card">
+          <div class="mini-icon" aria-hidden="true">
+            ②
+          </div>
+
+          <strong class="number">02</strong>
+
+          <h3>Compara trabajadores</h3>
+
+          <p>
+            Busca por especialidad y zona;
+            revisa perfiles, comentarios
+            y calificaciones.
+          </p>
+        </article>
+
+        <!-- PASO 3 -->
+        <article class="feature-card">
+          <div class="mini-icon" aria-hidden="true">
+            ③
+          </div>
+
+          <strong class="number">03</strong>
+
+          <h3>Revisa la propuesta</h3>
+
+          <p>
+            El trabajador indica el monto,
+            la visita y los materiales
+            antes de aceptar.
+          </p>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN PARA TRABAJADORES -->
+  <section class="section">
+    <div class="container">
+
+      <div class="cta-band">
+
+        <div>
+          <span
+            class="eyebrow"
+            style="color:#adcafa"
+          >
+            Para trabajadores
+          </span>
+
+          <h2>Ofrece tus servicios</h2>
+
+          <p>
+            Crea tu perfil con especialidades
+            y zona de trabajo, sin publicar
+            tu domicilio.
+          </p>
+        </div>
+
+        @if (rolActual() === 'trabajador') {
+          <a class="btn" routerLink="/panel-trabajador">
+            Ir a mi panel
+            <span aria-hidden="true">→</span>
+          </a>
+        } @else {
+          <a class="btn" routerLink="/registro">
+            Registrarme como trabajador
+            <span aria-hidden="true">→</span>
+          </a>
+        }
+
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- PIE DE PÁGINA -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-main">
+
+      <!-- INFORMACIÓN DEL PROYECTO -->
+      <div>
+        <a class="brand" routerLink="/" aria-label="ArreglaloYa, ir al inicio">
+          <span class="brand-mark" aria-hidden="true">AY</span>
+          <span>Arreglalo<span class="accent">Ya</span></span>
+        </a>
+        <p>Servicios para el hogar en Cochabamba, Bolivia.</p>
+      </div>
+
+      <!-- ENLACES DEL PIE -->
+      <nav class="footer-links" aria-label="Otras páginas">
+        <a routerLink="/">Inicio</a>
+        <a routerLink="/buscar">Trabajadores</a>
+
+        @if (rolActual() === 'cliente') {
+          <a routerLink="/solicitar">Solicitar</a>
+          <a routerLink="/pedidos">Mis pedidos</a>
+        }
+
+        @if (rolActual() === 'trabajador') {
+          <a routerLink="/panel-trabajador">Panel trabajador</a>
+          <a routerLink="/editar-perfil">Editar perfil</a>
+        }
+
+        @if (rolActual() === 'administrador') {
+          <a routerLink="/administracion">Administración</a>
+        }
+      </nav>
+
+    </div>
+
+    <div class="footer-bottom">
+      <small>
+        ArreglaloYa · Interfaz académica V1 · Información ilustrativa
+      </small>
+    </div>
+  </div>
+</footer>
+>>>>>>> 83b566d (preparar servicio http y pruebas del frontend)

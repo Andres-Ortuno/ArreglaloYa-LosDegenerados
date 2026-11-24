@@ -1,10 +1,10 @@
 "use strict";
-/*
- * ArreglaloYa - Programación Orientada a Objetos con TypeScript
- * La vista sigue siendo HTML/CSS. Estas clases agregan comportamiento
- * local y de demostración; no existe conexión a una base de datos.
+/**
+ * ArreglaloYa · Modelos orientados a objetos del prototipo académico.
+ * Estos datos NO provienen de una API ni se almacenan en una base de datos.
+ * Angular podrá reutilizar sus conceptos (clases/interfaces), pero no este
+ * script global tal cual.
  */
-// MODELO: un trabajador tiene datos y sabe si coincide con una búsqueda.
 class Trabajador {
     constructor(id, nombre, especialidad, zona, experiencia, calificacion, opiniones, iniciales) {
         this.id = id;
@@ -17,12 +17,11 @@ class Trabajador {
         this.iniciales = iniciales;
     }
     coincideCon(zona, especialidad) {
-        const zonaValida = zona === 'Todas las zonas' || zona === this.zona;
-        const especialidadValida = especialidad === 'Todas las especialidades' || especialidad === this.especialidad;
-        return zonaValida && especialidadValida;
+        const zonaCorrecta = zona === 'Todas las zonas' || zona === this.zona;
+        const oficioCorrecto = especialidad === 'Todas las especialidades' || especialidad === this.especialidad;
+        return zonaCorrecta && oficioCorrecto;
     }
 }
-// MODELO: los ejemplos están agrupados en un catálogo reutilizable.
 class CatalogoTrabajadores {
     constructor() {
         this.trabajadores = [
@@ -34,21 +33,19 @@ class CatalogoTrabajadores {
     buscar(zona, especialidad) {
         return this.trabajadores.filter(trabajador => trabajador.coincideCon(zona, especialidad));
     }
-    obtenerPorId(id) {
+    buscarPorId(id) {
         return this.trabajadores.find(trabajador => trabajador.id === id);
     }
 }
-// MODELO: una cuenta empresa nunca puede activar el rol trabajador.
 class CuentaUsuario {
     constructor(tipo, rol) {
         this.tipo = tipo;
         this.rol = rol;
     }
     puedeRegistrarse() {
-        return !(this.tipo.includes('Empresa') && this.rol === 'trabajador');
+        return !(this.tipo.includes('Empresa') && this.rol !== 'cliente');
     }
 }
-// MODELO: solicitud con sus datos obligatorios.
 class SolicitudTrabajo {
     constructor(especialidad, descripcion, zona, ubicacion, horario) {
         this.especialidad = especialidad;
@@ -59,138 +56,164 @@ class SolicitudTrabajo {
     }
     tieneDatosCompletos() {
         return [this.especialidad, this.descripcion, this.zona, this.ubicacion, this.horario]
-            .every(dato => dato.trim().length > 0);
+            .every(valor => valor.trim().length > 0);
     }
     resumen() {
         return `${this.especialidad} en ${this.zona}`;
     }
 }
-// HERENCIA: todos los controladores comparten la forma de mostrar avisos.
+class Postulacion {
+    constructor(solicitud, monto, modalidad, costoVisita, incluyeMateriales) {
+        this.solicitud = solicitud;
+        this.monto = monto;
+        this.modalidad = modalidad;
+        this.costoVisita = costoVisita;
+        this.incluyeMateriales = incluyeMateriales;
+    }
+    esValida() {
+        return this.solicitud.length > 0 && this.modalidad.length > 0
+            && Number.isFinite(this.monto) && this.monto > 0
+            && Number.isFinite(this.costoVisita) && this.costoVisita >= 0
+            && (this.incluyeMateriales === 'si' || this.incluyeMateriales === 'no');
+    }
+}
+class PagoDemostracion {
+    constructor(monto, minimoTrabajador = 0) {
+        this.monto = monto;
+        this.minimoTrabajador = minimoTrabajador;
+    }
+    calcularAnticipo() {
+        return Math.min(this.monto, Math.max(this.monto * 0.25, this.minimoTrabajador));
+    }
+}
+class Calificacion {
+    constructor(estrellas, comentario) {
+        this.estrellas = estrellas;
+        this.comentario = comentario;
+    }
+    esValida() {
+        return Number.isInteger(this.estrellas) && this.estrellas >= 1 && this.estrellas <= 5;
+    }
+}
+/**
+ * Controladores: coordinan las interfaces HTML y las clases de modelos.ts.
+ * No se envían datos a servidores, no se realiza autenticación y no hay pagos.
+ */
 class ControladorPagina {
     mostrarMensaje(formulario, texto, esError = false) {
-        let aviso = formulario.querySelector('.mensaje-interactivo');
-        if (!aviso) {
-            aviso = document.createElement('p');
-            aviso.className = 'mensaje-interactivo';
-            aviso.setAttribute('role', 'status');
-            aviso.setAttribute('aria-live', 'polite');
-            formulario.appendChild(aviso);
+        let elemento = formulario.querySelector('.mensaje-interactivo');
+        if (!elemento) {
+            elemento = document.createElement('p');
+            elemento.className = 'mensaje-interactivo';
+            elemento.setAttribute('role', 'status');
+            elemento.setAttribute('aria-live', 'polite');
+            formulario.appendChild(elemento);
         }
-        aviso.textContent = texto;
-        aviso.classList.toggle('mensaje-error', esError);
+        elemento.textContent = texto;
+        elemento.classList.toggle('mensaje-error', esError);
     }
     leer(id) {
         const campo = document.getElementById(id);
         return campo?.value.trim() ?? '';
     }
-    boton(formulario) {
+    formularioPrincipal() {
+        return document.querySelector('main form.stack');
+    }
+    botonPrincipal(formulario) {
         return formulario.querySelector('button.btn');
     }
 }
-// CONTROLADOR: la portada no requiere operaciones todavía.
 class ControladorInicio extends ControladorPagina {
     iniciar() {
-        // La navegación de la portada utiliza enlaces HTML normales.
+        // Portada: los enlaces HTML proporcionan la navegación.
     }
 }
-// CONTROLADOR: valida campos, pero NO finge iniciar sesión.
 class ControladorIngreso extends ControladorPagina {
     iniciar() {
-        const formulario = document.querySelector('main form');
-        if (!formulario)
+        const form = this.formularioPrincipal();
+        if (!form)
             return;
-        this.boton(formulario)?.addEventListener('click', () => {
-            if (!formulario.reportValidity())
+        this.botonPrincipal(form)?.addEventListener('click', () => {
+            if (!form.reportValidity())
                 return;
-            this.mostrarMensaje(formulario, 'Los campos tienen un formato válido. El inicio de sesión se conectará al backend más adelante.');
+            this.mostrarMensaje(form, 'Campos revisados. El acceso real se implementará en Angular con la API de autenticación.');
         });
     }
 }
-// CONTROLADOR: aplica la regla de rol para empresas y comprueba contraseñas.
 class ControladorRegistro extends ControladorPagina {
     iniciar() {
-        const formulario = document.querySelector('main form');
+        const form = this.formularioPrincipal();
         const tipo = document.getElementById('tipo-cuenta');
-        const rolTrabajador = document.querySelector('input[name="rol"][value="trabajador"]');
-        const rolCliente = document.querySelector('input[name="rol"][value="cliente"]');
-        if (!formulario || !tipo || !rolTrabajador || !rolCliente)
+        const roles = document.querySelectorAll('input[name="rol"]');
+        if (!form || !tipo || !roles.length)
             return;
-        const actualizarRoles = () => {
-            const esEmpresa = tipo.value.includes('Empresa');
-            rolTrabajador.disabled = esEmpresa;
-            if (esEmpresa)
-                rolCliente.checked = true;
+        const actualizarRol = () => {
+            const empresa = tipo.value.includes('Empresa');
+            roles.forEach(rol => { rol.disabled = empresa && rol.value !== 'cliente'; });
+            if (empresa) {
+                const cliente = form.querySelector('input[name="rol"][value="cliente"]');
+                if (cliente)
+                    cliente.checked = true;
+            }
         };
-        tipo.addEventListener('change', actualizarRoles);
-        actualizarRoles();
-        this.boton(formulario)?.addEventListener('click', () => {
-            if (!formulario.reportValidity())
+        tipo.addEventListener('change', actualizarRol);
+        actualizarRol();
+        this.botonPrincipal(form)?.addEventListener('click', () => {
+            if (!form.reportValidity())
                 return;
-            const rol = formulario.querySelector('input[name="rol"]:checked')?.value ?? 'cliente';
+            const rol = form.querySelector('input[name="rol"]:checked')?.value ?? 'cliente';
             const cuenta = new CuentaUsuario(tipo.value, rol);
             if (!cuenta.puedeRegistrarse()) {
-                this.mostrarMensaje(formulario, 'Las empresas solo pueden registrarse como clientes.', true);
+                this.mostrarMensaje(form, 'Las empresas solamente pueden tener el rol de cliente.', true);
                 return;
             }
             if (this.leer('registro-clave') !== this.leer('registro-repetir')) {
-                this.mostrarMensaje(formulario, 'Las contraseñas deben coincidir.', true);
+                this.mostrarMensaje(form, 'Las dos contraseñas deben coincidir.', true);
                 return;
             }
-            this.mostrarMensaje(formulario, 'Formulario revisado correctamente. No se ha creado ninguna cuenta: falta conectar el backend.');
+            this.mostrarMensaje(form, `Registro de demostración válido para el rol «${rol}». No se ha creado una cuenta real.`);
         });
     }
 }
-// CONTROLADOR: filtra las tarjetas existentes sin cambiar su diseño.
+class ControladorSolicitud extends ControladorPagina {
+    iniciar() {
+        const form = this.formularioPrincipal();
+        if (!form)
+            return;
+        this.botonPrincipal(form)?.addEventListener('click', () => {
+            if (!form.reportValidity())
+                return;
+            const solicitud = new SolicitudTrabajo(this.leer('sol-especialidad'), this.leer('sol-descripcion'), this.leer('sol-zona'), this.leer('sol-ubicacion'), this.leer('sol-horario'));
+            this.mostrarMensaje(form, solicitud.tieneDatosCompletos()
+                ? `Formulario completo: ${solicitud.resumen()}. No se ha publicado; falta conectar la API.`
+                : 'Completa la especialidad, descripción, zona, ubicación y horario.', !solicitud.tieneDatosCompletos());
+        });
+    }
+}
 class ControladorBusqueda extends ControladorPagina {
     constructor(catalogo) {
         super();
         this.catalogo = catalogo;
     }
     iniciar() {
-        const formulario = document.querySelector('form.search-tools');
+        const form = document.querySelector('form.search-tools');
+        if (!form)
+            return;
         const tarjetas = document.querySelectorAll('.worker-card');
-        const resumen = document.querySelector('.results-toolbar .tag');
-        if (!formulario || !tarjetas.length)
-            return;
-        const filtrar = () => {
-            const zona = this.leer('busca-zona');
-            const especialidad = this.leer('busca-servicio');
-            const encontrados = this.catalogo.buscar(zona, especialidad);
-            tarjetas.forEach((tarjeta, indice) => {
-                tarjeta.hidden = !encontrados.some(t => t.id === indice + 1);
-            });
-            if (resumen) {
-                resumen.textContent = `${encontrados.length} resultado(s) de ejemplo`;
-            }
-            this.mostrarMensaje(formulario, encontrados.length
-                ? 'Resultados filtrados localmente. Son perfiles de demostración.'
-                : 'No hay perfiles de ejemplo para esos filtros. Prueba otra zona o especialidad.');
-        };
-        formulario.addEventListener('submit', evento => {
+        const contador = document.querySelector('.results-toolbar .tag');
+        form.addEventListener('submit', evento => {
             evento.preventDefault();
-            filtrar();
+            const trabajadores = this.catalogo.buscar(this.leer('busca-zona'), this.leer('busca-servicio'));
+            const ids = new Set(trabajadores.map(trabajador => String(trabajador.id)));
+            tarjetas.forEach(tarjeta => { tarjeta.hidden = !ids.has(tarjeta.dataset.workerId ?? ''); });
+            if (contador)
+                contador.textContent = `${trabajadores.length} resultado(s) de ejemplo`;
+            this.mostrarMensaje(form, trabajadores.length
+                ? 'Perfiles filtrados localmente. La búsqueda real se conectará a la API.'
+                : 'No hay resultados de ejemplo con esos filtros. Prueba otra zona o especialidad.');
         });
     }
 }
-// CONTROLADOR: valida la solicitud sin guardar ni inventar pagos.
-class ControladorSolicitud extends ControladorPagina {
-    iniciar() {
-        const formulario = document.querySelector('main form.stack');
-        if (!formulario)
-            return;
-        this.boton(formulario)?.addEventListener('click', () => {
-            if (!formulario.reportValidity())
-                return;
-            const solicitud = new SolicitudTrabajo(this.leer('sol-especialidad'), this.leer('sol-descripcion'), this.leer('sol-zona'), this.leer('sol-ubicacion'), this.leer('sol-horario'));
-            if (!solicitud.tieneDatosCompletos()) {
-                this.mostrarMensaje(formulario, 'Completa todos los campos obligatorios.', true);
-                return;
-            }
-            this.mostrarMensaje(formulario, `Vista previa validada: ${solicitud.resumen()}. No se publicó ningún trabajo; falta la API.`);
-        });
-    }
-}
-// CONTROLADOR: muestra el perfil ficticio que corresponde a cada tarjeta.
 class ControladorPerfilTrabajador extends ControladorPagina {
     constructor(catalogo) {
         super();
@@ -198,103 +221,190 @@ class ControladorPerfilTrabajador extends ControladorPagina {
     }
     iniciar() {
         const id = Number(new URLSearchParams(window.location.search).get('id') ?? '1');
-        const trabajador = this.catalogo.obtenerPorId(id);
+        const trabajador = this.catalogo.buscarPorId(id);
         if (!trabajador)
             return;
         const nombre = document.querySelector('.profile-title h1');
         const subtitulo = document.querySelector('.profile-title p');
         const avatar = document.querySelector('.profile-headline .avatar');
-        const estadisticas = document.querySelectorAll('.profile-stats .stat strong');
-        const zona = document.querySelector('.profile-block:nth-of-type(3) p');
+        const stats = document.querySelectorAll('.profile-stats .stat strong');
+        const bloques = document.querySelectorAll('.profile-block');
         if (nombre)
             nombre.textContent = trabajador.nombre;
         if (subtitulo)
             subtitulo.textContent = `${trabajador.especialidad} · Cochabamba`;
         if (avatar)
             avatar.textContent = trabajador.iniciales;
-        // Conservamos el elemento de la estrella y su estilo amarillo.
-        if (estadisticas[0]?.firstChild)
-            estadisticas[0].firstChild.textContent = `${trabajador.calificacion} `;
-        if (estadisticas[1])
-            estadisticas[1].textContent = String(trabajador.opiniones);
-        if (estadisticas[2])
-            estadisticas[2].textContent = `${trabajador.experiencia} años`;
+        if (stats[0])
+            stats[0].textContent = `★ ${trabajador.calificacion}`;
+        if (stats[1])
+            stats[1].textContent = String(trabajador.opiniones);
+        if (stats[2])
+            stats[2].textContent = `${trabajador.experiencia} años`;
+        const zona = bloques[2]?.querySelector('p');
         if (zona)
-            zona.textContent = `⌖ ${trabajador.zona}, Cochabamba. Se muestra la zona, no la dirección particular.`;
-        const puntuacionOpiniones = document.querySelector('.profile-block .rating');
-        if (puntuacionOpiniones)
-            puntuacionOpiniones.textContent = `★ ${trabajador.calificacion}*`;
-        // Los ejemplos no son datos reales ni implican que alguien esté verificado.
+            zona.textContent = `${trabajador.zona}, Cochabamba. Se muestra la zona, nunca la dirección particular.`;
         if (trabajador.id !== 1) {
-            const sobreMi = document.querySelector('.profile-block:nth-of-type(1) p');
-            const servicios = document.querySelector('.profile-block:nth-of-type(2) p');
+            const sobreMi = bloques[0]?.querySelector('p');
+            const servicios = bloques[1]?.querySelector('p');
             if (sobreMi)
-                sobreMi.textContent = trabajador.id === 2
-                    ? 'Realizo trabajos de albañilería y mantenimiento. Esta presentación es un ejemplo visual.'
-                    : 'Trabajo en reparación de electrodomésticos y mantenimiento. Esta presentación es un ejemplo visual.';
+                sobreMi.textContent = `Perfil ilustrativo de ${trabajador.nombre}, especialista en ${trabajador.especialidad.toLowerCase()}.`;
             if (servicios)
-                servicios.textContent = trabajador.id === 2
-                    ? 'Paredes, revoques y mantenimiento del hogar.'
-                    : 'Refrigeradores, secadoras y mantenimiento preventivo.';
+                servicios.textContent = `Trabajos de ${trabajador.especialidad.toLowerCase()} en ${trabajador.zona}.`;
+            const opiniones = bloques[3]?.querySelectorAll('.review');
+            opiniones?.forEach(opinion => { opinion.hidden = true; });
+            const aviso = document.createElement('p');
+            aviso.textContent = 'Las opiniones de este perfil son datos ilustrativos del prototipo.';
+            bloques[3]?.appendChild(aviso);
         }
     }
 }
-// CONTROLADOR: ofrece una vista previa local sin almacenar documentos ni datos.
-class ControladorEditarPerfil extends ControladorPagina {
+class ControladorPanelTrabajador extends ControladorPagina {
     iniciar() {
-        const formulario = document.querySelector('main form.stack');
-        const textoPrevia = document.querySelector('.sidebar-card .row p');
-        if (!formulario)
-            return;
-        const actualizarVistaPrevia = () => {
-            const especialidad = this.leer('perfil-especialidad') || 'Especialidad';
-            const zona = this.leer('perfil-zona') || 'Zona';
-            if (textoPrevia)
-                textoPrevia.textContent = `${especialidad} · ${zona}`;
-        };
-        formulario.addEventListener('input', actualizarVistaPrevia);
-        formulario.addEventListener('change', actualizarVistaPrevia);
-        this.boton(formulario)?.addEventListener('click', () => {
-            if (!formulario.reportValidity())
+        const perfil = this.formularioPrincipal();
+        const vista = document.getElementById('vista-perfil');
+        if (perfil) {
+            const previsualizar = () => {
+                if (vista)
+                    vista.textContent = `${this.leer('perfil-especialidad') || 'Especialidad'} · ${this.leer('perfil-zona') || 'Zona'}`;
+            };
+            perfil.addEventListener('input', previsualizar);
+            perfil.addEventListener('change', previsualizar);
+            this.botonPrincipal(perfil)?.addEventListener('click', () => {
+                if (!perfil.reportValidity())
+                    return;
+                this.mostrarMensaje(perfil, 'Perfil de ejemplo revisado. No se han guardado datos personales.');
+            });
+        }
+        const documentos = document.getElementById('form-documentos');
+        documentos?.addEventListener('submit', evento => {
+            evento.preventDefault();
+            if (!documentos.reportValidity())
                 return;
-            this.mostrarMensaje(formulario, 'Los datos están completos. Esta vista previa no guarda tu perfil ni envía documentos.');
+            this.mostrarMensaje(documentos, 'Seleccionaste los tres archivos requeridos. No se subió ni almacenó ninguno.');
+        });
+        document.querySelectorAll('[data-elegir-solicitud]').forEach(boton => {
+            boton.addEventListener('click', () => {
+                const campo = document.getElementById('post-solicitud');
+                if (campo)
+                    campo.value = boton.dataset.elegirSolicitud ?? '';
+                document.getElementById('form-postulacion')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                campo?.focus({ preventScroll: true });
+            });
+        });
+        const post = document.getElementById('form-postulacion');
+        post?.addEventListener('submit', evento => {
+            evento.preventDefault();
+            if (!post.reportValidity())
+                return;
+            const oferta = new Postulacion(this.leer('post-solicitud'), Number(this.leer('post-monto')), this.leer('post-tipo'), Number(this.leer('post-visita')), this.leer('post-materiales'));
+            if (!oferta.esValida()) {
+                this.mostrarMensaje(post, 'Revisa los datos de monto, modalidad, costo de visita y materiales.', true);
+                return;
+            }
+            const dinero = oferta.monto.toFixed(2);
+            this.mostrarMensaje(post, `Propuesta revisada: ${oferta.solicitud}, Bs ${dinero}. No se ha enviado al cliente.`);
         });
     }
 }
-// APLICACIÓN: selecciona qué controlador corresponde al HTML abierto.
+class ControladorPedidos extends ControladorPagina {
+    iniciar() {
+        const anticipo = document.getElementById('form-anticipo');
+        anticipo?.addEventListener('submit', evento => {
+            evento.preventDefault();
+            if (!anticipo.reportValidity())
+                return;
+            const pago = new PagoDemostracion(200, 30);
+            this.mostrarMensaje(anticipo, `Ejemplo: el 25 % de Bs 200 equivale a Bs ${pago.calcularAnticipo().toFixed(2)}. No se ha cobrado ni retenido dinero.`);
+        });
+        const cancelar = document.getElementById('simular-cancelacion');
+        cancelar?.addEventListener('click', () => {
+            const contenedor = cancelar.parentElement;
+            if (contenedor)
+                this.mostrarMensaje(contenedor, 'En la V1 solo se puede cancelar antes de «En proceso». Los reembolsos requieren reglas del backend; no se ejecutó ninguna operación.');
+        });
+        const calificar = document.getElementById('form-calificacion');
+        calificar?.addEventListener('submit', evento => {
+            evento.preventDefault();
+            if (!calificar.reportValidity())
+                return;
+            const opinion = new Calificacion(Number(this.leer('calificar-estrellas')), this.leer('calificar-comentario'));
+            if (!opinion.esValida()) {
+                this.mostrarMensaje(calificar, 'La calificación debe estar entre 1 y 5 estrellas.', true);
+                return;
+            }
+            const reporte = document.getElementById('calificar-reporte')?.checked;
+            this.mostrarMensaje(calificar, `Calificación ilustrativa: ${opinion.estrellas} estrella(s)${reporte ? ' con un reporte de ejemplo' : ''}. No se registró en el sistema.`);
+        });
+    }
+}
+class ControladorAdministracion extends ControladorPagina {
+    iniciar() {
+        document.querySelectorAll('[data-admin-accion]').forEach(boton => {
+            boton.addEventListener('click', () => {
+                const fila = boton.closest('tr[data-candidato]');
+                const estado = fila?.querySelector('[data-estado]');
+                const aviso = document.getElementById('mensaje-admin');
+                const aprobado = boton.dataset.adminAccion === 'aprobar';
+                const nombre = fila?.dataset.candidato ?? 'Trabajador';
+                const motivo = document.getElementById('admin-motivo')?.value.trim() ?? '';
+                if (!aprobado && motivo.length === 0) {
+                    if (aviso)
+                        aviso.textContent = 'Para simular un rechazo, escribe antes un motivo en el campo indicado.';
+                    return;
+                }
+                if (estado) {
+                    estado.textContent = aprobado ? 'Activo (demo)' : 'En revisión (rechazado demo)';
+                    estado.className = `status ${aprobado ? 'status-green' : 'status-gray'}`;
+                }
+                if (aviso)
+                    aviso.textContent = `${nombre}: ${aprobado ? 'aprobación simulada' : 'rechazo simulado por: ' + motivo}. La decisión no se guarda.`;
+            });
+        });
+    }
+}
+/**
+ * Arranque del prototipo. Cada HTML tiene su propio controlador orientado
+ * a objetos. Cuando se migre a Angular, esta selección se sustituirá por
+ * componentes y rutas de Angular.
+ */
 class AplicacionArreglaloYa {
     constructor() {
         this.catalogo = new CatalogoTrabajadores();
     }
     iniciar() {
-        const archivo = window.location.pathname.split('/').pop() ?? 'index.html';
-        let pagina;
+        const archivo = window.location.pathname.split('/').pop() || 'index.html';
+        let controlador;
         switch (archivo) {
             case 'ingresar.html':
-                pagina = new ControladorIngreso();
+                controlador = new ControladorIngreso();
                 break;
             case 'registro.html':
-                pagina = new ControladorRegistro();
-                break;
-            case 'buscar.html':
-                pagina = new ControladorBusqueda(this.catalogo);
+                controlador = new ControladorRegistro();
                 break;
             case 'solicitar.html':
-                pagina = new ControladorSolicitud();
+                controlador = new ControladorSolicitud();
+                break;
+            case 'buscar.html':
+                controlador = new ControladorBusqueda(this.catalogo);
                 break;
             case 'perfil-trabajador.html':
-                pagina = new ControladorPerfilTrabajador(this.catalogo);
+                controlador = new ControladorPerfilTrabajador(this.catalogo);
                 break;
-            case 'editar-perfil.html':
-                pagina = new ControladorEditarPerfil();
+            case 'panel-trabajador.html':
+                controlador = new ControladorPanelTrabajador();
                 break;
-            default: pagina = new ControladorInicio();
+            case 'pedidos.html':
+                controlador = new ControladorPedidos();
+                break;
+            case 'administracion.html':
+                controlador = new ControladorAdministracion();
+                break;
+            default:
+                controlador = new ControladorInicio();
+                break;
         }
-        pagina.iniciar();
+        controlador.iniciar();
     }
 }
-// Punto de entrada del programa.
-document.addEventListener('DOMContentLoaded', () => {
-    const aplicacion = new AplicacionArreglaloYa();
-    aplicacion.iniciar();
-});
+document.addEventListener('DOMContentLoaded', () => new AplicacionArreglaloYa().iniciar());

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="ArreglaloYa · Plataforma de servicios para el hogar en Cochabamba. Prototipo académico.">
+<title>Mis pedidos | ArreglaloYa</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="index.html" aria-label="ArreglaloYa, ir al inicio"><span class="brand-mark" aria-hidden="true">AY</span><span>Arreglalo<span class="accent">Ya</span></span></a>
+    <nav class="nav-links" aria-label="Navegación principal">
+      <a href="index.html">Inicio</a>
+      <a href="buscar.html">Buscar</a>
+      <a href="solicitar.html">Solicitar trabajo</a>
+      <a href="pedidos.html" class="active" aria-current="page">Mis pedidos</a>
+      <a href="panel-trabajador.html">Panel trabajador</a>
+    </nav>
+    <div class="header-actions"><a class="btn btn-ghost btn-sm" href="ingresar.html">Ingresar</a><a class="btn btn-sm" href="registro.html">Crear cuenta</a></div>
+  </div>
+</header>
+<div class="demo-banner">Prototipo académico · Datos de ejemplo · Sin operaciones reales</div>
+<main id="contenido">
+<section class="page-head"><div class="container"><nav class="breadcrumb" aria-label="Ruta"><a href="index.html">Inicio</a><span>/</span>Mis pedidos</nav><span class="eyebrow">Área del cliente</span><h1>Mis pedidos</h1><p>Sigue tus solicitudes, revisa propuestas y conoce el estado de cada trabajo.</p></div></section>
+<section class="content-area"><div class="container">
+<div class="metrics-grid"><article class="metric-card"><span>Solicitudes pendientes</span><strong>1</strong><small>Ejemplo</small></article><article class="metric-card"><span>En proceso</span><strong>1</strong><small>Ejemplo</small></article><article class="metric-card"><span>Finalizados</span><strong>1</strong><small>Ejemplo</small></article></div>
+<div class="section-heading-row section-spacer"><div><span class="eyebrow">Seguimiento</span><h2>Historial de trabajos</h2><p>En la versión integrada verás únicamente los pedidos asociados a tu cuenta.</p></div><a href="solicitar.html" class="btn">Nueva solicitud</a></div>
+<div class="task-cards">
+<article class="task-card"><div class="between"><span class="tag">Electrodomésticos</span><span class="status status-blue">Bajo revisión</span></div><h3>Reparación de lavadora</h3><p>Cercado · Solicitud de ejemplo AY-001</p><p>Ya existe una propuesta. Puedes revisar el monto y las condiciones.</p><a href="#propuesta" class="btn btn-secondary">Revisar propuesta</a></article>
+<article class="task-card"><div class="between"><span class="tag">Albañilería</span><span class="status status-green">En proceso</span></div><h3>Reparación de pared</h3><p>Sacaba · Pedido de ejemplo AY-002</p><p>Trabajo asignado a una persona trabajadora. La información se muestra solo a modo de ejemplo.</p><a href="#seguimiento" class="btn btn-secondary">Ver seguimiento</a></article>
+<article class="task-card"><div class="between"><span class="tag">Electrodomésticos</span><span class="status status-gray">Finalizado</span></div><h3>Mantenimiento de refrigerador</h3><p>Tiquipaya · Pedido de ejemplo AY-003</p><p>Trabajo terminado. Puedes ver el ejemplo de calificación.</p><a href="#calificacion" class="btn btn-secondary">Calificar trabajo</a></article>
+</div>
+<div class="layout-2 section-spacer" id="propuesta">
+<section class="panel"><div class="panel-heading"><span class="eyebrow">HU-03 · RF-09</span><h2>Propuesta del trabajador</h2><p>Antes de aceptar, el cliente debe conocer el monto y todas las condiciones.</p></div>
+<div class="proposal-summary"><div><span>Trabajador (ejemplo)</span><strong>Carlos Mendoza</strong></div><div><span>Modalidad</span><strong>Visita de diagnóstico</strong></div><div><span>Costo de visita</span><strong>Bs 30</strong></div><div><span>Materiales</span><strong>No incluidos</strong></div><div><span>Monto estimado</span><strong>Bs 200</strong></div><div><span>Anticipo ilustrativo (25 %)</span><strong>Bs 50</strong></div></div>
+<div class="mock-qr-row"><div class="mock-qr" aria-label="Espacio reservado para un código QR de pago, no funcional">QR<br><small>DEMO</small></div><p>En la aplicación integrada aparecerá aquí el QR de pago autorizado. Este dibujo no sirve para pagar.</p></div><div class="notice"><strong>Importante:</strong> el monto lo define el trabajador. La V1 del documento prevé una confirmación simulada del pago por QR.</div>
+<form id="form-anticipo" class="stack" style="margin-top:18px"><label class="check-line"><input type="checkbox" id="aceptar-propuesta" required> Comprendo las condiciones y deseo probar la confirmación simulada.</label><button type="submit" class="btn">Simular aceptación y anticipo</button></form>
+</section>
+<aside class="stack"><div class="sidebar-card" id="seguimiento"><h3>Estados del pedido</h3><ol class="timeline"><li class="done"><span>Pendiente</span><small>Solicitud creada</small></li><li class="done"><span>Bajo revisión</span><small>Propuesta seleccionada</small></li><li><span>Aprobado</span><small>Anticipo confirmado</small></li><li><span>En proceso</span><small>Trabajo iniciado</small></li><li><span>Finalizado</span><small>Trabajo terminado</small></li></ol></div><div class="sidebar-card"><h3>¿Necesitas cancelar?</h3><p>La cancelación debe respetar el estado del pedido. El reembolso se resolverá en el backend según las reglas acordadas.</p><button class="btn btn-secondary btn-wide" type="button" id="simular-cancelacion">Ver ejemplo de cancelación</button></div></aside>
+</div>
+<section class="section-spacer" id="calificacion"><div class="layout-2"><section class="panel"><div class="panel-heading"><span class="eyebrow">HU-06 · RF-18</span><h2>Calificar un trabajo finalizado</h2><p>Una calificación por pedido finalizado. Este formulario es solamente una demostración.</p></div>
+<form id="form-calificacion" class="stack"><div class="field"><label for="calificar-estrellas">Calificación</label><select id="calificar-estrellas" required><option value="">Selecciona estrellas</option><option value="1">1 estrella</option><option value="2">2 estrellas</option><option value="3">3 estrellas</option><option value="4">4 estrellas</option><option value="5">5 estrellas</option></select></div><div class="field"><label for="calificar-comentario">Comentario (opcional)</label><textarea id="calificar-comentario" placeholder="Describe tu experiencia..." maxlength="500"></textarea></div><label class="check-line"><input type="checkbox" id="calificar-reporte"> Adjuntar un reporte de incumplimiento para revisión administrativa</label><button type="submit" class="btn">Revisar calificación</button></form></section>
+<aside class="sidebar-card"><h3>Historial de ejemplo</h3><p><strong>AY-003 · Finalizado</strong></p><p>Reparación de refrigerador realizada. El cliente puede calificar, mientras que la calificación privada del trabajador hacia el cliente no es visible.</p><span class="tag">Información ficticia</span></aside></div></section>
+</div></section></main>
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-main">
+      <div><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">AY</span><span>Arreglalo<span class="accent">Ya</span></span></a><p>Servicios para el hogar en Cochabamba, Bolivia.</p></div>
+      <nav class="footer-links" aria-label="Otras páginas"><a href="index.html">Inicio</a><a href="buscar.html">Trabajadores</a><a href="solicitar.html">Solicitar</a><a href="pedidos.html">Mis pedidos</a><a href="panel-trabajador.html">Panel trabajador</a><a href="administracion.html">Administración</a></nav>
+    </div>
+    <div class="footer-bottom"><small>ArreglaloYa · Interfaz académica V1 · Información ilustrativa</small></div>
+  </div>
+</footer>
+<script defer src="app.js"></script>
+</body>
+</html>

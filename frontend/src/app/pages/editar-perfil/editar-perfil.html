@@ -1,1 +1,201 @@
-<p>editar-perfil works!</p>
+
+<main class="editar-page">
+
+  <div class="editar-contenedor">
+
+    <a routerLink="/panel-trabajador" class="volver">
+      ← Volver al panel del trabajador
+    </a>
+
+    <section class="editar-card">
+
+      <span class="etiqueta">ArreglaloYa</span>
+
+      <h1>Editar perfil profesional</h1>
+
+      <p class="descripcion">
+        Actualiza tu información para mostrar
+        qué servicios ofreces en Cochabamba.
+      </p>
+
+      <form
+        #formulario="ngForm"
+        (ngSubmit)="guardarCambios(formulario)"
+        novalidate
+      >
+
+        <!-- NOMBRE -->
+        <div class="campo">
+
+          <label for="nombre">
+            Nombre profesional *
+          </label>
+
+          <input
+            id="nombre"
+            type="text"
+            name="nombre"
+            [(ngModel)]="perfil.nombre"
+            #campoNombre="ngModel"
+            required
+            minlength="3"
+          />
+
+          @if (
+            campoNombre.invalid &&
+            (campoNombre.touched || formulario.submitted)
+          ) {
+            <p class="error">
+              Introduce un nombre de al menos
+              3 caracteres.
+            </p>
+          }
+
+        </div>
+
+        <!-- ESPECIALIDAD -->
+        <div class="campo">
+
+          <label for="especialidad">
+            Especialidad *
+          </label>
+
+          <select
+            id="especialidad"
+            name="especialidad"
+            [(ngModel)]="perfil.especialidad"
+            required
+          >
+            <option value="Albañilería">
+              Albañilería
+            </option>
+
+            <option value="Electrodomésticos">
+              Electrodomésticos
+            </option>
+          </select>
+
+        </div>
+
+        <!-- ZONA -->
+        <div class="campo">
+
+          <label for="zona">
+            Zona de trabajo *
+          </label>
+
+          <input
+            id="zona"
+            type="text"
+            name="zona"
+            [(ngModel)]="perfil.zona"
+            #campoZona="ngModel"
+            required
+            minlength="3"
+            placeholder="Ejemplo: Cercado"
+          />
+
+          @if (
+            campoZona.invalid &&
+            (campoZona.touched || formulario.submitted)
+          ) {
+            <p class="error">
+              Introduce tu zona general de trabajo.
+            </p>
+          }
+
+          <small>
+            No publiques tu dirección particular.
+          </small>
+
+        </div>
+
+        <!-- DESCRIPCIÓN -->
+        <div class="campo">
+
+          <label for="descripcion">
+            Descripción profesional *
+          </label>
+
+          <textarea
+            id="descripcion"
+            name="descripcion"
+            rows="5"
+            [(ngModel)]="perfil.descripcion"
+            #campoDescripcion="ngModel"
+            required
+            minlength="15"
+            placeholder="Describe tus servicios..."
+          ></textarea>
+
+          @if (
+            campoDescripcion.invalid &&
+            (campoDescripcion.touched || formulario.submitted)
+          ) {
+            <p class="error">
+              Escribe una descripción de al menos
+              15 caracteres.
+            </p>
+          }
+
+        </div>
+
+        <!-- DISPONIBILIDAD -->
+        <div class="campo">
+
+          <label for="disponibilidad">
+            Disponibilidad *
+          </label>
+
+          <select
+            id="disponibilidad"
+            name="disponibilidad"
+            [(ngModel)]="perfil.disponibilidad"
+            required
+          >
+            <option value="Mañanas">Mañanas</option>
+            <option value="Tardes">Tardes</option>
+
+            <option value="Fines de semana">
+              Fines de semana
+            </option>
+
+            <option value="A coordinar">
+              A coordinar
+            </option>
+          </select>
+
+        </div>
+
+        <!-- GUARDAR -->
+        <button class="boton-guardar" type="submit">
+          Guardar cambios
+        </button>
+
+        
+@if (mensaje) {
+
+  <p
+    class="mensaje"
+    [class.mensaje-exito]="perfilActualizado"
+    [class.mensaje-error]="!perfilActualizado"
+    role="status"
+  >
+    {{ mensaje }}
+  </p>
+
+}
+
+
+      </form>
+
+      <p class="aviso">
+        Prototipo académico.
+        Los cambios no se guardan en una base de datos.
+      </p>
+
+    </section>
+
+  </div>
+
+</main>

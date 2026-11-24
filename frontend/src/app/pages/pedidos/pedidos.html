@@ -1,0 +1,370 @@
+
+<main class="pedidos-page">
+
+  <div class="pedidos-contenedor">
+
+    <a class="volver" routerLink="/">
+      ← Volver al inicio
+    </a>
+
+    <header class="encabezado">
+      <span class="etiqueta">ArreglaloYa</span>
+
+      <h1>Mis pedidos</h1>
+
+      <p>
+        Consulta tus solicitudes, revisa su avance
+        y califica los trabajos terminados.
+      </p>
+    </header>
+
+    <div class="aviso-demo">
+      Prototipo académico: todos los pedidos,
+      montos y pagos son ficticios.
+    </div>
+
+    <!-- FILTRO DE PEDIDOS -->
+    <section class="filtros">
+
+      <label for="filtroEstado">
+        Filtrar pedidos por estado
+      </label>
+
+      <select
+        id="filtroEstado"
+        name="filtroEstado"
+        [(ngModel)]="filtroEstado"
+      >
+        <option value="Todos">
+          Todos
+        </option>
+
+        <option value="Pendiente">
+          Pendientes
+        </option>
+
+        <option value="En proceso">
+          En proceso
+        </option>
+
+        <option value="Finalizado">
+          Finalizados
+        </option>
+      </select>
+
+      <p class="contador">
+        Pedidos encontrados:
+        {{ pedidosFiltrados.length }}
+      </p>
+
+    </section>
+
+    <!-- LISTA DE PEDIDOS -->
+    <section class="lista-pedidos">
+
+      @for (pedido of pedidosFiltrados; track pedido.id) {
+
+        <article class="pedido-card">
+
+          <!-- ENCABEZADO DEL PEDIDO -->
+          <div class="pedido-encabezado">
+
+            <div>
+              <span class="etiqueta">
+                Pedido N.º {{ pedido.id }}
+              </span>
+
+              <h2>{{ pedido.titulo }}</h2>
+            </div>
+
+            <span
+              class="estado"
+              [class.estado-pendiente]="pedido.estado === 'Pendiente'"
+              [class.estado-proceso]="pedido.estado === 'En proceso'"
+              [class.estado-finalizado]="pedido.estado === 'Finalizado'"
+            >
+              {{ pedido.estado }}
+            </span>
+
+          </div>
+
+          <!-- INFORMACIÓN DEL PEDIDO -->
+          <div class="pedido-datos">
+
+            <p>
+              <strong>Especialidad:</strong>
+              {{ pedido.especialidad }}
+            </p>
+
+            <p>
+              <strong>Trabajador:</strong>
+              {{ pedido.trabajador }}
+            </p>
+
+            <p>
+              <strong>Zona:</strong>
+              {{ pedido.zona }}
+            </p>
+
+            <p>
+              <strong>Fecha:</strong>
+              {{ pedido.fecha }}
+            </p>
+
+            <p>
+              <strong>Monto de ejemplo:</strong>
+
+              @if (pedido.monto !== null) {
+                Bs {{ pedido.monto }}
+              } @else {
+                Por definir
+              }
+            </p>
+
+          </div>
+
+<!-- PROPUESTA RECIBIDA -->
+@if (pedido.propuesta; as propuesta) {
+
+  <section class="propuesta-recibida">
+
+    <h3>Propuesta recibida</h3>
+
+    <p>
+      <strong>Trabajador:</strong>
+      {{ propuesta.trabajador }}
+    </p>
+
+    <p>
+      <strong>Monto propuesto:</strong>
+      Bs {{ propuesta.monto }}
+    </p>
+
+    <p>
+      <strong>Descripción:</strong>
+      {{ propuesta.detalle }}
+    </p>
+
+    @if (pedido.estado === 'Pendiente') {
+      <button
+        type="button"
+        class="boton-principal"
+        (click)="aceptarPropuesta(pedido)"
+      >
+        Aceptar propuesta de prueba
+      </button>
+    }
+
+  </section>
+
+}
+
+          <!-- SEGUIMIENTO -->
+          <div class="seguimiento">
+
+            <h3>Seguimiento del pedido</h3>
+
+            <ol class="pasos">
+
+              @for (paso of pasos; track paso) {
+
+                <li
+                  [class.paso-completado]="
+                    indicePaso(pedido.estado) >= $index
+                  "
+                >
+                  {{ paso }}
+                </li>
+
+              }
+
+            </ol>
+
+            @if (pedido.estado !== 'Finalizado') {
+
+              <button
+                type="button"
+                class="boton-secundario"
+                (click)="avanzarEstado(pedido)"
+              >
+                Avanzar estado de prueba
+              </button>
+
+            }
+
+            <p class="nota">
+              El cambio de estado es únicamente
+              una simulación para practicar Angular.
+            </p>
+
+          </div>
+
+          <!-- PAGO SIMULADO -->
+          <div class="pago">
+
+            <h3>Pago del servicio</h3>
+
+            @if (pedido.estado === 'Finalizado' &&
+                 pedido.monto !== null) {
+
+              @if (pedido.pagoSimulado) {
+
+                <p class="mensaje-correcto">
+                  ✓ Pago simulado registrado
+                </p>
+
+              } @else {
+
+                <p>
+                  Monto de ejemplo:
+                  <strong>Bs {{ pedido.monto }}</strong>
+                </p>
+
+                <button
+                  type="button"
+                  class="boton-principal"
+                  (click)="simularPago(pedido)"
+                >
+                  Simular pago
+                </button>
+
+              }
+
+            } @else {
+
+              <p class="nota">
+                La simulación de pago estará
+                disponible cuando el pedido
+                esté finalizado.
+              </p>
+
+            }
+
+          </div>
+
+          <!-- CALIFICACIÓN -->
+          @if (pedido.estado === 'Finalizado') {
+
+            <div class="calificacion">
+
+              <h3>Calificar al trabajador</h3>
+
+              @if (pedido.calificacionGuardada) {
+
+                <p class="mensaje-correcto">
+                  Calificación guardada:
+                  {{ pedido.calificacion }} de 5 estrellas
+                </p>
+
+                @if (pedido.comentario) {
+                  <p>
+                    <strong>Comentario:</strong>
+                    {{ pedido.comentario }}
+                  </p>
+                }
+
+              } @else {
+
+                <p>
+                  Selecciona una calificación:
+                </p>
+
+                <div
+                  class="estrellas"
+                  aria-label="Calificación del servicio"
+                >
+
+                  @for (estrella of estrellas; track estrella) {
+
+                    <button
+                      type="button"
+                      class="estrella"
+                      [class.seleccionada]="
+                        estrella <= pedido.calificacion
+                      "
+                      [attr.aria-label]="
+                        'Calificar con ' + estrella + ' estrellas'
+                      "
+                      [attr.aria-pressed]="
+                        pedido.calificacion === estrella
+                      "
+                      (click)="seleccionarCalificacion(
+                        pedido,
+                        estrella
+                      )"
+                    >
+                      ★
+                    </button>
+
+                  }
+
+                </div>
+
+                <label
+                  class="label-comentario"
+                  [for]="'comentario-' + pedido.id"
+                >
+                  Comentario (opcional)
+                </label>
+
+                <textarea
+                  [id]="'comentario-' + pedido.id"
+                  rows="3"
+                  maxlength="250"
+                  [(ngModel)]="pedido.comentario"
+                  placeholder="¿Cómo fue el servicio?"
+                ></textarea>
+
+                <button
+                  type="button"
+                  class="boton-principal"
+                  (click)="guardarCalificacion(pedido)"
+                >
+                  Guardar calificación
+                </button>
+
+              }
+
+            </div>
+
+          }
+
+          <!-- MENSAJES -->
+          @if (pedido.mensaje) {
+
+            <p class="mensaje" role="status">
+              {{ pedido.mensaje }}
+            </p>
+
+          }
+
+        </article>
+
+      } @empty {
+
+        <div class="sin-pedidos">
+
+          <h2>No hay pedidos con ese estado</h2>
+
+          <p>
+            Selecciona otro filtro para
+            revisar tus solicitudes de ejemplo.
+          </p>
+
+        </div>
+
+      }
+
+    </section>
+
+    <div class="acciones-finales">
+
+      <a routerLink="/solicitar" class="boton-principal">
+        Solicitar otro trabajo
+      </a>
+
+    </div>
+
+  </div>
+
+</main>

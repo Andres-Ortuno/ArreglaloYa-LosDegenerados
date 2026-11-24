@@ -1,1 +1,298 @@
-<p>registro works!</p>
+
+<main class="registro-page">
+
+  <section class="registro-card">
+
+    <a routerLink="/" class="volver">
+      ← Volver al inicio
+    </a>
+
+    <h1>Crear cuenta en ArreglaloYa</h1>
+
+    <p class="descripcion">
+      Regístrate como cliente o trabajador
+      para utilizar nuestra plataforma.
+    </p>
+
+    <form
+      #formulario="ngForm"
+      (ngSubmit)="registrar(formulario)"
+      novalidate
+    >
+
+      <!-- NOMBRE -->
+      <div class="campo">
+
+        <label for="nombre">
+          Nombre completo
+        </label>
+
+        <input
+          id="nombre"
+          type="text"
+          name="nombre"
+          [(ngModel)]="nombre"
+          #campoNombre="ngModel"
+          placeholder="Nombre de ejemplo"
+          required
+          minlength="3"
+          autocomplete="off"
+        />
+
+        @if (
+          campoNombre.invalid &&
+          (campoNombre.touched || formulario.submitted)
+        ) {
+          <p class="error">
+            Introduce un nombre de al menos 3 caracteres.
+          </p>
+        }
+
+      </div>
+
+      <!-- CORREO -->
+      <div class="campo">
+
+        <label for="correo">
+          Correo electrónico
+        </label>
+
+        <input
+          id="correo"
+          type="email"
+          name="correo"
+          [(ngModel)]="correo"
+          #campoCorreo="ngModel"
+          placeholder="Correo de ejemplo"
+          required
+          email
+          autocomplete="off"
+        />
+
+        @if (
+          campoCorreo.invalid &&
+          (campoCorreo.touched || formulario.submitted)
+        ) {
+          <p class="error">
+            Introduce un correo electrónico válido.
+          </p>
+        }
+
+      </div>
+
+      <!-- TIPO DE USUARIO -->
+      <div class="campo">
+
+        <label for="tipoUsuario">
+          ¿Cómo deseas utilizar ArreglaloYa?
+        </label>
+
+        <select
+          id="tipoUsuario"
+          name="tipoUsuario"
+          [(ngModel)]="tipoUsuario"
+          #campoTipo="ngModel"
+          required
+        >
+          <option value="">
+            Selecciona una opción
+          </option>
+
+          <option value="cliente">
+            Cliente
+          </option>
+
+          <option value="trabajador">
+            Trabajador
+          </option>
+        </select>
+
+        @if (
+          campoTipo.invalid &&
+          (campoTipo.touched || formulario.submitted)
+        ) {
+          <p class="error">
+            Selecciona un tipo de usuario.
+          </p>
+        }
+
+      </div>
+
+      <!-- DATOS EXCLUSIVOS DEL TRABAJADOR -->
+      @if (tipoUsuario === 'trabajador') {
+
+        <div class="datos-trabajador">
+
+          <h2>Información del trabajador</h2>
+
+          <div class="campo">
+
+            <label for="especialidad">
+              Especialidad
+            </label>
+
+            <select
+              id="especialidad"
+              name="especialidad"
+              [(ngModel)]="especialidad"
+              #campoEspecialidad="ngModel"
+              required
+            >
+              <option value="">
+                Selecciona tu especialidad
+              </option>
+
+              <option value="Albañilería">
+                Albañilería
+              </option>
+
+              <option value="Electrodomésticos">
+                Electrodomésticos
+              </option>
+            </select>
+
+            @if (
+              campoEspecialidad.invalid &&
+              (campoEspecialidad.touched || formulario.submitted)
+            ) {
+              <p class="error">
+                Selecciona una especialidad.
+              </p>
+            }
+
+          </div>
+
+          <div class="campo">
+
+            <label for="zona">
+              Zona de trabajo
+            </label>
+
+            <input
+              id="zona"
+              type="text"
+              name="zona"
+              [(ngModel)]="zona"
+              #campoZona="ngModel"
+              placeholder="Ejemplo: Cercado"
+              required
+            />
+
+            @if (
+              campoZona.invalid &&
+              (campoZona.touched || formulario.submitted)
+            ) {
+              <p class="error">
+                Introduce tu zona de trabajo.
+              </p>
+            }
+
+          </div>
+
+        </div>
+
+      }
+
+      <!-- CONTRASEÑA -->
+      <div class="campo">
+
+        <label for="contrasena">
+          Contraseña
+        </label>
+
+        <input
+          id="contrasena"
+          type="password"
+          name="contrasena"
+          [(ngModel)]="contrasena"
+          #campoContrasena="ngModel"
+          placeholder="Contraseña de prueba"
+          required
+          minlength="8"
+          autocomplete="new-password"
+        />
+
+        @if (
+          campoContrasena.invalid &&
+          (campoContrasena.touched || formulario.submitted)
+        ) {
+          <p class="error">
+            Introduce al menos 8 caracteres.
+          </p>
+        }
+
+      </div>
+
+      <!-- CONFIRMAR CONTRASEÑA -->
+      <div class="campo">
+
+        <label for="confirmarContrasena">
+          Confirmar contraseña
+        </label>
+
+        <input
+          id="confirmarContrasena"
+          type="password"
+          name="confirmarContrasena"
+          [(ngModel)]="confirmarContrasena"
+          #campoConfirmacion="ngModel"
+          placeholder="Repite la contraseña de prueba"
+          required
+          autocomplete="new-password"
+        />
+
+        @if (
+          campoConfirmacion.invalid &&
+          (campoConfirmacion.touched || formulario.submitted)
+        ) {
+          <p class="error">
+            Confirma tu contraseña.
+          </p>
+        }
+
+        @if (
+          contrasena &&
+          confirmarContrasena &&
+          contrasena !== confirmarContrasena &&
+          (campoConfirmacion.touched || formulario.submitted)
+        ) {
+          <p class="error">
+            Las contraseñas no coinciden.
+          </p>
+        }
+
+      </div>
+
+      <!-- BOTÓN DE REGISTRO -->
+      <button
+        type="submit"
+        class="boton-registro"
+      >
+        Crear cuenta
+      </button>
+
+      <!-- MENSAJE DE RESULTADO -->
+      @if (mensaje) {
+        <p class="mensaje" role="status">
+          {{ mensaje }}
+        </p>
+      }
+
+    </form>
+
+    <p class="iniciar-sesion">
+      ¿Ya tienes cuenta?
+      <a routerLink="/ingresar">
+        Ingresar
+      </a>
+    </p>
+
+    <p class="aviso">
+      Prototipo académico.
+      Utiliza solamente datos ficticios.
+      No se crearán cuentas reales.
+    </p>
+
+  </section>
+
+</main>

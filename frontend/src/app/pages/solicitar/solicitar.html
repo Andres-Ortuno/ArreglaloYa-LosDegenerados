@@ -1,1 +1,302 @@
-<p>solicitar works!</p>
+
+<main class="solicitud-page">
+
+  <div class="solicitud-contenedor">
+
+    <a routerLink="/" class="volver">
+      ← Volver al inicio
+    </a>
+
+    <section class="solicitud-card">
+
+      <span class="etiqueta">ArreglaloYa</span>
+
+      <h1>Solicitar un trabajo</h1>
+
+      <p class="descripcion-inicial">
+        Cuéntanos qué necesitas reparar.
+        Completa los siguientes datos para
+        preparar una solicitud de servicio.
+      </p>
+
+      <form
+        #formulario="ngForm"
+        (ngSubmit)="enviarSolicitud(formulario)"
+        novalidate
+      >
+
+        <!-- ESPECIALIDAD -->
+        <div class="campo">
+
+          <label for="especialidad">
+            Especialidad *
+          </label>
+
+          <select
+            id="especialidad"
+            name="especialidad"
+            [(ngModel)]="especialidad"
+            #campoEspecialidad="ngModel"
+            required
+          >
+            <option value="">
+              Selecciona una especialidad
+            </option>
+
+            <option value="Albañilería">
+              Albañilería
+            </option>
+
+            <option value="Electrodomésticos">
+              Electrodomésticos
+            </option>
+          </select>
+
+          @if (
+            campoEspecialidad.invalid &&
+            (campoEspecialidad.touched || formulario.submitted)
+          ) {
+            <p class="error">
+              Debes seleccionar una especialidad.
+            </p>
+          }
+
+        </div>
+
+        <!-- TÍTULO -->
+        <div class="campo">
+
+          <label for="titulo">
+            Título de la solicitud *
+          </label>
+
+          <input
+            id="titulo"
+            type="text"
+            name="titulo"
+            [(ngModel)]="titulo"
+            #campoTitulo="ngModel"
+            placeholder="Ejemplo: Reparación de lavadora"
+            required
+            minlength="5"
+            maxlength="80"
+          />
+
+          @if (
+            campoTitulo.invalid &&
+            (campoTitulo.touched || formulario.submitted)
+          ) {
+            <p class="error">
+              El título debe tener al menos 5 caracteres.
+            </p>
+          }
+
+        </div>
+
+        <!-- DESCRIPCIÓN -->
+        <div class="campo">
+
+          <label for="descripcion">
+            Describe el problema *
+          </label>
+
+          <textarea
+            id="descripcion"
+            name="descripcion"
+            [(ngModel)]="descripcion"
+            #campoDescripcion="ngModel"
+            rows="5"
+            placeholder="Explica qué necesitas reparar..."
+            required
+            minlength="15"
+            maxlength="700"
+          ></textarea>
+
+          @if (
+            campoDescripcion.invalid &&
+            (campoDescripcion.touched || formulario.submitted)
+          ) {
+            <p class="error">
+              Escribe una descripción de al menos
+              15 caracteres.
+            </p>
+          }
+
+        </div>
+
+        <!-- ZONA -->
+        <div class="campo">
+
+          <label for="zona">
+            Zona donde necesitas el servicio *
+          </label>
+
+          <input
+            id="zona"
+            type="text"
+            name="zona"
+            [(ngModel)]="zona"
+            #campoZona="ngModel"
+            placeholder="Ejemplo: Cercado, Cochabamba"
+            required
+            minlength="3"
+          />
+
+          @if (
+            campoZona.invalid &&
+            (campoZona.touched || formulario.submitted)
+          ) {
+            <p class="error">
+              Introduce una zona válida.
+            </p>
+          }
+
+          <small>
+            Indica solamente la zona general,
+            no tu dirección exacta.
+          </small>
+
+        </div>
+
+        <!-- DISPONIBILIDAD -->
+        <div class="campo">
+
+          <label for="horario">
+            Horario preferido *
+          </label>
+
+          <select
+            id="horario"
+            name="horario"
+            [(ngModel)]="horario"
+            #campoHorario="ngModel"
+            required
+          >
+            <option value="">
+              Selecciona una opción
+            </option>
+
+            <option value="Mañana">
+              Mañana
+            </option>
+
+            <option value="Tarde">
+              Tarde
+            </option>
+
+            <option value="Fin de semana">
+              Fin de semana
+            </option>
+
+            <option value="A coordinar">
+              A coordinar
+            </option>
+          </select>
+
+          @if (
+            campoHorario.invalid &&
+            (campoHorario.touched || formulario.submitted)
+          ) {
+            <p class="error">
+              Selecciona un horario preferido.
+            </p>
+          }
+
+        </div>
+
+        <!-- FOTOGRAFÍA OPCIONAL -->
+        <div class="campo">
+
+          <label for="fotografia">
+            Fotografía del problema (opcional)
+          </label>
+
+          <input
+            id="fotografia"
+            type="file"
+            accept="image/png,image/jpeg"
+            (change)="seleccionarArchivo($event)"
+          />
+
+          @if (nombreArchivo) {
+            <p class="archivo">
+              Archivo seleccionado:
+              {{ nombreArchivo }}
+            </p>
+          }
+
+          <small>
+            Demostración: la imagen no se sube
+            ni se guarda.
+          </small>
+
+        </div>
+
+        <!-- ENVIAR -->
+        <button
+          class="boton-solicitar"
+          type="submit"
+        >
+          Revisar solicitud
+        </button>
+
+        @if (mensaje) {
+          <p class="mensaje" role="status">
+            {{ mensaje }}
+          </p>
+        }
+
+      </form>
+
+      <!-- RESUMEN DE LA SOLICITUD -->
+      @if (resumen) {
+
+        <section class="resumen">
+
+          <h2>Resumen de tu solicitud</h2>
+
+          <p>
+            <strong>Trabajo:</strong>
+            {{ resumen.titulo }}
+          </p>
+
+          <p>
+            <strong>Especialidad:</strong>
+            {{ resumen.especialidad }}
+          </p>
+
+          <p>
+            <strong>Zona:</strong>
+            {{ resumen.zona }}
+          </p>
+
+          <p>
+            <strong>Horario:</strong>
+            {{ resumen.horario }}
+          </p>
+
+          <p>
+    <a routerLink="/pedidos">
+      Ver mi solicitud en Mis pedidos
+    </a>
+  </p>
+  
+          <small>
+            Este resumen es una demostración.
+            No se creó ningún pedido real.
+          </small>
+
+        </section>
+
+      }
+
+      <p class="aviso">
+        Prototipo académico · Datos de ejemplo ·
+        Sin operaciones reales
+      </p>
+
+    </section>
+
+  </div>
+
+</main>
