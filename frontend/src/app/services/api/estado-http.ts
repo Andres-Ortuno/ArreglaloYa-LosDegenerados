@@ -79,6 +79,13 @@ export class EstadoHttp {
       return 'Ocurrió un error inesperado.';
     }
 
+    // El backend responde con un mensaje claro en español (error.error.message).
+    // Si existe, se muestra ese; en los errores de validación puede ser una lista.
+    const mensajeBackend = (error.error as { message?: string | string[] } | null)?.message;
+    if (error.status !== 0 && mensajeBackend) {
+      return Array.isArray(mensajeBackend) ? mensajeBackend.join(' ') : mensajeBackend;
+    }
+
     switch (error.status) {
 
       case 0:

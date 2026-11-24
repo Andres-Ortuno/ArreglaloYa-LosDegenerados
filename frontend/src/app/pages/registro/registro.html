@@ -80,6 +80,79 @@
 
       </div>
 
+      <!-- TELÉFONO (WhatsApp) -->
+      <div class="campo">
+
+        <label for="telefono">
+          Teléfono de WhatsApp
+        </label>
+
+        <input
+          id="telefono"
+          type="tel"
+          name="telefono"
+          [(ngModel)]="telefono"
+          #campoTelefono="ngModel"
+          placeholder="Ejemplo: +59170000000"
+          required
+          autocomplete="off"
+        />
+
+        @if (
+          (campoTelefono.invalid || !telefonoValido()) &&
+          (campoTelefono.touched || formulario.submitted)
+        ) {
+          <p class="error">
+            Introduce un número de 7 a 15 dígitos (puede empezar con +).
+          </p>
+        }
+
+      </div>
+
+      <!-- TIPO DE CUENTA -->
+      <div class="campo">
+
+        <label for="tipoCuenta">
+          Tipo de cuenta
+        </label>
+
+        <select
+          id="tipoCuenta"
+          name="tipoCuenta"
+          [(ngModel)]="tipoCuenta"
+        >
+          <option value="persona">
+            Persona
+          </option>
+
+          <option value="empresa">
+            Empresa (solo puede contratar)
+          </option>
+        </select>
+
+      </div>
+
+      @if (tipoCuenta === 'empresa') {
+
+        <div class="campo">
+
+          <label for="razonSocial">
+            Razón social
+          </label>
+
+          <input
+            id="razonSocial"
+            type="text"
+            name="razonSocial"
+            [(ngModel)]="razonSocial"
+            placeholder="Nombre de la empresa"
+            autocomplete="off"
+          />
+
+        </div>
+
+      }
+
       <!-- TIPO DE USUARIO -->
       <div class="campo">
 
@@ -142,13 +215,11 @@
                 Selecciona tu especialidad
               </option>
 
-              <option value="Albañilería">
-                Albañilería
-              </option>
-
-              <option value="Electrodomésticos">
-                Electrodomésticos
-              </option>
+              @for (e of especialidades; track e.id) {
+                <option [value]="e.id">
+                  {{ e.nombre }}
+                </option>
+              }
             </select>
 
             @if (
@@ -168,15 +239,23 @@
               Zona de trabajo
             </label>
 
-            <input
+            <select
               id="zona"
-              type="text"
               name="zona"
               [(ngModel)]="zona"
               #campoZona="ngModel"
-              placeholder="Ejemplo: Cercado"
               required
-            />
+            >
+              <option value="">
+                Selecciona tu zona
+              </option>
+
+              @for (z of zonas; track z.id) {
+                <option [value]="z.id">
+                  {{ z.nombre }}
+                </option>
+              }
+            </select>
 
             @if (
               campoZona.invalid &&
@@ -267,8 +346,9 @@
       <button
         type="submit"
         class="boton-registro"
+        [disabled]="enviando"
       >
-        Crear cuenta
+        {{ enviando ? 'Creando cuenta...' : 'Crear cuenta' }}
       </button>
 
       <!-- MENSAJE DE RESULTADO -->
@@ -290,7 +370,6 @@
     <p class="aviso">
       Prototipo académico.
       Utiliza solamente datos ficticios.
-      No se crearán cuentas reales.
     </p>
 
   </section>
