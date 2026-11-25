@@ -41,7 +41,7 @@ export class ApiPedidos {
     return this.http.post(`${this.url}/${id}/pagar-saldo`, datos);
   }
 
-  /** CU-06: acepta o rechaza el nuevo monto propuesto. Si rechaza, el pedido se cancela. */
+  /** CU-06: acepta o rechaza el nuevo monto propuesto. Si lo rechaza, el pedido se cancela. */
   responderCambioMonto(id: number, cambioId: number, aceptar: boolean): Observable<unknown> {
     return this.http.post(`${this.url}/${id}/cambio-monto/${cambioId}/responder`, { aceptar });
   }
@@ -51,7 +51,7 @@ export class ApiPedidos {
     return this.http.post(`${this.url}/${id}/cancelar`, { motivo });
   }
 
-  /** El cliente reporta que el trabajador no se presentó. */
+  /** El cliente reporta que el trabajador no se presentó (solo pasada la hora acordada más el margen). */
   incumplimiento(id: number, motivo?: string): Observable<unknown> {
     return this.http.post(`${this.url}/${id}/incumplimiento`, { motivo });
   }

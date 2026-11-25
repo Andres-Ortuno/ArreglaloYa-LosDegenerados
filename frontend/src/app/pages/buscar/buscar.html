@@ -1,4 +1,3 @@
-
 <main class="section">
   <div class="container">
 
@@ -14,52 +13,106 @@
     </div>
 
     <div class="buscador">
+
+      <label for="filtro-zona">
+        Zona
+      </label>
+
+      <select
+        id="filtro-zona"
+        name="zona"
+        [(ngModel)]="zonaId"
+        (ngModelChange)="buscar()"
+      >
+        <option value="">Todas las zonas</option>
+        @for (z of zonas; track z.id) {
+          <option [value]="z.id">{{ z.nombre }}</option>
+        }
+      </select>
+
+      <label for="filtro-especialidad">
+        Especialidad
+      </label>
+
+      <select
+        id="filtro-especialidad"
+        name="especialidad"
+        [(ngModel)]="especialidadId"
+        (ngModelChange)="buscar()"
+      >
+        <option value="">Todas las especialidades</option>
+        @for (e of especialidades; track e.id) {
+          <option [value]="e.id">{{ e.nombre }}</option>
+        }
+      </select>
+
       <label for="buscar-trabajador">
-        Buscar por especialidad o zona
+        Buscar por nombre
       </label>
 
       <input
         id="buscar-trabajador"
         type="search"
-        placeholder="Ejemplo: Albañilería o Sacaba"
+        placeholder="Ejemplo: Roberto"
         [(ngModel)]="busqueda"
       />
     </div>
 
-    <p>
-      Resultados encontrados:
-      {{ trabajadoresFiltrados.length }}
-    </p>
+    @if (error) {
+      <p role="alert">{{ error }}</p>
+    }
+
+    @if (cargando) {
+      <p>Buscando trabajadores...</p>
+    } @else {
+      <p>
+        Resultados encontrados:
+        {{ trabajadoresFiltrados.length }}
+      </p>
+    }
 
     <div class="fichas">
 
       @for (trabajador of trabajadoresFiltrados; track trabajador.id) {
-<article class="ficha">
-  <h2>{{ trabajador.nombre }}</h2>
+        <article class="ficha">
+          <h2>{{ trabajador.nombre }}</h2>
 
-  <p>
-    <strong>Especialidad:</strong>
-    {{ trabajador.especialidad }}
-  </p>
+          <p>
+            <strong>Especialidad:</strong>
+            {{ trabajador.especialidades.join(', ') }}
+          </p>
 
-  <p>
-    <strong>Zona:</strong>
-    {{ trabajador.zona }}
-  </p>
+          <p>
+            <strong>Zona:</strong>
+            {{ trabajador.zona }}
+          </p>
 
-  <a
-    class="btn"
-    [routerLink]="['/perfil-trabajador', trabajador.id]"
-  >
-    Ver perfil
-  </a>
-</article>
+          <p>
+            <strong>Calificación:</strong>
+            @if (trabajador.cantidadOpiniones > 0) {
+              ★ {{ trabajador.calificacionPromedio }} / 5
+              ({{ trabajador.cantidadOpiniones }}
+              {{ trabajador.cantidadOpiniones === 1 ? 'opinión' : 'opiniones' }})
+            } @else {
+              Sin opiniones todavía
+            }
+          </p>
+
+          <a
+            class="btn"
+            [routerLink]="['/perfil-trabajador', trabajador.id]"
+          >
+            Ver perfil
+          </a>
+        </article>
 
       } @empty {
 
-        <p>
-          No encontramos trabajadores con esa búsqueda.
-        </p>
+        @if (!cargando) {
+          <p>
+            No encontramos trabajadores con esa búsqueda.
+          </p>
+        }
 
       }
 
