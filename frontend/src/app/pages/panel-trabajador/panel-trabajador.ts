@@ -1,27 +1,16 @@
-
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
-import { SolicitudesService } from '../../services/solicitudes.services';
-import type { Pedido } from '../../services/solicitudes.services';
-import { PerfilTrabajadorService } from '../../services/perfil-trabajador.services';
-// DATOS DEL PERFIL
-interface Perfil {
-  nombre: string;
-  especialidad: string;
-  zona: string;
-  descripcion: string;
-  disponibilidad: string;
-}
-
-// DATOS DE LAS PROPUESTAS
-interface Propuesta {
-  id: number;
-  solicitud: string;
-  monto: number;
-  detalle: string;
-}
+import type {
+  MiPerfilTrabajador,
+  MiPostulacion,
+  SolicitudDisponible,
+  TipoTrabajo
+} from '../../models/backend.models';
+import { ApiSolicitudes } from '../../services/backend/api-solicitudes';
+import { ApiTrabajadores } from '../../services/backend/api-trabajadores';
+import { mensajeDeError } from '../../services/backend/errores';
 
 @Component({
   selector: 'app-panel-trabajador',
@@ -30,170 +19,147 @@ interface Propuesta {
   templateUrl: './panel-trabajador.html',
   styleUrl: './panel-trabajador.css'
 })
-export class PanelTrabajador {
+export class PanelTrabajador implements OnInit {
 
-  // SERVICIO COMPARTIDO DE SOLICITUDES
-  private readonly solicitudesService =
-    inject(SolicitudesService);
+  private readonly trabajadores = inject(ApiTrabajadores);
+  private readonly solicitudesApi = inject(ApiSolicitudes);
 
-  // DATOS DEL PERFIL
-private readonly perfilService =
-  inject(PerfilTrabajadorService);
-
-// Obtener una copia de los datos compartidos
-perfil: Perfil = {
-  ...this.perfilService.perfil()
-};
-
-
-  perfilGuardado: Perfil | null = { ...this.perfil };
-  mensajePerfil: string = '';
+  // MI PERFIL (se edita en la pantalla «Editar perfil»)
+  perfil: MiPerfilTrabajador | null = null;
+  sinPerfil: boolean = false;
+  errorPerfil: string = '';
 
   // DOCUMENTO DE DEMOSTRACIÓN
   nombreDocumento: string = '';
 
-  // SOLICITUDES COMPARTIDAS
-  // Obtenemos los pedidos pendientes del servicio
-  get solicitudes(): Pedido[] {
+  // SOLICITUDES DISPONIBLES
+  solicitudes: SolicitudDisponible[] = [];
+  cargandoSolicitudes: boolean = true;
+  errorSolicitudes: string = '';
 
-    return this.solicitudesService.pedidos().filter(
-      pedido => pedido.estado === 'Pendiente'
-    );
-  }
-
-  // PROPUESTAS DE DEMOSTRACIÓN
+  // POSTULACIÓN
   solicitudSeleccionadaId: number | null = null;
   monto: number | null = null;
-  detallePropuesta: string = '';
+  tipoTrabajo: TipoTrabajo = 'visita';
+  costoVisita: number | null = 0;
+  incluyeMateriales: boolean = false;
+  mensajePostulacion: string = '';
+  mensajeCorrecto: boolean = false;
+  enviando: boolean = false;
 
-  propuestas: Propuesta[] = [];
-  mensajePropuesta: string = '';
+  // MIS POSTULACIONES
+  postulaciones: MiPostulacion[] = [];
 
-guardarPerfil(formulario: NgForm): void {
-
-  this.mensajePerfil = '';
-
-  if (
-    formulario.invalid ||
-    !this.perfil.nombre.trim() ||
-    !this.perfil.zona.trim() ||
-    !this.perfil.descripcion.trim()
-  ) {
-    formulario.form.markAllAsTouched();
-
-    this.mensajePerfil =
-      'Revisa los campos obligatorios.';
-
-    return;
+  ngOnInit(): void {
+    this.cargarPerfil();
+    this.cargarSolicitudes();
+    this.cargarPostulaciones();
   }
 
-  // Limpiar espacios innecesarios
-  this.perfil = {
-    nombre: this.perfil.nombre.trim(),
-    especialidad: this.perfil.especialidad,
-    zona: this.perfil.zona.trim(),
-    descripcion: this.perfil.descripcion.trim(),
-    disponibilidad: this.perfil.disponibilidad
-  };
+  // ------------------------------------------------------------ carga
+  private cargarPerfil(): void {
+    this.trabajadores.miPerfil().subscribe({
+      next: (p) => (this.perfil = p),
+      error: (e) => {
+        if (e?.status === 404) this.sinPerfil = true;
+        else this.errorPerfil = mensajeDeError(e);
+      }
+    });
+  }
 
-  // Compartir los cambios con las otras páginas
-  this.perfilService.guardarPerfil(this.perfil);
+  private cargarSolicitudes(): void {
+    this.cargandoSolicitudes = true;
+    this.solicitudesApi.disponibles().subscribe({
+      next: (lista) => {
+        this.solicitudes = lista;
+        this.cargandoSolicitudes = false;
+      },
+      error: (e) => {
+        this.errorSolicitudes = mensajeDeError(e);
+        this.cargandoSolicitudes = false;
+      }
+    });
+  }
 
-  // Actualizar la vista previa
-  this.perfilGuardado = { ...this.perfil };
+  private cargarPostulaciones(): void {
+    this.solicitudesApi.misPostulaciones().subscribe({
+      next: (lista) => (this.postulaciones = lista),
+      error: () => (this.postulaciones = [])
+    });
+  }
 
-  this.mensajePerfil =
-    'Perfil actualizado en esta demostración.';
-}
-
-
-  // RECONOCER UN ARCHIVO SELECCIONADO
+  // ------------------------------------------------------------ documentos (todavía de demostración)
   seleccionarDocumento(evento: Event): void {
-
     const input = evento.target as HTMLInputElement;
     const archivo = input.files?.[0];
-
-    this.nombreDocumento = archivo
-      ? archivo.name
-      : '';
+    this.nombreDocumento = archivo ? archivo.name : '';
   }
 
-  // ELEGIR UNA SOLICITUD DISPONIBLE
+  // ------------------------------------------------------------ postularse
   seleccionarSolicitud(id: number): void {
-
     this.solicitudSeleccionadaId = id;
-    this.mensajePropuesta = '';
+    this.mensajePostulacion = '';
   }
 
-  // PREPARAR UNA PROPUESTA DE PRUEBA
-  prepararPropuesta(formulario: NgForm): void {
+  get solicitudSeleccionada(): SolicitudDisponible | null {
+    return this.solicitudes.find((s) => s.id === this.solicitudSeleccionadaId) ?? null;
+  }
 
-    this.mensajePropuesta = '';
+  enviarPostulacion(formulario: NgForm): void {
 
-    // Buscamos la solicitud seleccionada
-    // dentro de la lista compartida
-    const solicitud = this.solicitudes.find(
-      item => item.id === this.solicitudSeleccionadaId
-    );
+    this.mensajePostulacion = '';
+    this.mensajeCorrecto = false;
 
-    // Comprobar que seleccionó una solicitud
+    const solicitud = this.solicitudSeleccionada;
+
     if (!solicitud) {
-
-      this.mensajePropuesta =
-        'Primero selecciona una solicitud disponible.';
-
+      this.mensajePostulacion = 'Primero selecciona una solicitud disponible.';
       return;
     }
 
-    // Validar el formulario
+    if (solicitud.yaPostulado) {
+      this.mensajePostulacion = 'Ya te postulaste a esta solicitud.';
+      return;
+    }
+
+    const costo = this.tipoTrabajo === 'visita' ? (this.costoVisita ?? 0) : 0;
+
     if (
       formulario.invalid ||
       this.monto === null ||
       !Number.isFinite(this.monto) ||
       this.monto <= 0 ||
-      !this.detallePropuesta.trim()
+      costo < 0
     ) {
-
       formulario.form.markAllAsTouched();
-
-      this.mensajePropuesta =
-        'Revisa el monto y la descripción de tu propuesta.';
-
+      this.mensajePostulacion = 'Revisa el monto y el costo de la visita.';
       return;
     }
 
-    // Crear una propuesta de demostración
-    const propuesta: Propuesta = {
-      id: this.propuestas.length + 1,
-      solicitud: solicitud.titulo,
+    this.enviando = true;
+    this.solicitudesApi.postularse(solicitud.id, {
       monto: this.monto,
-      detalle: this.detallePropuesta.trim()
-    };
-
-    // Agregar la propuesta a la lista local
-    this.propuestas.push(propuesta);
-
-this.solicitudesService.actualizarPedido(
-  solicitud.id,
-  {
-    propuesta: {
-      monto: propuesta.monto,
-      detalle: propuesta.detalle,
-      trabajador: this.perfil.nombre
-    },
-    monto: propuesta.monto,
-    trabajador: this.perfil.nombre
-  }
-);
-
-    this.mensajePropuesta =
-      'Propuesta preparada. No se ha enviado a ningún cliente.';
-
-    // Limpiar los campos
-    this.solicitudSeleccionadaId = null;
-    this.monto = null;
-    this.detallePropuesta = '';
-
-    formulario.resetForm();
+      tipoTrabajo: this.tipoTrabajo,
+      costoVisita: costo,
+      incluyeMateriales: this.incluyeMateriales
+    }).subscribe({
+      next: () => {
+        this.enviando = false;
+        this.mensajeCorrecto = true;
+        this.mensajePostulacion = 'Propuesta enviada. El cliente fue notificado.';
+        this.solicitudSeleccionadaId = null;
+        this.monto = null;
+        this.costoVisita = 0;
+        this.incluyeMateriales = false;
+        this.tipoTrabajo = 'visita';
+        formulario.resetForm({ tipoTrabajo: 'visita', costoVisita: 0, incluyeMateriales: false });
+        this.cargarSolicitudes();
+        this.cargarPostulaciones();
+      },
+      error: (e) => {
+        this.enviando = false;
+        this.mensajePostulacion = mensajeDeError(e, 'No se pudo enviar la propuesta.');
+      }
+    });
   }
 }

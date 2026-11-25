@@ -1,6 +1,4 @@
-
 <main class="panel-page">
-
   <div class="panel-contenedor">
 
     <a class="volver" routerLink="/">
@@ -9,192 +7,79 @@
 
     <header class="panel-header">
       <span class="etiqueta">ArreglaloYa</span>
+
       <h1>Panel del trabajador</h1>
 
       <p>
-        Administra tu perfil y revisa oportunidades
+        Revisa tu perfil y las oportunidades
         de trabajo en Cochabamba.
       </p>
     </header>
 
     <div class="aviso-demo">
-      Prototipo académico:
-      todos los datos y solicitudes son ficticios.
+      Prototipo académico: los pagos son simulados.
     </div>
 
-    <!-- EDITAR PERFIL -->
+    <!-- MI PERFIL -->
     <section class="panel-card">
 
       <h2>Mi perfil profesional</h2>
 
-      <p class="ayuda">
-        Completa la información que aparecería
-        en tu perfil de trabajador.
-      </p>
+      @if (perfil; as p) {
 
-<a
-  routerLink="/editar-perfil"
-  class="boton-secundario"
->
-  Editar mi perfil
-</a>
-
-<a
-  routerLink="/perfil-trabajador/1"
-  class="boton-secundario enlace-editar"
->
-  Ver mi perfil público
-</a>
-
-      <form
-        #formularioPerfil="ngForm"
-        (ngSubmit)="guardarPerfil(formularioPerfil)"
-        novalidate
-      >
-      
-
-        <div class="campo">
-          <label for="nombre">
-            Nombre profesional *
-          </label>
-
-          <input
-            id="nombre"
-            type="text"
-            name="nombre"
-            [(ngModel)]="perfil.nombre"
-            #campoNombre="ngModel"
-            required
-            minlength="3"
-          />
-
-          @if (
-            campoNombre.invalid &&
-            (campoNombre.touched || formularioPerfil.submitted)
-          ) {
-            <p class="error">
-              Introduce al menos 3 caracteres.
-            </p>
-          }
-        </div>
-
-        <div class="campo">
-          <label for="especialidad">
-            Especialidad *
-          </label>
-
-          <select
-            id="especialidad"
-            name="especialidad"
-            [(ngModel)]="perfil.especialidad"
-            required
-          >
-            <option value="Albañilería">
-              Albañilería
-            </option>
-            <option value="Electrodomésticos">
-              Electrodomésticos
-            </option>
-          </select>
-        </div>
-
-        <div class="campo">
-          <label for="zona">
-            Zona de trabajo *
-          </label>
-
-          <input
-            id="zona"
-            type="text"
-            name="zona"
-            [(ngModel)]="perfil.zona"
-            #campoZona="ngModel"
-            required
-            minlength="3"
-          />
-
-          @if (
-            campoZona.invalid &&
-            (campoZona.touched || formularioPerfil.submitted)
-          ) {
-            <p class="error">
-              Indica tu zona general de trabajo.
-            </p>
-          }
-
-          <small>
-            No publiques una dirección particular.
-          </small>
-        </div>
-
-        <div class="campo">
-          <label for="descripcion">
-            Descripción profesional *
-          </label>
-
-          <textarea
-            id="descripcion"
-            name="descripcion"
-            rows="4"
-            [(ngModel)]="perfil.descripcion"
-            #campoDescripcion="ngModel"
-            required
-            minlength="15"
-          ></textarea>
-
-          @if (
-            campoDescripcion.invalid &&
-            (campoDescripcion.touched || formularioPerfil.submitted)
-          ) {
-            <p class="error">
-              La descripción debe tener
-              al menos 15 caracteres.
-            </p>
-          }
-        </div>
-
-        <div class="campo">
-          <label for="disponibilidad">
-            Disponibilidad *
-          </label>
-
-          <select
-            id="disponibilidad"
-            name="disponibilidad"
-            [(ngModel)]="perfil.disponibilidad"
-            required
-          >
-            <option value="Mañanas">Mañanas</option>
-            <option value="Tardes">Tardes</option>
-            <option value="Fines de semana">
-              Fines de semana
-            </option>
-            <option value="A coordinar">
-              A coordinar
-            </option>
-          </select>
-        </div>
-
-        <button type="submit" class="boton-principal">
-          Guardar perfil de prueba
-        </button>
-
-        @if (mensajePerfil) {
-          <p class="mensaje" role="status">
-            {{ mensajePerfil }}
+        <div class="resumen">
+          <p><strong>Nombre:</strong> {{ p.nombre }}</p>
+          <p><strong>Especialidades:</strong> {{ p.especialidades.join(', ') }}</p>
+          <p><strong>Zona:</strong> {{ p.zona }}</p>
+          <p>
+            <strong>Estado:</strong>
+            @switch (p.estado) {
+              @case ('activo') { Activo: los clientes pueden verte }
+              @case ('en_revision') { En revisión: el administrador debe verificar tu perfil }
+              @default { Suspendido }
+            }
           </p>
+          <p>
+            <strong>Calificación:</strong>
+            @if (p.cantidadOpiniones > 0) {
+              ★ {{ p.calificacionPromedio }} / 5 ({{ p.cantidadOpiniones }})
+            } @else {
+              Sin opiniones todavía
+            }
+          </p>
+        </div>
+
+        <a routerLink="/editar-perfil" class="boton-secundario">
+          Editar mi perfil
+        </a>
+
+        @if (p.estado === 'activo') {
+          <a
+            [routerLink]="['/perfil-trabajador', p.id]"
+            class="boton-secundario enlace-editar"
+          >
+            Ver mi perfil público
+          </a>
         }
 
-      </form>
+      } @else if (sinPerfil) {
 
-      @if (perfilGuardado; as datos) {
-        <div class="resumen">
-          <h3>Vista previa del perfil guardado</h3>
-          <p><strong>Nombre:</strong> {{ datos.nombre }}</p>
-          <p><strong>Especialidad:</strong> {{ datos.especialidad }}</p>
-          <p><strong>Zona:</strong> {{ datos.zona }}</p>
-          <p><strong>Disponibilidad:</strong> {{ datos.disponibilidad }}</p>
-        </div>
+        <p class="ayuda">
+          Todavía no creaste tu perfil de trabajador.
+        </p>
+
+        <a routerLink="/editar-perfil" class="boton-principal">
+          Crear mi perfil
+        </a>
+
+      } @else if (errorPerfil) {
+
+        <p class="mensaje" role="alert">{{ errorPerfil }}</p>
+
+      } @else {
+
+        <p class="ayuda">Cargando perfil...</p>
+
       }
 
     </section>
@@ -205,11 +90,11 @@
       <h2>Documentos del trabajador</h2>
 
       <p class="ayuda">
-        Aquí se incorporará posteriormente
-        el sistema de verificación de trabajadores.
+        Aquí se incorporará la verificación de trabajadores.
       </p>
 
       <div class="campo">
+
         <label for="documento">
           Seleccionar archivo de ejemplo
         </label>
@@ -223,8 +108,7 @@
 
         @if (nombreDocumento) {
           <p class="mensaje">
-            Archivo seleccionado:
-            {{ nombreDocumento }}
+            Archivo seleccionado: {{ nombreDocumento }}
           </p>
         }
 
@@ -233,19 +117,28 @@
           No se sube ni se guarda el archivo.
           No utilices documentos personales reales.
         </small>
+
       </div>
 
     </section>
 
-    <!-- TRABAJOS DISPONIBLES -->
+    <!-- SOLICITUDES DISPONIBLES -->
     <section class="panel-card">
 
       <h2>Solicitudes disponibles</h2>
 
       <p class="ayuda">
-        Estas solicitudes son ejemplos
-        para practicar la preparación de propuestas.
+        Solicitudes pendientes de tu zona y tus especialidades,
+        de la más antigua a la más reciente.
       </p>
+
+      @if (cargandoSolicitudes) {
+        <p class="ayuda">Cargando solicitudes...</p>
+      }
+
+      @if (errorSolicitudes) {
+        <p class="mensaje" role="alert">{{ errorSolicitudes }}</p>
+      }
 
       <div class="solicitudes-grid">
 
@@ -257,7 +150,7 @@
               {{ solicitud.especialidad }}
             </span>
 
-            <h3>{{ solicitud.titulo }}</h3>
+            <h3>Solicitud N.º {{ solicitud.id }}</h3>
 
             <p>{{ solicitud.descripcion }}</p>
 
@@ -266,21 +159,44 @@
               {{ solicitud.zona }}
             </p>
 
-            <button
-              type="button"
-              class="boton-secundario"
-              (click)="seleccionarSolicitud(solicitud.id)"
-            >
-              Seleccionar solicitud
-            </button>
+            <p>
+              <strong>Ubicación:</strong>
+              {{ solicitud.ubicacion }}
+            </p>
 
-            @if (solicitudSeleccionadaId === solicitud.id) {
+            @if (solicitud.yaPostulado) {
+
               <p class="seleccionada">
-                ✓ Solicitud seleccionada
+                ✓ Ya enviaste tu propuesta
               </p>
+
+            } @else {
+
+              <button
+                type="button"
+                class="boton-secundario"
+                (click)="seleccionarSolicitud(solicitud.id)"
+              >
+                Seleccionar solicitud
+              </button>
+
+              @if (solicitudSeleccionadaId === solicitud.id) {
+                <p class="seleccionada">
+                  ✓ Solicitud seleccionada
+                </p>
+              }
+
             }
 
           </article>
+
+        } @empty {
+
+          @if (!cargandoSolicitudes && !errorSolicitudes) {
+            <p class="ayuda">
+              No hay solicitudes pendientes para tu zona y especialidades.
+            </p>
+          }
 
         }
 
@@ -288,30 +204,30 @@
 
     </section>
 
-    <!-- PREPARAR PROPUESTA -->
+    <!-- ENVIAR PROPUESTA -->
     <section class="panel-card">
 
-      <h2>Preparar una propuesta</h2>
+      <h2>Enviar una propuesta</h2>
 
       <p class="ayuda">
         Selecciona una solicitud de la lista anterior
         y escribe tu propuesta económica.
       </p>
 
-      @if (solicitudSeleccionadaId !== null) {
+      @if (solicitudSeleccionada; as sel) {
         <p class="seleccionada">
-          Solicitud seleccionada:
-          N.º {{ solicitudSeleccionadaId }}
+          Solicitud seleccionada: N.º {{ sel.id }} · {{ sel.especialidad }}
         </p>
       }
 
       <form
         #formularioPropuesta="ngForm"
-        (ngSubmit)="prepararPropuesta(formularioPropuesta)"
+        (ngSubmit)="enviarPostulacion(formularioPropuesta)"
         novalidate
       >
 
         <div class="campo">
+
           <label for="monto">
             Monto propuesto (Bs) *
           </label>
@@ -336,44 +252,77 @@
               Introduce un monto válido mayor que cero.
             </p>
           }
+
         </div>
 
         <div class="campo">
-          <label for="detalle">
-            Descripción de la propuesta *
+
+          <label for="tipoTrabajo">
+            Tipo de trabajo *
           </label>
 
-          <textarea
-            id="detalle"
-            name="detalle"
-            rows="4"
-            [(ngModel)]="detallePropuesta"
-            #campoDetalle="ngModel"
-            required
-            minlength="10"
-            placeholder="Describe el servicio que ofrecerías..."
-          ></textarea>
+          <select
+            id="tipoTrabajo"
+            name="tipoTrabajo"
+            [(ngModel)]="tipoTrabajo"
+          >
+            <option value="visita">Con visita al lugar</option>
+            <option value="fotos">Solo por las fotos</option>
+          </select>
 
-          @if (
-            campoDetalle.invalid &&
-            (campoDetalle.touched || formularioPropuesta.submitted)
-          ) {
-            <p class="error">
-              Introduce al menos 10 caracteres.
-            </p>
-          }
+        </div>
+
+        @if (tipoTrabajo === 'visita') {
+
+          <div class="campo">
+
+            <label for="costoVisita">
+              Costo de la visita (Bs)
+            </label>
+
+            <input
+              id="costoVisita"
+              type="number"
+              name="costoVisita"
+              min="0"
+              step="1"
+              [(ngModel)]="costoVisita"
+              placeholder="0 si no cobras la visita"
+            />
+
+          </div>
+
+        }
+
+        <div class="campo">
+
+          <label for="materiales">
+            <input
+              id="materiales"
+              type="checkbox"
+              name="incluyeMateriales"
+              [(ngModel)]="incluyeMateriales"
+            />
+            El monto incluye materiales
+          </label>
+
         </div>
 
         <button
           type="submit"
           class="boton-principal"
+          [disabled]="enviando"
         >
-          Preparar propuesta
+          {{ enviando ? 'Enviando...' : 'Enviar propuesta' }}
         </button>
 
-        @if (mensajePropuesta) {
-          <p class="mensaje" role="status">
-            {{ mensajePropuesta }}
+        @if (mensajePostulacion) {
+          <p
+            class="mensaje"
+            [class.mensaje-correcto]="mensajeCorrecto"
+            role="status"
+          >
+            {{ mensajePostulacion }}
           </p>
         }
 
@@ -381,40 +330,55 @@
 
     </section>
 
-    <!-- PROPUESTAS PREPARADAS -->
+    <!-- MIS POSTULACIONES -->
     <section class="panel-card">
 
-      <h2>Mis propuestas de prueba</h2>
+      <h2>Mis propuestas enviadas</h2>
 
-      @for (propuesta of propuestas; track propuesta.id) {
+      @for (post of postulaciones; track post.id) {
 
         <article class="propuesta-item">
 
-          <h3>{{ propuesta.solicitud }}</h3>
+          <h3>Solicitud N.º {{ post.solicitudId }} · {{ post.especialidad }}</h3>
+
+          <p>{{ post.descripcion }}</p>
 
           <p>
-            <strong>Monto:</strong>
-            Bs {{ propuesta.monto }}
+            <strong>Monto:</strong> Bs {{ post.monto }}
+            · {{ post.tipoTrabajo === 'visita' ? 'con visita' : 'por fotos' }}
+            · {{ post.incluyeMateriales ? 'con materiales' : 'sin materiales' }}
           </p>
 
-          <p>{{ propuesta.detalle }}</p>
-
           <span class="etiqueta">
-            Borrador de demostración
+            @switch (post.estado) {
+              @case ('elegida') { Elegida por el cliente }
+              @case ('descartada') { No elegida }
+              @default { Esperando respuesta }
+            }
           </span>
+
+          @if (post.pedidoId) {
+            <p>
+              <a routerLink="/pedidos">Ver el pedido N.º {{ post.pedidoId }}</a>
+            </p>
+          }
 
         </article>
 
       } @empty {
 
         <p class="ayuda">
-          Todavía no preparaste ninguna propuesta.
+          Todavía no enviaste ninguna propuesta.
         </p>
 
       }
 
+      <p class="ayuda">
+        Tus pedidos aceptados (iniciar, finalizar, cambiar el monto)
+        están en <a routerLink="/pedidos">Mis pedidos</a>.
+      </p>
+
     </section>
 
   </div>
-
 </main>

@@ -1,4 +1,3 @@
-
 <main class="pedidos-page">
 
   <div class="pedidos-contenedor">
@@ -13,14 +12,14 @@
       <h1>Mis pedidos</h1>
 
       <p>
-        Consulta tus solicitudes, revisa su avance
-        y califica los trabajos terminados.
+        Consulta tus solicitudes y pedidos, elige propuestas,
+        paga y califica los trabajos terminados.
       </p>
     </header>
 
     <div class="aviso-demo">
-      Prototipo académico: todos los pedidos,
-      montos y pagos son ficticios.
+      Prototipo académico: los pagos son simulados.
+      No se realiza ninguna transacción real.
     </div>
 
     <!-- FILTRO DE PEDIDOS -->
@@ -35,21 +34,12 @@
         name="filtroEstado"
         [(ngModel)]="filtroEstado"
       >
-        <option value="Todos">
-          Todos
-        </option>
-
-        <option value="Pendiente">
-          Pendientes
-        </option>
-
-        <option value="En proceso">
-          En proceso
-        </option>
-
-        <option value="Finalizado">
-          Finalizados
-        </option>
+        <option value="Todos">Todos</option>
+        <option value="bajo_revision">Bajo revisión</option>
+        <option value="aprobado">Aprobados</option>
+        <option value="en_proceso">En proceso</option>
+        <option value="finalizado">Finalizados</option>
+        <option value="cancelado">Cancelados</option>
       </select>
 
       <p class="contador">
@@ -58,6 +48,135 @@
       </p>
 
     </section>
+
+    @if (cargando) {
+      <p class="nota">Cargando tus pedidos...</p>
+    }
+
+    @if (errorLista) {
+      <p class="mensaje" role="alert">{{ errorLista }}</p>
+    }
+
+    <!-- MIS SOLICITUDES PENDIENTES -->
+    @if (solicitudes.length > 0) {
+
+      <section class="lista-pedidos">
+
+        <h2>Mis solicitudes esperando propuesta</h2>
+
+        @for (sol of solicitudes; track sol.id) {
+
+          <article class="pedido-card">
+
+            <div class="pedido-encabezado">
+              <div>
+                <span class="etiqueta">Solicitud N.º {{ sol.id }}</span>
+                <h2>{{ sol.descripcion }}</h2>
+              </div>
+
+              <span class="estado estado-revision">
+                {{ sol.cantidadPostulaciones }}
+                {{ sol.cantidadPostulaciones === 1 ? 'propuesta' : 'propuestas' }}
+              </span>
+            </div>
+
+            <div class="pedido-datos">
+              <p><strong>Especialidad:</strong> {{ sol.especialidad }}</p>
+              <p><strong>Zona:</strong> {{ sol.zona }}</p>
+              <p><strong>Vence:</strong> {{ sol.venceEn | date: 'dd/MM/yyyy' }}</p>
+            </div>
+
+            <button
+              type="button"
+              class="boton-secundario"
+              (click)="alternarSolicitud(sol.id)"
+            >
+              {{ solicitudAbierta === sol.id ? 'Ocultar propuestas' : 'Ver propuestas recibidas' }}
+            </button>
+
+            @if (solicitudAbierta === sol.id) {
+
+              @if (detalleSolicitud; as ds) {
+
+                @if (ds.postulaciones.length > 0 && ds.horarios && ds.horarios.length > 0) {
+
+                  <label for="horario-{{ ds.id }}">Horario en que recibirás al trabajador</label>
+                  <select id="horario-{{ ds.id }}" name="horarioElegido" [(ngModel)]="horarioElegido">
+                    <option value="">Elige un horario</option>
+                    @for (hr of ds.horarios; track hr.id) {
+                      <option [value]="hr.id">
+                        {{ hr.inicio | date: 'dd/MM/yyyy HH:mm' }} a {{ hr.fin | date: 'HH:mm' }}
+                      </option>
+                    }
+                  </select>
+                }
+
+                @for (po of ds.postulaciones; track po.id) {
+
+                  <section class="propuesta-recibida">
+
+                    <h3>{{ po.trabajador }} · Bs {{ po.monto }}</h3>
+
+                    <p>
+                      {{ po.tipoTrabajo === 'visita' ? 'Con visita' : 'Por fotos' }}
+                      @if (po.costoVisita > 0) { · visita Bs {{ po.costoVisita }} }
+                      · {{ po.incluyeMateriales ? 'incluye materiales' : 'sin materiales' }}
+                    </p>
+
+                    <p>
+                      <strong>Zona:</strong> {{ po.zona }} ·
+                      @if (po.cantidadOpiniones > 0) {
+                        ★ {{ po.calificacionPromedio }} / 5 ({{ po.cantidadOpiniones }})
+                      } @else {
+                        Sin opiniones todavía
+                      }
+                    </p>
+
+                    <button
+                      type="button"
+                      class="boton-principal"
+                      [disabled]="ocupado"
+                      (click)="elegirPostulacion(po.id)"
+                    >
+                      Elegir esta propuesta
+                    </button>
+
+                  </section>
+
+                } @empty {
+
+                  <p class="nota">Todavía no recibiste propuestas. Te avisaremos cuando llegue una.</p>
+
+                }
+
+                <button
+                  type="button"
+                  class="boton-secundario"
+                  [disabled]="ocupado"
+                  (click)="cancelarSolicitud(ds.id)"
+                >
+                  Cancelar esta solicitud
+                </button>
+
+              } @else {
+                <p class="nota">Cargando propuestas...</p>
+              }
+
+              @if (mensajeSolicitud) {
+                <p class="mensaje" [class.mensaje-correcto]="mensajeSolicitudCorrecto" role="status">
+                  {{ mensajeSolicitud }}
+                </p>
+              }
+
+            }
+
+          </article>
+
+        }
+
+      </section>
+
+    }
 
     <!-- LISTA DE PEDIDOS -->
     <section class="lista-pedidos">
@@ -71,19 +190,22 @@
 
             <div>
               <span class="etiqueta">
-                Pedido N.º {{ pedido.id }}
+                Pedido N.º {{ pedido.id }} ·
+                {{ pedido.miRol === 'cliente' ? 'Como cliente' : 'Como trabajador' }}
               </span>
 
-              <h2>{{ pedido.titulo }}</h2>
+              <h2>{{ pedido.descripcion }}</h2>
             </div>
 
             <span
               class="estado"
-              [class.estado-pendiente]="pedido.estado === 'Pendiente'"
-              [class.estado-proceso]="pedido.estado === 'En proceso'"
-              [class.estado-finalizado]="pedido.estado === 'Finalizado'"
+              [class.estado-revision]="pedido.estado === 'bajo_revision'"
+              [class.estado-aprobado]="pedido.estado === 'aprobado'"
+              [class.estado-proceso]="pedido.estado === 'en_proceso'"
+              [class.estado-finalizado]="pedido.estado === 'finalizado'"
+              [class.estado-cancelado]="pedido.estado === 'cancelado'"
             >
-              {{ pedido.estado }}
+              {{ etiqueta[pedido.estado] }}
             </span>
 
           </div>
@@ -97,8 +219,8 @@
             </p>
 
             <p>
-              <strong>Trabajador:</strong>
-              {{ pedido.trabajador }}
+              <strong>{{ pedido.miRol === 'cliente' ? 'Trabajador' : 'Cliente' }}:</strong>
+              {{ pedido.contraparte }}
             </p>
 
             <p>
@@ -107,234 +229,267 @@
             </p>
 
             <p>
-              <strong>Fecha:</strong>
-              {{ pedido.fecha }}
+              <strong>Horario:</strong>
+              {{ pedido.horarioInicio | date: 'dd/MM/yyyy HH:mm' }}
             </p>
 
             <p>
-              <strong>Monto de ejemplo:</strong>
-
-              @if (pedido.monto !== null) {
-                Bs {{ pedido.monto }}
-              } @else {
-                Por definir
-              }
+              <strong>Monto:</strong>
+              Bs {{ pedido.montoVigente }}
             </p>
 
           </div>
-
-<!-- PROPUESTA RECIBIDA -->
-@if (pedido.propuesta; as propuesta) {
-
-  <section class="propuesta-recibida">
-
-    <h3>Propuesta recibida</h3>
-
-    <p>
-      <strong>Trabajador:</strong>
-      {{ propuesta.trabajador }}
-    </p>
-
-    <p>
-      <strong>Monto propuesto:</strong>
-      Bs {{ propuesta.monto }}
-    </p>
-
-    <p>
-      <strong>Descripción:</strong>
-      {{ propuesta.detalle }}
-    </p>
-
-    @if (pedido.estado === 'Pendiente') {
-      <button
-        type="button"
-        class="boton-principal"
-        (click)="aceptarPropuesta(pedido)"
-      >
-        Aceptar propuesta de prueba
-      </button>
-    }
-
-  </section>
-
-}
 
           <!-- SEGUIMIENTO -->
-          <div class="seguimiento">
+          @if (pedido.estado !== 'cancelado') {
+            <div class="seguimiento">
 
-            <h3>Seguimiento del pedido</h3>
+              <h3>Seguimiento del pedido</h3>
 
-            <ol class="pasos">
+              <ol class="pasos">
+                @for (paso of pasos; track paso) {
+                  <li [class.paso-completado]="indicePaso(pedido.estado) >= $index">
+                    {{ etiqueta[paso] }}
+                  </li>
+                }
+              </ol>
 
-              @for (paso of pasos; track paso) {
+            </div>
+          }
 
-                <li
-                  [class.paso-completado]="
-                    indicePaso(pedido.estado) >= $index
-                  "
-                >
-                  {{ paso }}
-                </li>
+          <button
+            type="button"
+            class="boton-secundario"
+            (click)="alternar(pedido.id)"
+          >
+            {{ abierto === pedido.id ? 'Ocultar detalle' : 'Ver detalle y acciones' }}
+          </button>
 
-              }
+          <!-- DETALLE Y ACCIONES (se pide al backend) -->
+          @if (abierto === pedido.id) {
 
-            </ol>
+            @if (detalle; as d) {
 
-            @if (pedido.estado !== 'Finalizado') {
-
-              <button
-                type="button"
-                class="boton-secundario"
-                (click)="avanzarEstado(pedido)"
-              >
-                Avanzar estado de prueba
-              </button>
-
-            }
-
-            <p class="nota">
-              El cambio de estado es únicamente
-              una simulación para practicar Angular.
-            </p>
-
-          </div>
-
-          <!-- PAGO SIMULADO -->
-          <div class="pago">
-
-            <h3>Pago del servicio</h3>
-
-            @if (pedido.estado === 'Finalizado' &&
-                 pedido.monto !== null) {
-
-              @if (pedido.pagoSimulado) {
-
-                <p class="mensaje-correcto">
-                  ✓ Pago simulado registrado
-                </p>
-
-              } @else {
-
+              <div class="pedido-datos">
+                <p><strong>Ubicación:</strong> {{ d.ubicacion }}</p>
                 <p>
-                  Monto de ejemplo:
-                  <strong>Bs {{ pedido.monto }}</strong>
+                  <strong>Tipo de trabajo:</strong>
+                  {{ d.tipoTrabajo === 'visita' ? 'Con visita' : 'Por fotos' }}
+                  @if (d.costoVisita > 0) { · visita Bs {{ d.costoVisita }} }
+                  {{ d.incluyeMateriales ? '· incluye materiales' : '· sin materiales' }}
                 </p>
+                @if (d.motivoCancelacion) {
+                  <p><strong>Motivo de cancelación:</strong> {{ d.motivoCancelacion }}</p>
+                }
+              </div>
 
-                <button
-                  type="button"
-                  class="boton-principal"
-                  (click)="simularPago(pedido)"
-                >
-                  Simular pago
-                </button>
+              <!-- PAGOS -->
+              <div class="pago">
 
-              }
+                <h3>Pagos</h3>
 
-            } @else {
-
-              <p class="nota">
-                La simulación de pago estará
-                disponible cuando el pedido
-                esté finalizado.
-              </p>
-
-            }
-
-          </div>
-
-          <!-- CALIFICACIÓN -->
-          @if (pedido.estado === 'Finalizado') {
-
-            <div class="calificacion">
-
-              <h3>Calificar al trabajador</h3>
-
-              @if (pedido.calificacionGuardada) {
-
-                <p class="mensaje-correcto">
-                  Calificación guardada:
-                  {{ pedido.calificacion }} de 5 estrellas
-                </p>
-
-                @if (pedido.comentario) {
+                @for (pago of d.pagos; track pago.id) {
                   <p>
-                    <strong>Comentario:</strong>
-                    {{ pedido.comentario }}
+                    {{ pago.tipo === 'anticipo' ? 'Anticipo' : 'Saldo' }}:
+                    <strong>Bs {{ pago.monto }}</strong>
+                    · {{ pago.medio }} · {{ pago.estado }}
                   </p>
+                } @empty {
+                  <p class="nota">Todavía no hay pagos registrados.</p>
                 }
 
-              } @else {
+                @if (d.saldoPendiente > 0) {
+                  <p>Saldo pendiente: <strong>Bs {{ d.saldoPendiente }}</strong></p>
+                }
 
-                <p>
-                  Selecciona una calificación:
-                </p>
+                <!-- Pagar anticipo (cliente) -->
+                @if (d.miRol === 'cliente' && d.estado === 'bajo_revision') {
 
-                <div
-                  class="estrellas"
-                  aria-label="Calificación del servicio"
-                >
+                  <p>
+                    Anticipo a pagar:
+                    <strong>Bs {{ d.anticipoRequerido }}</strong>
+                  </p>
 
-                  @for (estrella of estrellas; track estrella) {
+                  @if (d.qrPagoUrl) {
+                    <p class="nota">QR del trabajador: {{ d.qrPagoUrl }}</p>
+                  }
 
-                    <button
-                      type="button"
-                      class="estrella"
-                      [class.seleccionada]="
-                        estrella <= pedido.calificacion
-                      "
-                      [attr.aria-label]="
-                        'Calificar con ' + estrella + ' estrellas'
-                      "
-                      [attr.aria-pressed]="
-                        pedido.calificacion === estrella
-                      "
-                      (click)="seleccionarCalificacion(
-                        pedido,
-                        estrella
-                      )"
-                    >
-                      ★
+                  <label for="medio-{{ d.id }}">Medio de pago</label>
+                  <select id="medio-{{ d.id }}" name="medio" [(ngModel)]="medioPago">
+                    <option value="qr">QR</option>
+                    <option value="tarjeta">Tarjeta</option>
+                  </select>
+
+                  <label for="ref-{{ d.id }}">Comprobante (opcional)</label>
+                  <input id="ref-{{ d.id }}" name="referencia" type="text" maxlength="100" [(ngModel)]="referencia" />
+
+                  <button type="button" class="boton-principal" [disabled]="ocupado" (click)="pagarAnticipo()">
+                    Pagar anticipo (simulado)
+                  </button>
+                }
+
+                <!-- Pagar saldo (cliente) -->
+                @if (d.miRol === 'cliente' && (d.estado === 'aprobado' || d.estado === 'en_proceso')
+                     && d.saldoPendiente > 0 && !cambioPendiente) {
+
+                  <label for="medio-saldo-{{ d.id }}">Medio de pago</label>
+                  <select id="medio-saldo-{{ d.id }}" name="medioSaldo" [(ngModel)]="medioPago">
+                    <option value="qr">QR</option>
+                    <option value="tarjeta">Tarjeta</option>
+                  </select>
+
+                  <button type="button" class="boton-principal" [disabled]="ocupado" (click)="pagarSaldo()">
+                    Pagar saldo de Bs {{ d.saldoPendiente }} (simulado)
+                  </button>
+                }
+
+              </div>
+
+              <!-- CAMBIO DE MONTO -->
+              @if (d.cambiosDeMonto.length > 0) {
+                <section class="propuesta-recibida">
+                  <h3>Cambios de monto</h3>
+                  @for (c of d.cambiosDeMonto; track c.id) {
+                    <p>
+                      Bs {{ c.montoAnterior }} → <strong>Bs {{ c.montoNuevo }}</strong>
+                      ({{ c.estado }}). {{ c.motivo }}
+                    </p>
+                  }
+
+                  @if (d.miRol === 'cliente' && cambioPendiente) {
+                    <button type="button" class="boton-principal" [disabled]="ocupado" (click)="responderCambio(true)">
+                      Aceptar nuevo monto
+                    </button>
+                    <button type="button" class="boton-secundario" [disabled]="ocupado" (click)="responderCambio(false)">
+                      Rechazar (cancela el pedido)
+                    </button>
+                  }
+                </section>
+              }
+
+              <!-- ACCIONES DEL TRABAJADOR -->
+              @if (d.miRol === 'trabajador') {
+
+                @if (d.estado === 'aprobado' && !cambioPendiente) {
+                  <button type="button" class="boton-principal" [disabled]="ocupado" (click)="iniciar()">
+                    Iniciar trabajo
+                  </button>
+
+                  <div class="calificacion">
+                    <h3>Proponer otro monto</h3>
+
+                    <label for="monto-nuevo-{{ d.id }}">Nuevo monto (Bs)</label>
+                    <input id="monto-nuevo-{{ d.id }}" name="montoNuevo" type="number" min="1" [(ngModel)]="montoNuevo" />
+
+                    <label for="motivo-cambio-{{ d.id }}">Motivo (obligatorio)</label>
+                    <textarea id="motivo-cambio-{{ d.id }}" name="motivoCambio" rows="2" maxlength="300" [(ngModel)]="motivoCambio"></textarea>
+
+                    <button type="button" class="boton-secundario" [disabled]="ocupado" (click)="proponerCambio()">
+                      Enviar propuesta de monto
+                    </button>
+                  </div>
+                }
+
+                @if (d.estado === 'aprobado' && cambioPendiente) {
+                  <p class="nota">Esperando que el cliente responda tu propuesta de monto.</p>
+                }
+
+                @if (d.estado === 'en_proceso') {
+                  <button type="button" class="boton-principal" [disabled]="ocupado" (click)="finalizar()">
+                    Marcar como finalizado
+                  </button>
+                  <p class="nota">
+                    Para finalizar, el cliente debe haber pagado el monto completo.
+                  </p>
+                }
+              }
+
+              <!-- CANCELAR / REPORTAR (cliente) -->
+              @if (d.miRol === 'cliente' && (d.estado === 'bajo_revision' || d.estado === 'aprobado')) {
+                <div class="calificacion">
+                  <h3>Cancelar pedido</h3>
+
+                  <label for="motivo-cancel-{{ d.id }}">Motivo (opcional)</label>
+                  <input id="motivo-cancel-{{ d.id }}" name="motivoCancelacion" type="text" maxlength="300" [(ngModel)]="motivoCancelacion" />
+
+                  <button type="button" class="boton-secundario" [disabled]="ocupado" (click)="cancelar()">
+                    Cancelar pedido
+                  </button>
+
+                  @if (d.estado === 'aprobado') {
+                    <button type="button" class="boton-secundario" [disabled]="ocupado" (click)="reportarIncumplimiento()">
+                      El trabajador no se presentó
+                    </button>
+                  }
+                </div>
+              }
+
+              <!-- CALIFICACIÓN -->
+              @if (d.estado === 'finalizado') {
+
+                <div class="calificacion">
+
+                  <h3>
+                    {{ d.miRol === 'cliente' ? 'Calificar al trabajador' : 'Calificar al cliente' }}
+                  </h3>
+
+                  @if (puedoCalificar) {
+
+                    <p>Selecciona una calificación:</p>
+
+                    <div class="estrellas" aria-label="Calificación del servicio">
+                      @for (estrella of estrellas; track estrella) {
+                        <button
+                          type="button"
+                          class="estrella"
+                          [class.seleccionada]="estrella <= estrellasElegidas"
+                          [attr.aria-label]="'Calificar con ' + estrella + ' estrellas'"
+                          [attr.aria-pressed]="estrellasElegidas === estrella"
+                          (click)="elegirEstrellas(estrella)"
+                        >
+                          ★
+                        </button>
+                      }
+                    </div>
+
+                    <label class="label-comentario" [for]="'comentario-' + d.id">
+                      Comentario (opcional)
+                    </label>
+
+                    <textarea
+                      [id]="'comentario-' + d.id"
+                      name="comentario"
+                      rows="3"
+                      maxlength="250"
+                      [(ngModel)]="comentario"
+                      placeholder="¿Cómo fue el servicio?"
+                    ></textarea>
+
+                    <button type="button" class="boton-principal" [disabled]="ocupado" (click)="guardarCalificacion()">
+                      Guardar calificación
                     </button>
 
+                  } @else {
+                    <p class="mensaje-correcto">✓ Ya calificaste este pedido.</p>
                   }
 
                 </div>
-
-                <label
-                  class="label-comentario"
-                  [for]="'comentario-' + pedido.id"
-                >
-                  Comentario (opcional)
-                </label>
-
-                <textarea
-                  [id]="'comentario-' + pedido.id"
-                  rows="3"
-                  maxlength="250"
-                  [(ngModel)]="pedido.comentario"
-                  placeholder="¿Cómo fue el servicio?"
-                ></textarea>
-
-                <button
-                  type="button"
-                  class="boton-principal"
-                  (click)="guardarCalificacion(pedido)"
-                >
-                  Guardar calificación
-                </button>
-
               }
 
-            </div>
+            } @else {
+              <p class="nota">Cargando detalle...</p>
+            }
 
-          }
-
-          <!-- MENSAJES -->
-          @if (pedido.mensaje) {
-
-            <p class="mensaje" role="status">
-              {{ pedido.mensaje }}
-            </p>
+            <!-- MENSAJES -->
+            @if (mensaje) {
+              <p
+                class="mensaje"
+                [class.mensaje-correcto]="mensajeCorrecto"
+                role="status"
+              >
+                {{ mensaje }}
+              </p>
+            }
 
           }
 
@@ -342,16 +497,17 @@
 
       } @empty {
 
-        <div class="sin-pedidos">
+        @if (!cargando && !errorLista) {
+          <div class="sin-pedidos">
 
-          <h2>No hay pedidos con ese estado</h2>
+            <h2>No hay pedidos con ese estado</h2>
 
-          <p>
-            Selecciona otro filtro para
-            revisar tus solicitudes de ejemplo.
-          </p>
+            <p>
+              Selecciona otro filtro o solicita un trabajo.
+            </p>
 
-        </div>
+          </div>
+        }
 
       }
 

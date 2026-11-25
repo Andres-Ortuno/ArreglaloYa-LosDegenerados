@@ -7,7 +7,13 @@
       ← Volver a buscar trabajadores
     </a>
 
-    @if (trabajador; as perfil) {
+    @if (cargando) {
+
+      <section class="perfil-card">
+        <p>Cargando perfil...</p>
+      </section>
+
+    } @else if (trabajador; as perfil) {
 
       <!-- ENCABEZADO DEL PERFIL -->
       <section class="perfil-card">
@@ -15,7 +21,7 @@
         <div class="perfil-encabezado">
 
           <div class="perfil-avatar" aria-hidden="true">
-            {{ perfil.iniciales }}
+            {{ iniciales }}
           </div>
 
           <div class="perfil-info">
@@ -27,32 +33,26 @@
             <h1>{{ perfil.nombre }}</h1>
 
             <p class="especialidad">
-              {{ perfil.especialidad }}
+              {{ perfil.especialidades.join(', ') }}
             </p>
 
             <p class="zona">
               Zona de trabajo: {{ perfil.zona }}
             </p>
 
-@if (perfil.disponibilidad) {
-  <p class="zona">
-    Disponibilidad: {{ perfil.disponibilidad }}
-  </p>
-}
-
             <span class="calificacion">
-              ★ {{ perfil.calificacion }}
+              @if (perfil.cantidadOpiniones > 0) {
+                ★ {{ perfil.calificacionPromedio }} / 5
+                ({{ perfil.cantidadOpiniones }}
+                {{ perfil.cantidadOpiniones === 1 ? 'opinión' : 'opiniones' }})
+              } @else {
+                Sin opiniones todavía
+              }
             </span>
 
           </div>
 
         </div>
-
-        <p class="aviso-datos">
-          Perfil y calificaciones ficticios.
-          Información utilizada para demostrar
-          el funcionamiento de ArreglaloYa.
-        </p>
 
       </section>
 
@@ -62,19 +62,19 @@
         <h2>Acerca del trabajador</h2>
 
         <p class="descripcion">
-          {{ perfil.descripcion }}
+          {{ perfil.historial || 'Este trabajador todavía no agregó una descripción.' }}
         </p>
 
       </section>
 
-      <!-- SERVICIOS -->
+      <!-- ESPECIALIDADES -->
       <section class="perfil-card">
 
         <h2>Servicios que ofrece</h2>
 
         <div class="servicios">
 
-          @for (servicio of perfil.servicios; track servicio) {
+          @for (especialidad of perfil.especialidades; track especialidad) {
 
             <article class="servicio">
 
@@ -83,9 +83,43 @@
                 ✓
               </span>
 
-              <span>{{ servicio }}</span>
+              <span>{{ especialidad }}</span>
 
             </article>
+
+          }
+
+        </div>
+
+      </section>
+
+      <!-- OPINIONES -->
+      <section class="perfil-card">
+
+        <h2>Opiniones de clientes</h2>
+
+        <div class="servicios">
+
+          @for (opinion of opiniones?.opiniones ?? []; track $index) {
+
+            <article class="servicio">
+
+              <span class="servicio-icono" aria-hidden="true">★</span>
+
+              <span>
+                <strong>{{ opinion.estrellas }} / 5</strong>
+                @if (opinion.comentario) {
+                  · {{ opinion.comentario }}
+                }
+              </span>
+
+            </article>
+
+          } @empty {
+
+            <p class="descripcion">
+              Todavía no hay opiniones de clientes.
+            </p>
 
           }
 
@@ -111,9 +145,8 @@
         </a>
 
         <p class="nota">
-          Demostración académica:
-          este botón abre el formulario de solicitudes.
-          Todavía no contacta al trabajador.
+          La solicitud la ven los trabajadores de la zona
+          y especialidad que elijas; ellos se postulan con su propuesta.
         </p>
 
       </section>
@@ -125,10 +158,14 @@
 
         <h1>Trabajador no encontrado</h1>
 
-        <p>
-          No existe un perfil de demostración
-          con ese identificador.
-        </p>
+        @if (error) {
+          <p>{{ error }}</p>
+        } @else {
+          <p>
+            Ese trabajador no existe o todavía no fue
+            verificado por el administrador.
+          </p>
+        }
 
         <a
           class="boton-solicitar"

@@ -16,7 +16,7 @@
       <p class="descripcion-inicial">
         Cuéntanos qué necesitas reparar.
         Completa los siguientes datos para
-        preparar una solicitud de servicio.
+        enviar una solicitud de servicio.
       </p>
 
       <form
@@ -43,13 +43,11 @@
               Selecciona una especialidad
             </option>
 
-            <option value="Albañilería">
-              Albañilería
-            </option>
-
-            <option value="Electrodomésticos">
-              Electrodomésticos
-            </option>
+            @for (e of especialidades; track e.id) {
+              <option [value]="e.id">
+                {{ e.nombre }}
+              </option>
+            }
           </select>
 
           @if (
@@ -58,36 +56,6 @@
           ) {
             <p class="error">
               Debes seleccionar una especialidad.
-            </p>
-          }
-
-        </div>
-
-        <!-- TÍTULO -->
-        <div class="campo">
-
-          <label for="titulo">
-            Título de la solicitud *
-          </label>
-
-          <input
-            id="titulo"
-            type="text"
-            name="titulo"
-            [(ngModel)]="titulo"
-            #campoTitulo="ngModel"
-            placeholder="Ejemplo: Reparación de lavadora"
-            required
-            minlength="5"
-            maxlength="80"
-          />
-
-          @if (
-            campoTitulo.invalid &&
-            (campoTitulo.touched || formulario.submitted)
-          ) {
-            <p class="error">
-              El título debe tener al menos 5 caracteres.
             </p>
           }
 
@@ -131,29 +99,65 @@
             Zona donde necesitas el servicio *
           </label>
 
-          <input
+          <select
             id="zona"
-            type="text"
             name="zona"
             [(ngModel)]="zona"
             #campoZona="ngModel"
-            placeholder="Ejemplo: Cercado, Cochabamba"
             required
-            minlength="3"
-          />
+          >
+            <option value="">
+              Selecciona una zona
+            </option>
+
+            @for (z of zonas; track z.id) {
+              <option [value]="z.id">
+                {{ z.nombre }}
+              </option>
+            }
+          </select>
 
           @if (
             campoZona.invalid &&
             (campoZona.touched || formulario.submitted)
           ) {
             <p class="error">
-              Introduce una zona válida.
+              Selecciona una zona.
+            </p>
+          }
+
+        </div>
+
+        <!-- UBICACIÓN -->
+        <div class="campo">
+
+          <label for="ubicacion">
+            Dirección o referencia del lugar *
+          </label>
+
+          <input
+            id="ubicacion"
+            type="text"
+            name="ubicacion"
+            [(ngModel)]="ubicacion"
+            #campoUbicacion="ngModel"
+            placeholder="Ejemplo: Av. América #123, cerca de la plaza"
+            required
+            minlength="5"
+            maxlength="250"
+          />
+
+          @if (
+            campoUbicacion.invalid &&
+            (campoUbicacion.touched || formulario.submitted)
+          ) {
+            <p class="error">
+              Indica dónde es el trabajo (mínimo 5 caracteres).
             </p>
           }
 
           <small>
-            Indica solamente la zona general,
-            no tu dirección exacta.
+            Solo la ven los trabajadores que se postulan.
           </small>
 
         </div>
@@ -161,46 +165,67 @@
         <!-- DISPONIBILIDAD -->
         <div class="campo">
 
-          <label for="horario">
-            Horario preferido *
+          <label>
+            Horarios en que puedes recibir al trabajador *
           </label>
 
-          <select
-            id="horario"
-            name="horario"
-            [(ngModel)]="horario"
-            #campoHorario="ngModel"
-            required
-          >
-            <option value="">
-              Selecciona una opción
-            </option>
+          @for (horario of horarios; track $index) {
 
-            <option value="Mañana">
-              Mañana
-            </option>
+            <div class="horario-fila">
 
-            <option value="Tarde">
-              Tarde
-            </option>
+              <input
+                type="date"
+                [name]="'fecha-' + $index"
+                [(ngModel)]="horario.fecha"
+                [min]="hoy"
+                [attr.aria-label]="'Fecha del horario ' + ($index + 1)"
+                required
+              />
 
-            <option value="Fin de semana">
-              Fin de semana
-            </option>
+              <input
+                type="time"
+                [name]="'inicio-' + $index"
+                [(ngModel)]="horario.horaInicio"
+                [attr.aria-label]="'Hora de inicio del horario ' + ($index + 1)"
+                required
+              />
 
-            <option value="A coordinar">
-              A coordinar
-            </option>
-          </select>
+              <input
+                type="time"
+                [name]="'fin-' + $index"
+                [(ngModel)]="horario.horaFin"
+                [attr.aria-label]="'Hora de fin del horario ' + ($index + 1)"
+                required
+              />
 
-          @if (
-            campoHorario.invalid &&
-            (campoHorario.touched || formulario.submitted)
-          ) {
-            <p class="error">
-              Selecciona un horario preferido.
-            </p>
+              @if (horarios.length > 1) {
+                <button
+                  type="button"
+                  class="quitar-horario"
+                  (click)="quitarHorario($index)"
+                >
+                  Quitar
+                </button>
+              }
+
+            </div>
+
           }
+
+          @if (horarios.length < maxHorarios) {
+            <button
+              type="button"
+              class="agregar-horario"
+              (click)="agregarHorario()"
+            >
+              + Agregar otro horario
+            </button>
+          }
+
+          <small>
+            Indica al menos un horario. Con más opciones
+            es más fácil coordinar con el trabajador.
+          </small>
 
         </div>
 
@@ -208,26 +233,20 @@
         <div class="campo">
 
           <label for="fotografia">
-            Fotografía del problema (opcional)
+            Enlace de una fotografía del problema (opcional)
           </label>
 
           <input
             id="fotografia"
-            type="file"
-            accept="image/png,image/jpeg"
-            (change)="seleccionarArchivo($event)"
+            type="url"
+            name="fotografia"
+            [(ngModel)]="fotoUrl"
+            placeholder="https://..."
           />
 
-          @if (nombreArchivo) {
-            <p class="archivo">
-              Archivo seleccionado:
-              {{ nombreArchivo }}
-            </p>
-          }
-
           <small>
-            Demostración: la imagen no se sube
-            ni se guarda.
+            Por ahora se guarda el enlace de la imagen;
+            todavía no se pueden subir archivos.
           </small>
 
         </div>
@@ -236,8 +255,9 @@
         <button
           class="boton-solicitar"
           type="submit"
+          [disabled]="enviando"
         >
-          Revisar solicitud
+          {{ enviando ? 'Enviando...' : 'Enviar solicitud' }}
         </button>
 
         @if (mensaje) {
@@ -248,51 +268,35 @@
 
       </form>
 
-      <!-- RESUMEN DE LA SOLICITUD -->
-      @if (resumen) {
+      <!-- RESULTADO DE LA SOLICITUD -->
+      @if (creada; as solicitud) {
 
         <section class="resumen">
 
-          <h2>Resumen de tu solicitud</h2>
+          <h2>Solicitud N.º {{ solicitud.id }} creada</h2>
 
           <p>
-            <strong>Trabajo:</strong>
-            {{ resumen.titulo }}
+            <strong>Estado:</strong>
+            {{ solicitud.estado }}
           </p>
 
           <p>
-            <strong>Especialidad:</strong>
-            {{ resumen.especialidad }}
+            Los trabajadores de tu zona y especialidad ya pueden verla
+            y enviarte una propuesta. Recibirás una notificación con cada una.
           </p>
 
           <p>
-            <strong>Zona:</strong>
-            {{ resumen.zona }}
+            <a routerLink="/pedidos">
+              Ver mis solicitudes y pedidos
+            </a>
           </p>
-
-          <p>
-            <strong>Horario:</strong>
-            {{ resumen.horario }}
-          </p>
-
-          <p>
-    <a routerLink="/pedidos">
-      Ver mi solicitud en Mis pedidos
-    </a>
-  </p>
-  
-          <small>
-            Este resumen es una demostración.
-            No se creó ningún pedido real.
-          </small>
 
         </section>
 
       }
 
       <p class="aviso">
-        Prototipo académico · Datos de ejemplo ·
-        Sin operaciones reales
+        Prototipo académico · Pagos simulados
       </p>
 
     </section>

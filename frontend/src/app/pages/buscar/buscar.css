@@ -43,3 +43,14 @@
 .ficha p {
   margin-bottom: 10px;
 }
+
+.buscador select {
+  width: 100%;
+  max-width: 520px;
+  padding: 14px;
+  margin-bottom: 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 16px;
+  background: white;
+}

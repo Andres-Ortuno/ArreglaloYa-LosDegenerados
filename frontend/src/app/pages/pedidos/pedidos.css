@@ -296,3 +296,42 @@ h3 {
 }
 
 }
+
+/* ---- Estados del backend (se suman a los anteriores) ---- */
+.estado-revision {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.estado-aprobado {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+.estado-cancelado {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* ---- Formularios dentro del detalle del pedido ---- */
+.pedido-card label {
+  display: block;
+  margin: 12px 0 6px;
+  font-weight: 600;
+}
+
+.pedido-card select,
+.pedido-card input[type='text'],
+.pedido-card input[type='number'],
+.pedido-card textarea {
+  width: 100%;
+  max-width: 420px;
+  padding: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+.pedido-card button + button {
+  margin-left: 8px;
+}
