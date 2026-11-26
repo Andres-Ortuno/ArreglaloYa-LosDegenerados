@@ -13,8 +13,8 @@
     </header>
 
     <div class="aviso-demo">
-      Los trabajadores se consultan desde la base de datos.
-      La gestión de documentos y reportes se conectará en los siguientes pasos.
+      Los trabajadores y sus documentos se consultan desde la base de datos.
+      Los reportes todavía utilizan datos de demostración.
     </div>
 
     <!-- ESTADÍSTICAS -->
@@ -134,9 +134,92 @@
               </p>
             }
 
-            <p class="ayuda">
-              La revisión de documentos estará disponible en el siguiente paso.
-            </p>
+            <!-- BOTÓN PARA CONSULTAR DOCUMENTOS -->
+            <button
+              type="button"
+              class="boton-principal"
+              (click)="verDocumentos(trabajador.id)"
+            >
+              {{ trabajadorSeleccionadoId === trabajador.id
+                ? 'Ocultar documentos'
+                : 'Ver documentos' }}
+            </button>
+
+            <!-- DOCUMENTOS DEL TRABAJADOR -->
+            @if (trabajadorSeleccionadoId === trabajador.id) {
+
+              <div class="documentos-panel">
+
+                <h3>Documentos del trabajador</h3>
+
+                @if (cargandoDocumentos) {
+                  <p class="ayuda">Cargando documentos...</p>
+                }
+
+                @if (errorDocumentos) {
+                  <p class="mensaje" role="alert">
+                    {{ errorDocumentos }}
+                  </p>
+                }
+
+                @if (!cargandoDocumentos && !errorDocumentos) {
+
+                  @for (documento of documentos; track documento.id) {
+
+                    <div class="documento-item">
+
+                      <p>
+                        <strong>Documento:</strong>
+                        {{ documento.tipo }}
+                      </p>
+
+                      <p>
+                        <strong>Estado:</strong>
+                        {{ documento.estado }}
+                      </p>
+
+                      <p>
+                        <strong>Fecha de subida:</strong>
+                        {{ documento.subidoEn | date:'short' }}
+                      </p>
+
+                      @if (documento.revisadoEn) {
+                        <p>
+                          <strong>Fecha de revisión:</strong>
+                          {{ documento.revisadoEn | date:'short' }}
+                        </p>
+                      }
+
+                      @if (documento.motivoRechazo) {
+                        <p class="mensaje">
+                          <strong>Motivo del rechazo:</strong>
+                          {{ documento.motivoRechazo }}
+                        </p>
+                      }
+
+                      <button
+                        type="button"
+                        class="boton-principal"
+                        (click)="abrirDocumento(documento.id)"
+                      >
+                        Abrir documento
+                      </button>
+
+                    </div>
+
+                  } @empty {
+
+                    <p class="ayuda">
+                      Este trabajador todavía no tiene documentos registrados.
+                    </p>
+
+                  }
+
+                }
+
+              </div>
+
+            }
 
           </article>
 

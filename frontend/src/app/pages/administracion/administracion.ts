@@ -8,7 +8,8 @@ import { forkJoin } from 'rxjs';
 import {
   AdministradorService,
   EstadoTrabajador as EstadoBackend,
-  TrabajadorAdmin as TrabajadorBackend
+  TrabajadorAdmin as TrabajadorBackend,
+  DocumentoAdmin
 } from '../../services/backend/administrador.service';
 
 type EstadoTrabajador =
@@ -34,7 +35,7 @@ interface ReporteAdmin {
 @Component({
   selector: 'app-administracion',
   standalone: true,
-imports: [FormsModule, RouterLink, DatePipe],
+  imports: [FormsModule, RouterLink, DatePipe],
   templateUrl: './administracion.html',
   styleUrl: './administracion.css'
 })
@@ -50,6 +51,12 @@ export class Administracion implements OnInit {
 
   cargandoTrabajadores = false;
   errorTrabajadores = '';
+
+  // Documentos del trabajador seleccionado
+  trabajadorSeleccionadoId: number | null = null;
+  documentos: DocumentoAdmin[] = [];
+  cargandoDocumentos = false;
+  errorDocumentos = '';
 
   reportes: ReporteAdmin[] = [
     {
@@ -120,6 +127,57 @@ export class Administracion implements OnInit {
     }
   }
 
+  // Consultar documentos de un trabajador
+  verDocumentos(trabajadorId: number): void {
+
+    if (this.trabajadorSeleccionadoId === trabajadorId) {
+      this.trabajadorSeleccionadoId = null;
+      this.documentos = [];
+      return;
+    }
+
+    this.trabajadorSeleccionadoId = trabajadorId;
+    this.documentos = [];
+    this.errorDocumentos = '';
+    this.cargandoDocumentos = true;
+
+    this.administradorService.obtenerDocumentos(trabajadorId).subscribe({
+      next: (documentos) => {
+        this.documentos = documentos;
+        this.cargandoDocumentos = false;
+      },
+      error: (error) => {
+        console.error('Error al consultar documentos:', error);
+
+        this.errorDocumentos =
+          'No se pudieron consultar los documentos de este trabajador.';
+
+        this.cargandoDocumentos = false;
+      }
+    });
+  }
+
+  // Abrir archivo de un documento
+  abrirDocumento(documentoId: number): void {
+    this.administradorService.obtenerArchivoDocumento(documentoId).subscribe({
+      next: (archivo) => {
+        const url = URL.createObjectURL(archivo);
+        const enlace = document.createElement('a');
+
+        enlace.href = url;
+        enlace.target = '_blank';
+        enlace.rel = 'noopener';
+        enlace.click();
+
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+      },
+      error: (error) => {
+        console.error('Error al abrir documento:', error);
+        alert('No se pudo abrir el archivo. Verifica que esté disponible.');
+      }
+    });
+  }
+
   get totalTrabajadores(): number {
     return this.trabajadores.length;
   }
@@ -146,9 +204,7 @@ export class Administracion implements OnInit {
     );
   }
 
-  // Estas acciones todavía son provisionales.
-  // Las conectaremos con los endpoints en los siguientes pasos.
-
+  // Acciones que conectaremos posteriormente
   verificarTrabajador(trabajador: TrabajadorAdmin): void {
     trabajador.mensaje =
       'La aprobación real se realiza revisando sus documentos.';

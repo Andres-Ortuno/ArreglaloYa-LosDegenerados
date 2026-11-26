@@ -7,6 +7,8 @@ import { API_BASE_URL } from '../../config/api.config';
 
 export type EstadoTrabajador = 'en_revision' | 'activo' | 'suspendido';
 
+export type EstadoDocumento = 'pendiente' | 'aprobado' | 'rechazado';
+
 export interface TrabajadorAdmin {
   id: number;
   nombre: string;
@@ -19,6 +21,16 @@ export interface TrabajadorAdmin {
   aprobados: number;
   pendientes: number;
   rechazados: number;
+}
+
+// Información de los documentos de un trabajador
+export interface DocumentoAdmin {
+  id: number;
+  tipo: string;
+  estado: EstadoDocumento;
+  motivoRechazo: string | null;
+  subidoEn: string;
+  revisadoEn: string | null;
 }
 
 @Injectable({
@@ -36,6 +48,21 @@ export class AdministradorService {
     return this.http.get<TrabajadorAdmin[]>(
       `${this.url}/trabajadores`,
       { params }
+    );
+  }
+
+  // Obtener documentos de un trabajador
+  obtenerDocumentos(trabajadorId: number): Observable<DocumentoAdmin[]> {
+    return this.http.get<DocumentoAdmin[]>(
+      `${this.url}/trabajadores/${trabajadorId}/documentos`
+    );
+  }
+
+  // Obtener el archivo de un documento
+  obtenerArchivoDocumento(documentoId: number): Observable<Blob> {
+    return this.http.get(
+      `${this.url}/documentos/${documentoId}/archivo`,
+      { responseType: 'blob' }
     );
   }
 }
