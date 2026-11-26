@@ -260,3 +260,57 @@ h3 {
     grid-template-columns: 1fr;
   }
 }
+
+/* Mensajes, documentos y campos nuevos */
+.mensaje {
+  margin: 0 0 20px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.mensaje-exito {
+  background: #e8f7ee;
+  color: #146c3a;
+}
+
+.mensaje-error {
+  background: #fdecec;
+  color: #a12020;
+}
+
+.documentos {
+  margin-top: 14px;
+  display: grid;
+  gap: 12px;
+}
+
+.documento {
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.documento p {
+  margin: 0 0 8px;
+}
+
+.filtro input[type='date'] {
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+}
+
+.campo input[type='text'] {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

@@ -1,4 +1,3 @@
-
 <main class="admin-page">
 
   <div class="admin-contenedor">
@@ -15,34 +14,39 @@
       <h1>Panel de administración</h1>
 
       <p>
-        Revisa trabajadores, reportes y estados
-        administrativos de demostración.
+        Verifica los documentos de los trabajadores,
+        atiende reportes y consulta el flujo económico.
       </p>
 
     </header>
 
-    <div class="aviso-demo">
-      Prototipo académico. Todas las decisiones
-      administrativas son simuladas y no afectan
-      a personas ni cuentas reales.
-    </div>
+    @if (mensaje) {
+      <p
+        class="mensaje"
+        [class.mensaje-error]="esError"
+        [class.mensaje-exito]="!esError"
+        role="status"
+      >
+        {{ mensaje }}
+      </p>
+    }
 
     <!-- ESTADÍSTICAS -->
     <section class="estadisticas">
 
       <article class="estadistica">
-        <span>Total de trabajadores</span>
-        <strong>{{ totalTrabajadores }}</strong>
+        <span>Trabajadores ({{ textoEstado(filtroEstado) }})</span>
+        <strong>{{ trabajadores.length }}</strong>
       </article>
 
       <article class="estadistica">
-        <span>Pendientes de verificación</span>
-        <strong>{{ pendientesVerificacion }}</strong>
+        <span>Reportes ({{ filtroReporte }})</span>
+        <strong>{{ reportes.length }}</strong>
       </article>
 
       <article class="estadistica">
-        <span>Reportes pendientes</span>
-        <strong>{{ reportesPendientes }}</strong>
+        <span>Comisión total (Bs)</span>
+        <strong>{{ flujo ? flujo.totales.comision : '—' }}</strong>
       </article>
 
     </section>
@@ -53,166 +57,152 @@
       <h2>Gestión de trabajadores</h2>
 
       <p class="ayuda">
-        Revisa los perfiles de prueba y cambia
-        su estado administrativo.
+        Abre los documentos de cada trabajador y apruébalos o recházalos.
+        Cuando los tres estén aprobados, la cuenta pasa a «Activo».
       </p>
 
       <div class="filtro">
 
-        <label for="estado">
-          Filtrar por estado
-        </label>
+        <label for="estado">Filtrar por estado</label>
 
         <select
           id="estado"
           name="estado"
           [(ngModel)]="filtroEstado"
+          (ngModelChange)="alCambiarFiltroTrabajadores()"
         >
-          <option value="Todos">Todos</option>
-          <option value="Pendiente">Pendiente</option>
-          <option value="Verificado">Verificado</option>
-          <option value="Rechazado">Rechazado</option>
-          <option value="Suspendido">Suspendido</option>
+          <option value="en_revision">En revisión</option>
+          <option value="activo">Activo</option>
+          <option value="suspendido">Suspendido</option>
         </select>
 
       </div>
 
       <div class="trabajadores-grid">
 
-        @for (
-          trabajador of trabajadoresFiltrados;
-          track trabajador.id
-        ) {
+        @for (t of trabajadores; track t.id) {
 
           <article class="trabajador-card">
 
-            <span class="etiqueta">
-              Trabajador N.º {{ trabajador.id }}
-            </span>
+            <span class="etiqueta">Trabajador N.º {{ t.id }}</span>
 
-            <h3>{{ trabajador.nombre }}</h3>
+            <h3>{{ t.nombre }}</h3>
 
-            <p>
-              <strong>Especialidad:</strong>
-              {{ trabajador.especialidad }}
-            </p>
-
-            <p>
-              <strong>Zona:</strong>
-              {{ trabajador.zona }}
-            </p>
+            <p><strong>Correo:</strong> {{ t.correo }}</p>
+            <p><strong>Zona:</strong> {{ t.zona }}</p>
 
             <p>
               <strong>Estado:</strong>
               <span
                 class="estado"
-                [class.pendiente]="
-                  trabajador.estado === 'Pendiente'
-                "
-                [class.verificado]="
-                  trabajador.estado === 'Verificado'
-                "
-                [class.rechazado]="
-                  trabajador.estado === 'Rechazado'
-                "
-                [class.suspendido]="
-                  trabajador.estado === 'Suspendido'
-                "
+                [class.pendiente]="t.estado === 'en_revision'"
+                [class.verificado]="t.estado === 'activo'"
+                [class.suspendido]="t.estado === 'suspendido'"
               >
-                {{ trabajador.estado }}
+                {{ textoEstado(t.estado) }}
               </span>
             </p>
 
-            <!-- OBSERVACIÓN -->
-            @if (
-              trabajador.estado === 'Pendiente' ||
-              trabajador.estado === 'Verificado'
-            ) {
-
-              <div class="campo">
-
-                <label
-                  [for]="'observacion-' + trabajador.id"
-                >
-                  Observación o motivo de prueba
-                </label>
-
-                <textarea
-                  [id]="'observacion-' + trabajador.id"
-                  [name]="'observacion-' + trabajador.id"
-                  rows="3"
-                  maxlength="300"
-                  [(ngModel)]="trabajador.observacion"
-                  placeholder="Explica tu decisión..."
-                ></textarea>
-
-              </div>
-
-            }
-
-            <!-- ACCIONES DE VERIFICACIÓN -->
-            @if (trabajador.estado === 'Pendiente') {
-
-              <div class="acciones">
-
-                <button
-                  type="button"
-                  class="boton-principal"
-                  (click)="verificarTrabajador(trabajador)"
-                >
-                  Aprobar de prueba
-                </button>
-
-                <button
-                  type="button"
-                  class="boton-secundario"
-                  (click)="rechazarTrabajador(trabajador)"
-                >
-                  Rechazar de prueba
-                </button>
-
-              </div>
-
-            }
-
-            <!-- SUSPENSIÓN SIMULADA -->
-            @if (trabajador.estado === 'Verificado') {
-
-              <button
-                type="button"
-                class="boton-advertencia"
-                (click)="suspenderTrabajador(trabajador)"
-              >
-                Simular suspensión
-              </button>
-
-            }
-
-            <!-- REACTIVACIÓN SIMULADA -->
-            @if (trabajador.estado === 'Suspendido') {
-
-              <button
-                type="button"
-                class="boton-secundario"
-                (click)="reactivarTrabajador(trabajador)"
-              >
-                Reactivar perfil de prueba
-              </button>
-
-            }
-
-            @if (trabajador.estado === 'Rechazado') {
+            @if (t.bloqueadoPermanente) {
+              <p class="ayuda">Bloqueado de forma permanente.</p>
+            } @else if (t.suspendidoHasta) {
               <p class="ayuda">
-                Perfil rechazado en esta demostración.
+                Suspendido hasta {{ t.suspendidoHasta | date: 'dd/MM/yyyy HH:mm' }}
               </p>
             }
 
-            <!-- MENSAJE -->
-            @if (trabajador.mensaje) {
+            <p>
+              <strong>Documentos:</strong>
+              {{ t.aprobados }} aprobados ·
+              {{ t.pendientes }} pendientes ·
+              {{ t.rechazados }} rechazados
+            </p>
 
-              <p class="mensaje" role="status">
-                {{ trabajador.mensaje }}
-              </p>
+            <button
+              type="button"
+              class="boton-secundario"
+              (click)="verDocumentos(t)"
+            >
+              {{ trabajadorAbierto === t.id ? 'Ocultar documentos' : 'Ver documentos' }}
+            </button>
+
+            @if (trabajadorAbierto === t.id) {
+
+              <div class="documentos">
+
+                @for (d of documentos; track d.id) {
+
+                  <div class="documento">
+
+                    <p>
+                      <strong>{{ d.tipo }}</strong> ·
+                      <span
+                        class="estado"
+                        [class.pendiente]="d.estado === 'pendiente'"
+                        [class.verificado]="d.estado === 'aprobado'"
+                        [class.rechazado]="d.estado === 'rechazado'"
+                      >
+                        {{ d.estado }}
+                      </span>
+                    </p>
+
+                    @if (d.motivoRechazo) {
+                      <p class="ayuda">Motivo: {{ d.motivoRechazo }}</p>
+                    }
+
+                    <button
+                      type="button"
+                      class="boton-secundario"
+                      (click)="abrirArchivo(d)"
+                    >
+                      Abrir archivo
+                    </button>
+
+                    @if (d.estado === 'pendiente') {
+
+                      <div class="campo">
+                        <label [for]="'motivo-doc-' + d.id">
+                          Motivo (solo para rechazar)
+                        </label>
+                        <textarea
+                          [id]="'motivo-doc-' + d.id"
+                          rows="2"
+                          maxlength="300"
+                          [(ngModel)]="motivoDocumento[d.id]"
+                          placeholder="Ejemplo: la foto está borrosa"
+                        ></textarea>
+                      </div>
+
+                      <div class="acciones">
+                        <button
+                          type="button"
+                          class="boton-principal"
+                          [disabled]="ocupado"
+                          (click)="aprobarDocumento(d)"
+                        >
+                          Aprobar
+                        </button>
+                        <button
+                          type="button"
+                          class="boton-advertencia"
+                          [disabled]="ocupado"
+                          (click)="rechazarDocumento(d)"
+                        >
+                          Rechazar
+                        </button>
+                      </div>
+
+                    }
+
+                  </div>
+
+                } @empty {
+
+                  <p class="ayuda">Este trabajador todavía no subió documentos.</p>
+
+                }
+
+              </div>
 
             }
 
@@ -220,9 +210,7 @@
 
         } @empty {
 
-          <p class="ayuda">
-            No hay trabajadores con ese estado.
-          </p>
+          <p class="ayuda">No hay trabajadores con ese estado.</p>
 
         }
 
@@ -236,53 +224,104 @@
       <h2>Reportes recibidos</h2>
 
       <p class="ayuda">
-        Consulta reportes ficticios y marca
-        cuáles fueron revisados.
+        Si das por válido un reporte, se sanciona al trabajador:
+        suspensión escalonada o bloqueo por robo.
       </p>
+
+      <div class="filtro">
+
+        <label for="estado-reporte">Filtrar por estado</label>
+
+        <select
+          id="estado-reporte"
+          name="estado-reporte"
+          [(ngModel)]="filtroReporte"
+          (ngModelChange)="cargarReportes()"
+        >
+          <option value="pendiente">Pendientes</option>
+          <option value="valido">Válidos</option>
+          <option value="rechazado">Rechazados</option>
+        </select>
+
+      </div>
 
       <div class="reportes-grid">
 
-        @for (reporte of reportes; track reporte.id) {
+        @for (r of reportes; track r.id) {
 
           <article class="reporte-card">
 
-            <span class="etiqueta">
-              Reporte N.º {{ reporte.id }}
-            </span>
+            <span class="etiqueta">Reporte N.º {{ r.id }}</span>
 
-            <h3>{{ reporte.asunto }}</h3>
+            <h3>{{ textoTipo(r.tipo) }}</h3>
 
-            <p>
-              <strong>Pedido relacionado:</strong>
-              {{ reporte.pedido }}
-            </p>
+            <p><strong>Pedido:</strong> {{ r.pedidoId }}</p>
+            <p><strong>Cliente:</strong> {{ r.cliente }}</p>
+            <p><strong>Trabajador:</strong> {{ r.trabajador }}</p>
+            <p>{{ r.descripcion }}</p>
+            <p class="ayuda">{{ r.creadoEn | date: 'dd/MM/yyyy HH:mm' }}</p>
 
-            <p>{{ reporte.descripcion }}</p>
+            @if (r.estado === 'pendiente') {
 
-            <p>
-              <strong>Estado:</strong>
-              {{ reporte.estado }}
-            </p>
+              @if (r.tipo === 'robo') {
+                <div class="campo">
+                  <label [for]="'denuncia-' + r.id">
+                    Denuncia policial (obligatoria en robo)
+                  </label>
+                  <input
+                    [id]="'denuncia-' + r.id"
+                    type="text"
+                    maxlength="300"
+                    [(ngModel)]="denuncia[r.id]"
+                    placeholder="Ejemplo: FELCC-CBBA-2026-004512"
+                  />
+                </div>
+              }
 
-            @if (reporte.estado === 'Pendiente') {
+              <div class="campo">
+                <label [for]="'motivo-rep-' + r.id">
+                  Motivo (opcional, para rechazar)
+                </label>
+                <textarea
+                  [id]="'motivo-rep-' + r.id"
+                  rows="2"
+                  maxlength="300"
+                  [(ngModel)]="motivoReporte[r.id]"
+                ></textarea>
+              </div>
 
-              <button
-                type="button"
-                class="boton-principal"
-                (click)="revisarReporte(reporte)"
-              >
-                Marcar como revisado
-              </button>
+              <div class="acciones">
+                <button
+                  type="button"
+                  class="boton-advertencia"
+                  [disabled]="ocupado"
+                  (click)="validarReporte(r)"
+                >
+                  Validar y sancionar
+                </button>
+                <button
+                  type="button"
+                  class="boton-secundario"
+                  [disabled]="ocupado"
+                  (click)="rechazarReporte(r)"
+                >
+                  Rechazar
+                </button>
+              </div>
 
             } @else {
 
               <p class="mensaje-correcto">
-                ✓ Reporte revisado en la demostración
+                Reporte {{ r.estado === 'valido' ? 'válido' : 'rechazado' }}
               </p>
 
             }
 
           </article>
+
+        } @empty {
+
+          <p class="ayuda">No hay reportes con ese estado.</p>
 
         }
 
@@ -290,9 +329,45 @@
 
     </section>
 
+    <!-- FLUJO ECONÓMICO -->
+    <section class="admin-card">
+
+      <h2>Flujo económico</h2>
+
+      <p class="ayuda">
+        Dinero movido por la plataforma (pagos simulados). Deja las fechas vacías para ver todo.
+      </p>
+
+      <div class="filtro">
+
+        <label for="desde">Desde</label>
+        <input id="desde" type="date" name="desde" [(ngModel)]="desde" />
+
+        <label for="hasta">Hasta</label>
+        <input id="hasta" type="date" name="hasta" [(ngModel)]="hasta" />
+
+        <button type="button" class="boton-principal" (click)="cargarFlujo()">
+          Consultar
+        </button>
+
+      </div>
+
+      @if (flujo; as f) {
+
+        <section class="estadisticas">
+          <article class="estadistica"><span>Total pagado (Bs)</span><strong>{{ f.totales.totalPagado }}</strong></article>
+          <article class="estadistica"><span>Retenido (Bs)</span><strong>{{ f.totales.retenido }}</strong></article>
+          <article class="estadistica"><span>Liberado (Bs)</span><strong>{{ f.totales.liberado }}</strong></article>
+          <article class="estadistica"><span>Reembolsado (Bs)</span><strong>{{ f.totales.reembolsado }}</strong></article>
+          <article class="estadistica"><span>Comisión (Bs)</span><strong>{{ f.totales.comision }}</strong></article>
+        </section>
+
+      }
+
+    </section>
+
     <p class="aviso-final">
-      Todas las verificaciones, suspensiones y revisiones
-      de esta página son exclusivamente demostrativas.
+      Prototipo académico. Los pagos son simulados.
     </p>
 
   </div>
