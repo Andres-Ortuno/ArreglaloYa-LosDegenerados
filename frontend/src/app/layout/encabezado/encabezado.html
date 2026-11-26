@@ -1,1 +1,66 @@
-<p>encabezado works!</p>
+<header class="site-header">
+  <div class="container header-inner">
+
+    <a class="brand" routerLink="/" aria-label="ArreglaloYa, ir al inicio">
+      <span class="brand-mark" aria-hidden="true">AY</span>
+      <span>Arreglalo<span class="accent">Ya</span></span>
+    </a>
+
+    <nav class="nav-links" aria-label="Navegación principal">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Inicio</a>
+      <a routerLink="/buscar" routerLinkActive="active">Trabajadores</a>
+
+      @if (auth.rolActual() === 'cliente') {
+        <a routerLink="/solicitar" routerLinkActive="active">Solicitar trabajo</a>
+        <a routerLink="/pedidos" routerLinkActive="active">Mis pedidos</a>
+      }
+
+      @if (auth.rolActual() === 'trabajador') {
+        <a routerLink="/panel-trabajador" routerLinkActive="active">Panel trabajador</a>
+        <a routerLink="/editar-perfil" routerLinkActive="active">Editar perfil</a>
+      }
+
+      @if (auth.rolActual() === 'administrador') {
+        <a routerLink="/administracion" routerLinkActive="active">Administración</a>
+      }
+    </nav>
+
+    <div class="header-actions">
+      @if (auth.rolActual() === 'visitante') {
+        <a class="btn btn-ghost btn-sm" routerLink="/ingresar">Ingresar</a>
+        <a class="btn btn-sm" routerLink="/registro">Crear cuenta</a>
+      } @else {
+
+        @if (auth.rolesDisponibles().length > 1) {
+          <div class="cambio-rol" role="group" aria-label="Usar la aplicación como">
+            @for (rol of auth.rolesDisponibles(); track rol) {
+              <button
+                type="button"
+                [class.elegido]="auth.rolActual() === rol"
+                [attr.aria-pressed]="auth.rolActual() === rol"
+                (click)="cambiarRol(rol)"
+              >
+                {{ etiquetaRol[rol] }}
+              </button>
+            }
+          </div>
+        } @else {
+          <span class="rol-actual">{{ etiquetaRol[auth.rolActual()] }}</span>
+        }
+
+        @if (auth.cuenta(); as cuenta) {
+          <span class="nombre-cuenta">{{ cuenta.nombre }}</span>
+        }
+
+        <button type="button" class="btn btn-ghost btn-sm" (click)="salir()">
+          Salir
+        </button>
+      }
+    </div>
+
+  </div>
+</header>
+
+<div class="demo-banner">
+  Prototipo académico · Proyecto universitario
+</div>

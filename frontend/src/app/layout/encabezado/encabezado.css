@@ -1,0 +1,47 @@
+.rol-actual {
+  display: inline-block;
+  padding: 8px 12px;
+  background: #eaf2ff;
+  border-radius: 8px;
+  color: #2158ad;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.nombre-cuenta {
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.header-actions button { cursor: pointer; }
+
+.cambio-rol {
+  display: inline-flex;
+  border: 1px solid #c8d9f3;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.cambio-rol button {
+  padding: 8px 12px;
+  border: 0;
+  background: #fff;
+  color: #2158ad;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.cambio-rol button.elegido {
+  background: #2158ad;
+  color: #fff;
+}
+
+@media (max-width: 600px) {
+  .nombre-cuenta { display: none; }
+}

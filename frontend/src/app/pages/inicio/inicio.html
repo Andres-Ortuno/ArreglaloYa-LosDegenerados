@@ -1,26 +1,3 @@
-<<<<<<< HEAD
-
-<main class="inicio">
-  <h1>Bienvenido a ArreglaloYa</h1>
-
-  <p>
-    Encuentra trabajadores de confianza en Cochabamba.
-  </p>
-
-  <section>
-    <h2>¿Qué necesitas reparar?</h2>
-
-    <p>
-      Encuentra profesionales para solucionar
-      problemas de tu hogar.
-    </p>
-
-    <button type="button">
-      Buscar trabajadores
-    </button>
-  </section>
-</main>
-=======
 <!-- ACCESIBILIDAD -->
 <a class="skip" href="#contenido">Saltar al contenido</a>
 
@@ -60,13 +37,28 @@
         <a class="btn btn-ghost btn-sm" routerLink="/ingresar">Ingresar</a>
         <a class="btn btn-sm" routerLink="/registro">Crear cuenta</a>
       } @else {
-        <span class="rol-actual">Modo demo: {{ rolActual() }}</span>
+        @if (cuenta(); as c) {
+          <span class="rol-actual">{{ c.nombre }} · {{ rolActual() }}</span>
+        }
+        @if (rolesDisponibles().length > 1) {
+          @for (r of rolesDisponibles(); track r) {
+            @if (r !== rolActual()) {
+              <button
+                type="button"
+                class="btn btn-ghost btn-sm"
+                (click)="cambiarRol(r)"
+              >
+                Usar como {{ r }}
+              </button>
+            }
+          }
+        }
         <button
           type="button"
           class="btn btn-ghost btn-sm"
-          (click)="cambiarRol('visitante')"
+          (click)="salir()"
         >
-          Volver a visitante
+          Salir
         </button>
       }
     </div>
@@ -76,139 +68,8 @@
 
 <!-- AVISO DEL PROTOTIPO -->
 <div class="demo-banner">
-  Prototipo académico · Datos de ejemplo · Sin operaciones reales
+  Prototipo académico · Pagos simulados
 </div>
-
-<!-- SELECTOR DE ROL DE DEMOSTRACIÓN -->
-<section class="roles-demo">
-
-  <strong>Probar como:</strong>
-
-  <div class="roles-botones">
-
-    <button
-      type="button"
-      [class.elegido]="rolActual() === 'visitante'"
-      [attr.aria-pressed]="rolActual() === 'visitante'"
-      (click)="cambiarRol('visitante')"
-    >
-      Visitante
-    </button>
-
-    <button
-      type="button"
-      [class.elegido]="rolActual() === 'cliente'"
-      [attr.aria-pressed]="rolActual() === 'cliente'"
-      (click)="cambiarRol('cliente')"
-    >
-      Cliente
-    </button>
-
-    <button
-      type="button"
-      [class.elegido]="rolActual() === 'trabajador'"
-      [attr.aria-pressed]="rolActual() === 'trabajador'"
-      (click)="cambiarRol('trabajador')"
-    >
-      Trabajador
-    </button>
-
-    <button
-      type="button"
-      [class.elegido]="rolActual() === 'administrador'"
-      [attr.aria-pressed]="rolActual() === 'administrador'"
-      (click)="cambiarRol('administrador')"
-    >
-      Administrador
-    </button>
-
-  </div>
-
-  <small>
-    Selector de demostración. No inicia
-    sesión ni concede permisos reales.
-  </small>
-
-</section>
-
-<!-- DIAGNÓSTICO HTTP DE DEMOSTRACIÓN -->
-@if (rolActual() === 'administrador') {
-
-  <section class="api-demo">
-
-    <h2>Prueba de conexión HTTP</h2>
-
-    <p>
-      Esta sección permite comprobar los estados
-      de carga y los mensajes de error.
-    </p>
-
-    <div class="api-demo-botones">
-
-      <button
-        type="button"
-        (click)="probarPedidos()"
-        [disabled]="pedidosApi.estado.cargando()"
-      >
-        Probar API de pedidos
-      </button>
-
-      <button
-        type="button"
-        (click)="probarPerfiles()"
-        [disabled]="perfilesApi.estado.cargando()"
-      >
-        Probar API de perfiles
-      </button>
-
-    </div>
-
-    <!-- ESTADO DE PEDIDOS -->
-    @if (pedidosApi.estado.cargando()) {
-      <p role="status">
-        Cargando pedidos...
-      </p>
-    }
-
-    @if (pedidosApi.estado.error(); as errorPedidos) {
-      <p class="api-error" role="alert">
-        Pedidos: {{ errorPedidos }}
-      </p>
-    }
-
-    @if (pedidosApi.estado.exito(); as exitoPedidos) {
-      <p class="api-exito" role="status">
-        {{ exitoPedidos }}
-      </p>
-    }
-
-    <!-- ESTADO DE PERFILES -->
-    @if (perfilesApi.estado.cargando()) {
-      <p role="status">
-        Cargando perfiles...
-      </p>
-    }
-
-    @if (perfilesApi.estado.error(); as errorPerfiles) {
-      <p class="api-error" role="alert">
-        Perfiles: {{ errorPerfiles }}
-      </p>
-    }
-
-    @if (perfilesApi.estado.exito(); as exitoPerfiles) {
-      <p class="api-exito" role="status">
-        {{ exitoPerfiles }}
-      </p>
-    }
-
-    <small>
-      Prueba académica. Los endpoints son
-      provisionales y pueden no estar disponibles.
-    </small>
-
-  </section>
-
-}
 
 <!-- CONTENIDO PRINCIPAL -->
 <main id="contenido">
@@ -545,4 +406,3 @@
     </div>
   </div>
 </footer>
->>>>>>> 83b566d (preparar servicio http y pruebas del frontend)
