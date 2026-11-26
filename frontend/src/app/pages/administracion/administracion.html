@@ -1,30 +1,20 @@
 
 <main class="admin-page">
-
   <div class="admin-contenedor">
 
     <a class="volver" routerLink="/">
       ← Volver al inicio
     </a>
 
-    <!-- ENCABEZADO -->
     <header class="admin-header">
-
       <span class="etiqueta">ArreglaloYa</span>
-
       <h1>Panel de administración</h1>
-
-      <p>
-        Revisa trabajadores, reportes y estados
-        administrativos de demostración.
-      </p>
-
+      <p>Revisa trabajadores, documentos y reportes del sistema.</p>
     </header>
 
     <div class="aviso-demo">
-      Prototipo académico. Todas las decisiones
-      administrativas son simuladas y no afectan
-      a personas ni cuentas reales.
+      Los trabajadores se consultan desde la base de datos.
+      La gestión de documentos y reportes se conectará en los siguientes pasos.
     </div>
 
     <!-- ESTADÍSTICAS -->
@@ -47,21 +37,36 @@
 
     </section>
 
-    <!-- VERIFICACIÓN DE TRABAJADORES -->
+    <!-- TRABAJADORES -->
     <section class="admin-card">
 
       <h2>Gestión de trabajadores</h2>
 
       <p class="ayuda">
-        Revisa los perfiles de prueba y cambia
-        su estado administrativo.
+        Información de los trabajadores registrada en el sistema.
       </p>
 
-      <div class="filtro">
+      <button
+        type="button"
+        class="boton-principal"
+        (click)="cargarTrabajadores()"
+        [disabled]="cargandoTrabajadores"
+      >
+        {{ cargandoTrabajadores ? 'Cargando...' : 'Actualizar trabajadores' }}
+      </button>
 
-        <label for="estado">
-          Filtrar por estado
-        </label>
+      @if (cargandoTrabajadores) {
+        <p class="ayuda">Cargando trabajadores desde el servidor...</p>
+      }
+
+      @if (errorTrabajadores) {
+        <p class="mensaje" role="alert">
+          {{ errorTrabajadores }}
+        </p>
+      }
+
+      <div class="filtro">
+        <label for="estado">Filtrar por estado</label>
 
         <select
           id="estado"
@@ -69,20 +74,15 @@
           [(ngModel)]="filtroEstado"
         >
           <option value="Todos">Todos</option>
-          <option value="Pendiente">Pendiente</option>
-          <option value="Verificado">Verificado</option>
-          <option value="Rechazado">Rechazado</option>
-          <option value="Suspendido">Suspendido</option>
+          <option value="Pendiente">En revisión</option>
+          <option value="Verificado">Activos</option>
+          <option value="Suspendido">Suspendidos</option>
         </select>
-
       </div>
 
       <div class="trabajadores-grid">
 
-        @for (
-          trabajador of trabajadoresFiltrados;
-          track trabajador.id
-        ) {
+        @for (trabajador of trabajadoresFiltrados; track trabajador.id) {
 
           <article class="trabajador-card">
 
@@ -93,8 +93,8 @@
             <h3>{{ trabajador.nombre }}</h3>
 
             <p>
-              <strong>Especialidad:</strong>
-              {{ trabajador.especialidad }}
+              <strong>Correo:</strong>
+              {{ trabajador.correo }}
             </p>
 
             <p>
@@ -106,123 +106,47 @@
               <strong>Estado:</strong>
               <span
                 class="estado"
-                [class.pendiente]="
-                  trabajador.estado === 'Pendiente'
-                "
-                [class.verificado]="
-                  trabajador.estado === 'Verificado'
-                "
-                [class.rechazado]="
-                  trabajador.estado === 'Rechazado'
-                "
-                [class.suspendido]="
-                  trabajador.estado === 'Suspendido'
-                "
+                [class.pendiente]="trabajador.estado === 'Pendiente'"
+                [class.verificado]="trabajador.estado === 'Verificado'"
+                [class.suspendido]="trabajador.estado === 'Suspendido'"
               >
                 {{ trabajador.estado }}
               </span>
             </p>
 
-            <!-- OBSERVACIÓN -->
-            @if (
-              trabajador.estado === 'Pendiente' ||
-              trabajador.estado === 'Verificado'
-            ) {
+            <div class="documentos-resumen">
+              <p><strong>Documentos subidos:</strong> {{ trabajador.subidos }}</p>
+              <p><strong>Aprobados:</strong> {{ trabajador.aprobados }}</p>
+              <p><strong>Pendientes:</strong> {{ trabajador.pendientes }}</p>
+              <p><strong>Rechazados:</strong> {{ trabajador.rechazados }}</p>
+            </div>
 
-              <div class="campo">
-
-                <label
-                  [for]="'observacion-' + trabajador.id"
-                >
-                  Observación o motivo de prueba
-                </label>
-
-                <textarea
-                  [id]="'observacion-' + trabajador.id"
-                  [name]="'observacion-' + trabajador.id"
-                  rows="3"
-                  maxlength="300"
-                  [(ngModel)]="trabajador.observacion"
-                  placeholder="Explica tu decisión..."
-                ></textarea>
-
-              </div>
-
-            }
-
-            <!-- ACCIONES DE VERIFICACIÓN -->
-            @if (trabajador.estado === 'Pendiente') {
-
-              <div class="acciones">
-
-                <button
-                  type="button"
-                  class="boton-principal"
-                  (click)="verificarTrabajador(trabajador)"
-                >
-                  Aprobar de prueba
-                </button>
-
-                <button
-                  type="button"
-                  class="boton-secundario"
-                  (click)="rechazarTrabajador(trabajador)"
-                >
-                  Rechazar de prueba
-                </button>
-
-              </div>
-
-            }
-
-            <!-- SUSPENSIÓN SIMULADA -->
-            @if (trabajador.estado === 'Verificado') {
-
-              <button
-                type="button"
-                class="boton-advertencia"
-                (click)="suspenderTrabajador(trabajador)"
-              >
-                Simular suspensión
-              </button>
-
-            }
-
-            <!-- REACTIVACIÓN SIMULADA -->
-            @if (trabajador.estado === 'Suspendido') {
-
-              <button
-                type="button"
-                class="boton-secundario"
-                (click)="reactivarTrabajador(trabajador)"
-              >
-                Reactivar perfil de prueba
-              </button>
-
-            }
-
-            @if (trabajador.estado === 'Rechazado') {
-              <p class="ayuda">
-                Perfil rechazado en esta demostración.
+            @if (trabajador.bloqueadoPermanente) {
+              <p class="mensaje">
+                Este trabajador tiene un bloqueo permanente.
               </p>
             }
 
-            <!-- MENSAJE -->
-            @if (trabajador.mensaje) {
-
-              <p class="mensaje" role="status">
-                {{ trabajador.mensaje }}
+            @if (trabajador.suspendidoHasta) {
+              <p>
+                <strong>Suspendido hasta:</strong>
+                {{ trabajador.suspendidoHasta | date:'short' }}
               </p>
-
             }
+
+            <p class="ayuda">
+              La revisión de documentos estará disponible en el siguiente paso.
+            </p>
 
           </article>
 
         } @empty {
 
-          <p class="ayuda">
-            No hay trabajadores con ese estado.
-          </p>
+          @if (!cargandoTrabajadores && !errorTrabajadores) {
+            <p class="ayuda">
+              No hay trabajadores registrados con ese estado.
+            </p>
+          }
 
         }
 
@@ -230,14 +154,14 @@
 
     </section>
 
-    <!-- GESTIÓN DE REPORTES -->
+    <!-- REPORTES -->
     <section class="admin-card">
 
       <h2>Reportes recibidos</h2>
 
       <p class="ayuda">
-        Consulta reportes ficticios y marca
-        cuáles fueron revisados.
+        Esta sección todavía utiliza datos de demostración.
+        La conexión real se realizará posteriormente.
       </p>
 
       <div class="reportes-grid">
@@ -264,24 +188,6 @@
               {{ reporte.estado }}
             </p>
 
-            @if (reporte.estado === 'Pendiente') {
-
-              <button
-                type="button"
-                class="boton-principal"
-                (click)="revisarReporte(reporte)"
-              >
-                Marcar como revisado
-              </button>
-
-            } @else {
-
-              <p class="mensaje-correcto">
-                ✓ Reporte revisado en la demostración
-              </p>
-
-            }
-
           </article>
 
         }
@@ -290,11 +196,5 @@
 
     </section>
 
-    <p class="aviso-final">
-      Todas las verificaciones, suspensiones y revisiones
-      de esta página son exclusivamente demostrativas.
-    </p>
-
   </div>
-
 </main>

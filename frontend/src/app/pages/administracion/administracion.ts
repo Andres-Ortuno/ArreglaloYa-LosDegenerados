@@ -1,27 +1,28 @@
 
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { forkJoin } from 'rxjs';
 
-// Estados posibles de un trabajador
+import {
+  AdministradorService,
+  EstadoTrabajador as EstadoBackend,
+  TrabajadorAdmin as TrabajadorBackend
+} from '../../services/backend/administrador.service';
+
 type EstadoTrabajador =
   | 'Pendiente'
   | 'Verificado'
-  | 'Rechazado'
   | 'Suspendido';
 
-// Datos necesarios para administrar trabajadores
-interface TrabajadorAdmin {
-  id: number;
-  nombre: string;
-  especialidad: string;
-  zona: string;
+interface TrabajadorAdmin extends Omit<TrabajadorBackend, 'estado'> {
   estado: EstadoTrabajador;
+  especialidad: string;
   observacion: string;
   mensaje: string;
 }
 
-// Datos de un reporte
 interface ReporteAdmin {
   id: number;
   asunto: string;
@@ -33,64 +34,92 @@ interface ReporteAdmin {
 @Component({
   selector: 'app-administracion',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+imports: [FormsModule, RouterLink, DatePipe],
   templateUrl: './administracion.html',
   styleUrl: './administracion.css'
 })
-export class Administracion {
+export class Administracion implements OnInit {
+
+  constructor(
+    private administradorService: AdministradorService
+  ) {}
 
   filtroEstado: string = 'Todos';
 
-  // TRABAJADORES FICTICIOS
-  trabajadores: TrabajadorAdmin[] = [
-    {
-      id: 1,
-      nombre: 'Trabajador de ejemplo 1',
-      especialidad: 'Albañilería',
-      zona: 'Cercado',
-      estado: 'Pendiente',
-      observacion: '',
-      mensaje: ''
-    },
-    {
-      id: 2,
-      nombre: 'Trabajador de ejemplo 2',
-      especialidad: 'Electrodomésticos',
-      zona: 'Sacaba',
-      estado: 'Pendiente',
-      observacion: '',
-      mensaje: ''
-    },
-    {
-      id: 3,
-      nombre: 'Trabajador de ejemplo 3',
-      especialidad: 'Albañilería',
-      zona: 'Quillacollo',
-      estado: 'Verificado',
-      observacion: '',
-      mensaje: ''
-    }
-  ];
+  trabajadores: TrabajadorAdmin[] = [];
 
-  // REPORTES FICTICIOS
+  cargandoTrabajadores = false;
+  errorTrabajadores = '';
+
   reportes: ReporteAdmin[] = [
     {
       id: 201,
       asunto: 'Dificultad para coordinar una visita',
-      descripcion: 'Reporte de ejemplo sobre la coordinación de un trabajo.',
+      descripcion: 'Reporte de ejemplo.',
       pedido: 101,
       estado: 'Pendiente'
     },
     {
       id: 202,
       asunto: 'Desacuerdo sobre una propuesta',
-      descripcion: 'Reporte de ejemplo relacionado con el monto propuesto.',
+      descripcion: 'Reporte de ejemplo.',
       pedido: 102,
       estado: 'Pendiente'
     }
   ];
 
-  // ESTADÍSTICAS
+  ngOnInit(): void {
+    this.cargarTrabajadores();
+  }
+
+  cargarTrabajadores(): void {
+    this.cargandoTrabajadores = true;
+    this.errorTrabajadores = '';
+
+    forkJoin({
+      revision: this.administradorService.obtenerTrabajadores('en_revision'),
+      activos: this.administradorService.obtenerTrabajadores('activo'),
+      suspendidos: this.administradorService.obtenerTrabajadores('suspendido')
+    }).subscribe({
+      next: (resultado) => {
+        const todos = [
+          ...resultado.revision,
+          ...resultado.activos,
+          ...resultado.suspendidos
+        ];
+
+        this.trabajadores = todos.map(trabajador => ({
+          ...trabajador,
+          estado: this.traducirEstado(trabajador.estado),
+          especialidad: 'No disponible',
+          observacion: '',
+          mensaje: ''
+        }));
+
+        this.cargandoTrabajadores = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar trabajadores:', error);
+
+        this.errorTrabajadores =
+          'No se pudieron cargar los trabajadores. Verifica la conexión con el servidor.';
+
+        this.cargandoTrabajadores = false;
+      }
+    });
+  }
+
+  private traducirEstado(estado: EstadoBackend): EstadoTrabajador {
+    switch (estado) {
+      case 'en_revision':
+        return 'Pendiente';
+      case 'activo':
+        return 'Verificado';
+      case 'suspendido':
+        return 'Suspendido';
+    }
+  }
+
   get totalTrabajadores(): number {
     return this.trabajadores.length;
   }
@@ -107,9 +136,7 @@ export class Administracion {
     ).length;
   }
 
-  // FILTRAR TRABAJADORES
   get trabajadoresFiltrados(): TrabajadorAdmin[] {
-
     if (this.filtroEstado === 'Todos') {
       return this.trabajadores;
     }
@@ -119,77 +146,30 @@ export class Administracion {
     );
   }
 
-  // APROBAR PERFIL DE PRUEBA
+  // Estas acciones todavía son provisionales.
+  // Las conectaremos con los endpoints en los siguientes pasos.
+
   verificarTrabajador(trabajador: TrabajadorAdmin): void {
-
-    if (trabajador.estado !== 'Pendiente') {
-      return;
-    }
-
-    trabajador.estado = 'Verificado';
-
     trabajador.mensaje =
-      'Perfil marcado como verificado solo en esta demostración.';
+      'La aprobación real se realiza revisando sus documentos.';
   }
 
-  // RECHAZAR PERFIL DE PRUEBA
   rechazarTrabajador(trabajador: TrabajadorAdmin): void {
-
-    if (trabajador.estado !== 'Pendiente') {
-      return;
-    }
-
-    if (trabajador.observacion.trim().length < 10) {
-      trabajador.mensaje =
-        'Escribe una observación de al menos 10 caracteres.';
-      return;
-    }
-
-    trabajador.estado = 'Rechazado';
-
     trabajador.mensaje =
-      'Solicitud rechazada solo en esta demostración.';
+      'El rechazo real se realiza desde la revisión de documentos.';
   }
 
-  // SUSPENDER PERFIL DE PRUEBA
   suspenderTrabajador(trabajador: TrabajadorAdmin): void {
-
-    if (trabajador.estado !== 'Verificado') {
-      return;
-    }
-
-    if (trabajador.observacion.trim().length < 10) {
-      trabajador.mensaje =
-        'Explica el motivo de prueba con al menos 10 caracteres.';
-      return;
-    }
-
-    trabajador.estado = 'Suspendido';
-
     trabajador.mensaje =
-      'Suspensión simulada. No afecta a ningún usuario real.';
+      'La suspensión se gestiona mediante la validación de reportes.';
   }
 
-  // REACTIVAR PERFIL DE PRUEBA
   reactivarTrabajador(trabajador: TrabajadorAdmin): void {
-
-    if (trabajador.estado !== 'Suspendido') {
-      return;
-    }
-
-    trabajador.estado = 'Verificado';
-
     trabajador.mensaje =
-      'Perfil reactivado solo en esta demostración.';
+      'La reactivación se realiza automáticamente cuando vence la suspensión.';
   }
 
-  // REVISAR UN REPORTE
   revisarReporte(reporte: ReporteAdmin): void {
-
-    if (reporte.estado === 'Revisado') {
-      return;
-    }
-
     reporte.estado = 'Revisado';
   }
 }
