@@ -1,19 +1,7 @@
-
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import {
-  SesionDemoService,
-  type RolDemo
-} from '../../services/sesion-demo.service';
-
-import {
-  SolicitudesApiService
-} from '../../services/api/solicitudes-api.service';
-
-import {
-  PerfilApiService
-} from '../../services/api/perfil-api.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-inicio',
@@ -31,46 +19,18 @@ export class Inicio {
   descripcion: string =
     'Encuentra trabajadores para tus necesidades';
 
-  // SIMULACIÓN DE ROLES
-  private readonly sesionDemo =
-    inject(SesionDemoService);
+  // SESIÓN REAL
+  readonly auth = inject(AuthService);
 
-  readonly rolActual = this.sesionDemo.rolActual;
+  readonly rolActual = this.auth.rolActual;
+  readonly rolesDisponibles = this.auth.rolesDisponibles;
+  readonly cuenta = this.auth.cuenta;
 
-  cambiarRol(rol: RolDemo): void {
-    this.sesionDemo.cambiarRol(rol);
+  cambiarRol(rol: 'visitante' | 'cliente' | 'trabajador' | 'administrador'): void {
+    this.auth.cambiarRol(rol);
   }
 
-  // SERVICIOS HTTP
-  readonly pedidosApi = inject(SolicitudesApiService);
-
-  readonly perfilesApi = inject(PerfilApiService);
-
-  // PROBAR API DE PEDIDOS
-  probarPedidos(): void {
-
-    this.pedidosApi.obtenerPedidos().subscribe({
-      next: () => {
-        // El estado de éxito se gestiona en el servicio.
-      },
-      error: () => {
-        // El estado de error se gestiona en el servicio.
-      }
-    });
-
-  }
-
-  // PROBAR API DE PERFILES
-  probarPerfiles(): void {
-
-    this.perfilesApi.obtenerPerfiles().subscribe({
-      next: () => {
-        // El estado de éxito se gestiona en el servicio.
-      },
-      error: () => {
-        // El estado de error se gestiona en el servicio.
-      }
-    });
-
+  salir(): void {
+    this.auth.salir();
   }
 }
