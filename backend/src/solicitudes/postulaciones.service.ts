@@ -45,6 +45,8 @@ export class PostulacionesService {
 
     try {
       const postulacion = await this.dataSource.transaction(async (manager) => {
+        // Comprobación definitiva con datos persistidos: evita postularse si perdió requisitos entre lecturas.
+        await exigirTrabajadorActivo(manager, trabajadorId);
         const [nueva] = await manager.query(SQL_INSERT_POSTULACION, [
           solicitudId,
           trabajadorId,

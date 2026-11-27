@@ -57,8 +57,9 @@
       <h2>Gestión de trabajadores</h2>
 
       <p class="ayuda">
-        Abre los documentos de cada trabajador y apruébalos o recházalos.
-        Cuando los tres estén aprobados, la cuenta pasa a «Activo».
+        Revisa cada documento de manera individual. Aprueba los correctos u observa los que
+        requieran corrección con un motivo obligatorio. Solo con los tres aprobados el trabajador
+        podrá postularse.
       </p>
 
       <div class="filtro">
@@ -147,7 +148,10 @@
                     </p>
 
                     @if (d.motivoRechazo) {
-                      <p class="ayuda">Motivo: {{ d.motivoRechazo }}</p>
+                      <p class="ayuda"><strong>Corrección solicitada:</strong> {{ d.motivoRechazo }}</p>
+                    }
+                    @if (d.revisadoEn) {
+                      <p class="ayuda">Revisado: {{ d.revisadoEn | date: 'dd/MM/yyyy HH:mm' }}</p>
                     }
 
                     <button
@@ -162,11 +166,12 @@
 
                       <div class="campo">
                         <label [for]="'motivo-doc-' + d.id">
-                          Motivo (solo para rechazar)
+                          Corrección solicitada (obligatoria para observar)
                         </label>
                         <textarea
                           [id]="'motivo-doc-' + d.id"
                           rows="2"
+                          minlength="5"
                           maxlength="300"
                           [(ngModel)]="motivoDocumento[d.id]"
                           placeholder="Ejemplo: la foto está borrosa"
@@ -188,7 +193,7 @@
                           [disabled]="ocupado"
                           (click)="rechazarDocumento(d)"
                         >
-                          Rechazar
+                          Observar y pedir corrección
                         </button>
                       </div>
 

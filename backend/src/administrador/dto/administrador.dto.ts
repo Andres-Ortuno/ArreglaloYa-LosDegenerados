@@ -1,10 +1,11 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsDateString, IsIn, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsDateString, IsIn, IsNotEmpty, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class RechazarDocumentoDto {
   @ApiProperty({ example: 'La foto del carnet está borrosa' })
   @IsString()
   @IsNotEmpty()
+  @MinLength(5)
   @MaxLength(300)
   motivo: string;
 }

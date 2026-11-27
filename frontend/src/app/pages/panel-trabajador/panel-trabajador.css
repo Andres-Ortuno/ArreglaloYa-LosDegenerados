@@ -215,3 +215,23 @@
     width: 100%;
   }
 }
+
+/* Verificación documental: resultados persistidos del backend */
+.documentos-lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin: 18px 0;
+}
+.documento-item {
+  border: 1px solid #dbe3ef;
+  border-radius: 10px;
+  padding: 14px;
+  background: #f8fafc;
+}
+.documento-item h3 { font-size: 16px; margin: 0 0 8px; }
+.estado-documento { color: #8a5700; font-weight: 600; }
+.doc-aprobado { color: #176b45; }
+.doc-observado, .documento-observacion { color: #9f2424; }
+.documento-observacion { overflow-wrap: anywhere; }
+button:disabled, input:disabled { opacity: .55; cursor: not-allowed; }

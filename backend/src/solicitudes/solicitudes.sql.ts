@@ -14,7 +14,9 @@ export const SQL_TRABAJADOR_ACTIVO = `
    WHERE t.cuenta_id = $1
      AND t.estado = 'activo'
      AND NOT t.bloqueado_permanente
-     AND (t.suspendido_hasta IS NULL OR t.suspendido_hasta <= now())`;
+     AND (t.suspendido_hasta IS NULL OR t.suspendido_hasta <= now())
+     AND (SELECT count(DISTINCT d.tipo) FROM documento d
+           WHERE d.trabajador_id = t.cuenta_id AND d.estado = 'aprobado') = 3`;
 
 // ---------------------------------------------------------------- crear solicitud (RF-05, RF-06, RF-16)
 export const SQL_VALIDAR_HORARIOS = `
@@ -41,6 +43,9 @@ export const SQL_HAY_TRABAJADORES = `
              FROM trabajador t
              JOIN trabajador_especialidad te ON te.trabajador_id = t.cuenta_id
             WHERE t.estado = 'activo' AND NOT t.bloqueado_permanente
+              AND (t.suspendido_hasta IS NULL OR t.suspendido_hasta <= now())
+              AND (SELECT count(DISTINCT d.tipo) FROM documento d
+                     WHERE d.trabajador_id = t.cuenta_id AND d.estado = 'aprobado') = 3
               AND t.zona_id = $1 AND te.especialidad_id = $2 AND t.cuenta_id <> $3) AS hay`;
 
 // ---------------------------------------------------------------- consultas del cliente
@@ -149,7 +154,9 @@ export const SQL_POSTULACION_A_ELEGIR = `
   SELECT p.id, p.trabajador_id AS "trabajadorId", p.monto,
          t.margen_minutos AS "margenMinutos",
          (t.estado = 'activo' AND NOT t.bloqueado_permanente
-            AND (t.suspendido_hasta IS NULL OR t.suspendido_hasta <= now())) AS "disponible"
+            AND (t.suspendido_hasta IS NULL OR t.suspendido_hasta <= now())
+            AND (SELECT count(DISTINCT d.tipo) FROM documento d
+                   WHERE d.trabajador_id = t.cuenta_id AND d.estado = 'aprobado') = 3) AS "disponible"
     FROM postulacion p
     JOIN trabajador t ON t.cuenta_id = p.trabajador_id
    WHERE p.id = $1 AND p.solicitud_id = $2 AND p.estado = 'enviada'`;
