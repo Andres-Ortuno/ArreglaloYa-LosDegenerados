@@ -195,7 +195,6 @@ export class PanelTrabajador implements OnInit {
       error: (e) => {
         this.subiendoDocumento = false;
         this.errorDocumentos = mensajeDeError(e, 'No se pudo subir el documento.');
-        this.cargarDocumentos();
       }
     });
   }
