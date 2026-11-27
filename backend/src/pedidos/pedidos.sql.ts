@@ -60,6 +60,20 @@ export const SQL_CAMBIOS_DE_PEDIDO = `
          creado_en AS "creadoEn", respondido_en AS "respondidoEn"
     FROM cambio_monto WHERE pedido_id = $1 ORDER BY id`;
 
+/** RF-22: historial cronológico de estados y responsable de cada cambio. */
+export const SQL_HISTORIAL_ESTADOS = `
+  SELECT b.valor_anterior AS "estadoAnterior",
+         b.valor_nuevo AS "estadoNuevo",
+         b.usuario_id AS "responsableId",
+         COALESCE(c.nombre, 'Sistema') AS responsable,
+         b.creado_en AS "fechaCambio"
+    FROM bitacora b
+    LEFT JOIN cuenta c ON c.id = b.usuario_id
+   WHERE b.entidad = 'pedido'
+     AND b.entidad_id = $1
+     AND b.campo = 'estado'
+   ORDER BY b.creado_en ASC`;
+
 // ---------------------------------------------------------------- bloqueo para cambiar un pedido
 /**
  * FOR UPDATE: si dos personas actúan a la vez sobre el mismo pedido, la segunda espera y luego ve el
