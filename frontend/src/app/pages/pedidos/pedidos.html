@@ -283,6 +283,37 @@
                 }
               </div>
 
+              <!-- HISTORIAL DE ESTADOS (RF-22 / Punto 8) -->
+              <section class="historial-pedido">
+                <h3>Historial de cambios</h3>
+                <p class="nota">Registro cronológico de los cambios de estado y quién los realizó.</p>
+
+                @if (d.historialEstados.length > 0) {
+                  <ol class="historial-lista">
+                    @for (evento of d.historialEstados; track $index) {
+                      <li class="historial-evento">
+                        <span class="historial-marca" aria-hidden="true"></span>
+                        <div class="historial-contenido">
+                          <strong>
+                            @if (evento.estadoAnterior) {
+                              {{ etiqueta[evento.estadoAnterior] }} → {{ etiqueta[evento.estadoNuevo] }}
+                            } @else {
+                              Pedido creado · {{ etiqueta[evento.estadoNuevo] }}
+                            }
+                          </strong>
+                          <p>Responsable: {{ evento.responsable }}</p>
+                          <time [attr.datetime]="evento.fechaCambio">
+                            {{ evento.fechaCambio | date: 'dd/MM/yyyy HH:mm' }}
+                          </time>
+                        </div>
+                      </li>
+                    }
+                  </ol>
+                } @else {
+                  <p class="nota">Todavía no hay cambios de estado registrados.</p>
+                }
+              </section>
+
               <!-- PAGOS -->
               <div class="pago">
 
