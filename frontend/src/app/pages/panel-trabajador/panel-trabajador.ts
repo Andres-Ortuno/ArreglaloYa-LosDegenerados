@@ -9,6 +9,12 @@ import type {
   TipoTrabajo
 } from '../../models/backend.models';
 import { ApiSolicitudes } from '../../services/backend/api-solicitudes';
+import {
+  ApiDocumentos,
+  TIPOS_DOCUMENTO,
+  type DocumentoTrabajador,
+  type TipoDocumento
+} from '../../services/backend/api-documentos';
 import { ApiTrabajadores } from '../../services/backend/api-trabajadores';
 import { mensajeDeError } from '../../services/backend/errores';
 
@@ -23,14 +29,22 @@ export class PanelTrabajador implements OnInit {
 
   private readonly trabajadores = inject(ApiTrabajadores);
   private readonly solicitudesApi = inject(ApiSolicitudes);
+  private readonly documentosApi = inject(ApiDocumentos);
 
   // MI PERFIL (se edita en la pantalla «Editar perfil»)
   perfil: MiPerfilTrabajador | null = null;
   sinPerfil: boolean = false;
   errorPerfil: string = '';
 
-  // DOCUMENTO DE DEMOSTRACIÓN
-  nombreDocumento: string = '';
+  // Verificación documental (datos reales del backend)
+  readonly tiposDocumentos = TIPOS_DOCUMENTO;
+  tipoDocumento: TipoDocumento = 'identidad';
+  archivoDocumento: File | null = null;
+  documentos: DocumentoTrabajador[] = [];
+  cargandoDocumentos = true;
+  subiendoDocumento = false;
+  errorDocumentos = '';
+  mensajeDocumentos = '';
 
   // SOLICITUDES DISPONIBLES
   solicitudes: SolicitudDisponible[] = [];
@@ -52,6 +66,7 @@ export class PanelTrabajador implements OnInit {
 
   ngOnInit(): void {
     this.cargarPerfil();
+    this.cargarDocumentos();
     this.cargarSolicitudes();
     this.cargarPostulaciones();
   }
@@ -59,7 +74,10 @@ export class PanelTrabajador implements OnInit {
   // ------------------------------------------------------------ carga
   private cargarPerfil(): void {
     this.trabajadores.miPerfil().subscribe({
-      next: (p) => (this.perfil = p),
+      next: (p) => {
+        this.perfil = p;
+        this.sinPerfil = false;
+      },
       error: (e) => {
         if (e?.status === 404) this.sinPerfil = true;
         else this.errorPerfil = mensajeDeError(e);
@@ -88,15 +106,106 @@ export class PanelTrabajador implements OnInit {
     });
   }
 
-  // ------------------------------------------------------------ documentos (todavía de demostración)
+  // ------------------------------------------------------------ documentos
+  get documentacionAprobada(): boolean {
+    return !this.cargandoDocumentos && !this.errorDocumentos &&
+      this.tiposDocumentos.every((tipo) => this.documentoPorTipo(tipo)?.estado === 'aprobado');
+  }
+
+  documentoPorTipo(tipo: TipoDocumento): DocumentoTrabajador | undefined {
+    return this.documentos.find((d) => d.tipo === tipo);
+  }
+
+  etiquetaDocumento(tipo: TipoDocumento): string {
+    switch (tipo) {
+      case 'identidad': return 'Documento de identidad';
+      case 'antecedentes': return 'Certificado de antecedentes';
+      case 'experiencia': return 'Constancia de experiencia';
+    }
+  }
+
+  etiquetaEstadoDocumento(estado: DocumentoTrabajador['estado']): string {
+    switch (estado) {
+      case 'pendiente': return 'Pendiente de revisión';
+      case 'aprobado': return 'Aprobado';
+      case 'rechazado': return 'Observado: requiere corrección';
+    }
+  }
+
+  cargarDocumentos(): void {
+    this.cargandoDocumentos = true;
+    this.errorDocumentos = '';
+    this.documentosApi.mios().subscribe({
+      next: (res) => {
+        this.documentos = res.documentos;
+        this.cargandoDocumentos = false;
+      },
+      error: (e) => {
+        this.errorDocumentos = mensajeDeError(e, 'No se pudieron consultar los documentos.');
+        this.cargandoDocumentos = false;
+      }
+    });
+  }
+
   seleccionarDocumento(evento: Event): void {
     const input = evento.target as HTMLInputElement;
-    const archivo = input.files?.[0];
-    this.nombreDocumento = archivo ? archivo.name : '';
+    this.archivoDocumento = input.files?.[0] ?? null;
+    this.mensajeDocumentos = '';
+  }
+
+  subirDocumento(inputArchivo: HTMLInputElement): void {
+    if (this.subiendoDocumento) return;
+    this.errorDocumentos = '';
+    this.mensajeDocumentos = '';
+
+    if (!this.perfil) {
+      this.errorDocumentos = 'Primero debes crear tu perfil profesional.';
+      return;
+    }
+    const actual = this.documentoPorTipo(this.tipoDocumento);
+    if (actual?.estado === 'aprobado' || actual?.estado === 'pendiente') {
+      this.errorDocumentos = 'Solo puedes corregir documentos observados o subir los faltantes.';
+      return;
+    }
+    const archivo = this.archivoDocumento;
+    if (!archivo) {
+      this.errorDocumentos = 'Selecciona un archivo para enviar.';
+      return;
+    }
+    const extensionValida = /\.(pdf|jpe?g|png)$/i.test(archivo.name);
+    if (!extensionValida || !['application/pdf', 'image/jpeg', 'image/png'].includes(archivo.type)) {
+      this.errorDocumentos = 'Solo se permiten documentos PDF, JPG o PNG.';
+      return;
+    }
+    if (archivo.size === 0 || archivo.size > 5 * 1024 * 1024) {
+      this.errorDocumentos = 'El documento debe tener contenido y no superar 5 MB.';
+      return;
+    }
+
+    this.subiendoDocumento = true;
+    this.documentosApi.subir(this.tipoDocumento, archivo).subscribe({
+      next: () => {
+        this.subiendoDocumento = false;
+        this.archivoDocumento = null;
+        inputArchivo.value = '';
+        this.mensajeDocumentos = 'Documento enviado correctamente. Está pendiente de revisión.';
+        this.cargarDocumentos();
+        this.cargarPerfil();
+      },
+      error: (e) => {
+        this.subiendoDocumento = false;
+        this.errorDocumentos = mensajeDeError(e, 'No se pudo subir el documento.');
+        this.cargarDocumentos();
+      }
+    });
   }
 
   // ------------------------------------------------------------ postularse
   seleccionarSolicitud(id: number): void {
+    if (!this.documentacionAprobada || this.perfil?.estado !== 'activo') {
+      this.mensajePostulacion = 'Primero debes tener los documentos aprobados y la cuenta activa.';
+      return;
+    }
     this.solicitudSeleccionadaId = id;
     this.mensajePostulacion = '';
   }
@@ -109,6 +218,10 @@ export class PanelTrabajador implements OnInit {
 
     this.mensajePostulacion = '';
     this.mensajeCorrecto = false;
+    if (!this.documentacionAprobada || this.perfil?.estado !== 'activo') {
+      this.mensajePostulacion = 'No puedes postularte hasta tener los tres documentos aprobados y la cuenta activa.';
+      return;
+    }
 
     const solicitud = this.solicitudSeleccionada;
 

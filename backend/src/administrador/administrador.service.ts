@@ -89,7 +89,8 @@ export class AdministradorService {
       const [{ aprobados }] = await m.query(SQL_DOCUMENTOS_APROBADOS, [doc.trabajadorId]);
       let activado = false;
       if (Number(aprobados) >= DOCUMENTOS_REQUERIDOS) {
-        activado = (await m.query(SQL_ACTIVAR_TRABAJADOR, [doc.trabajadorId]))[0]?.length > 0;
+        const filasActivadas: { cuenta_id: number }[] = await m.query(SQL_ACTIVAR_TRABAJADOR, [doc.trabajadorId]);
+        activado = filasActivadas.length > 0;
         if (activado) {
           await m.query(SQL_NOTIFICAR, [doc.trabajadorId, null, 'Verificamos tus documentos: tu cuenta de trabajador está activa.']);
         }

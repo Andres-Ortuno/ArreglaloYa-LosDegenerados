@@ -127,13 +127,14 @@ export class Administracion implements OnInit {
 
   rechazarDocumento(d: DocumentoAdmin): void {
     const motivo = (this.motivoDocumento[d.id] ?? '').trim();
-    if (motivo.length < 5) {
-      this.avisar('Escribe el motivo del rechazo (mínimo 5 caracteres).', true);
+    if (motivo.length < 5 || motivo.length > 300) {
+      this.avisar('Escribe una corrección de entre 5 y 300 caracteres.', true);
       return;
     }
     const trabajadorId = this.trabajadorAbierto;
     this.ejecutar(this.api.rechazarDocumento(d.id, motivo), () => {
-      this.avisar('Documento rechazado. El trabajador puede volver a subirlo.', false);
+      this.avisar('Documento observado. Se notificó al trabajador para que lo corrija.', false);
+      delete this.motivoDocumento[d.id];
       if (trabajadorId !== null) this.cargarDocumentos(trabajadorId);
       this.cargarTrabajadores();
     });

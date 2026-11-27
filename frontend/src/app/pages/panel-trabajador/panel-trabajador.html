@@ -84,42 +84,91 @@
 
     </section>
 
-    <!-- DOCUMENTOS -->
+    <!-- DOCUMENTOS REALES Y OBSERVACIONES -->
     <section class="panel-card">
-
-      <h2>Documentos del trabajador</h2>
-
+      <h2>Verificación de documentos</h2>
       <p class="ayuda">
-        Aquí se incorporará la verificación de trabajadores.
+        Debes tener aprobados los tres documentos obligatorios para postularte.
+        El administrador revisa cada uno por separado y, si detecta un problema,
+        te indicará qué debes corregir.
       </p>
 
-      <div class="campo">
+      @if (cargandoDocumentos) {
+        <p class="ayuda">Cargando estado de documentos...</p>
+      }
+      @if (errorDocumentos) {
+        <p class="mensaje error" role="alert">{{ errorDocumentos }}</p>
+      }
+      @if (mensajeDocumentos) {
+        <p class="mensaje" role="status">{{ mensajeDocumentos }}</p>
+      }
 
-        <label for="documento">
-          Seleccionar archivo de ejemplo
-        </label>
-
-        <input
-          id="documento"
-          type="file"
-          accept=".pdf,.png,.jpg,.jpeg"
-          (change)="seleccionarDocumento($event)"
-        />
-
-        @if (nombreDocumento) {
-          <p class="mensaje">
-            Archivo seleccionado: {{ nombreDocumento }}
-          </p>
+      <div class="documentos-lista">
+        @for (tipo of tiposDocumentos; track tipo) {
+          <article class="documento-item">
+            <h3>{{ etiquetaDocumento(tipo) }}</h3>
+            @if (documentoPorTipo(tipo); as doc) {
+              <p class="estado-documento" [class.doc-aprobado]="doc.estado === 'aprobado'"
+                [class.doc-observado]="doc.estado === 'rechazado'">
+                {{ etiquetaEstadoDocumento(doc.estado) }}
+              </p>
+              @if (doc.motivoRechazo) {
+                <p class="documento-observacion">
+                  <strong>Corrección solicitada:</strong> {{ doc.motivoRechazo }}
+                </p>
+              }
+            } @else {
+              <p class="estado-documento">Falta subir este documento</p>
+            }
+          </article>
         }
-
-        <small>
-          Solo se muestra el nombre.
-          No se sube ni se guarda el archivo.
-          No utilices documentos personales reales.
-        </small>
-
       </div>
 
+      @if (documentacionAprobada) {
+        <p class="mensaje">✓ Documentación completa y aprobada.</p>
+      } @else {
+        <p class="ayuda">
+          No podrás enviar postulaciones hasta que los tres documentos estén aprobados.
+        </p>
+      }
+
+      <div class="campo">
+        <label for="tipo-documento">Documento que deseas presentar o corregir</label>
+        <select id="tipo-documento" [(ngModel)]="tipoDocumento" name="tipoDocumento">
+          @for (tipo of tiposDocumentos; track tipo) {
+            <option [value]="tipo">{{ etiquetaDocumento(tipo) }}</option>
+          }
+        </select>
+      </div>
+
+      @if (documentoPorTipo(tipoDocumento); as seleccionado) {
+        @if (seleccionado.estado === 'pendiente') {
+          <p class="ayuda">Este documento ya está en revisión. No puedes reemplazarlo todavía.</p>
+        } @else if (seleccionado.estado === 'aprobado') {
+          <p class="ayuda">Este documento fue aprobado y no necesita volver a subirse.</p>
+        }
+      }
+
+      <div class="campo">
+        <label for="documento">Archivo PDF, JPG o PNG (máximo 5 MB)</label>
+        <input #inputArchivo id="documento" type="file" accept=".pdf,.png,.jpg,.jpeg"
+          (change)="seleccionarDocumento($event)"
+          [disabled]="!perfil || subiendoDocumento || cargandoDocumentos ||
+            documentoPorTipo(tipoDocumento)?.estado === 'pendiente' ||
+            documentoPorTipo(tipoDocumento)?.estado === 'aprobado'" />
+        @if (archivoDocumento) {
+          <p class="ayuda">Archivo seleccionado: {{ archivoDocumento.name }}</p>
+        }
+        <small>Para pruebas académicas utiliza archivos ficticios, no documentos personales reales.</small>
+      </div>
+
+      <button type="button" class="boton-principal"
+        [disabled]="!perfil || !archivoDocumento || subiendoDocumento || cargandoDocumentos ||
+          documentoPorTipo(tipoDocumento)?.estado === 'pendiente' ||
+          documentoPorTipo(tipoDocumento)?.estado === 'aprobado'"
+        (click)="subirDocumento(inputArchivo)">
+        {{ subiendoDocumento ? 'Subiendo...' : 'Enviar documento para revisión' }}
+      </button>
     </section>
 
     <!-- SOLICITUDES DISPONIBLES -->
@@ -175,6 +224,7 @@
               <button
                 type="button"
                 class="boton-secundario"
+                [disabled]="!documentacionAprobada || perfil?.estado !== 'activo'"
                 (click)="seleccionarSolicitud(solicitud.id)"
               >
                 Seleccionar solicitud
@@ -311,7 +361,7 @@
         <button
           type="submit"
           class="boton-principal"
-          [disabled]="enviando"
+          [disabled]="enviando || !documentacionAprobada || perfil?.estado !== 'activo'"
         >
           {{ enviando ? 'Enviando...' : 'Enviar propuesta' }}
         </button>
