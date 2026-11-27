@@ -335,3 +335,65 @@ h3 {
 .pedido-card button + button {
   margin-left: 8px;
 }
+
+
+/* ---- Historial de estados del pedido (Punto 8) ---- */
+.historial-pedido {
+  border-top: 1px solid #e2e8f0;
+  margin-top: 25px;
+  padding-top: 25px;
+}
+
+.historial-lista {
+  list-style: none;
+  margin: 20px 0 0;
+  padding: 0 0 0 8px;
+}
+
+.historial-evento {
+  position: relative;
+  display: flex;
+  gap: 14px;
+  padding: 0 0 22px 2px;
+}
+
+.historial-evento:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  top: 13px;
+  bottom: -1px;
+  left: 7px;
+  width: 2px;
+  background: #bfdbfe;
+}
+
+.historial-marca {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 12px;
+  width: 12px;
+  height: 12px;
+  margin-top: 4px;
+  border: 2px solid #2158ad;
+  border-radius: 50%;
+  background: white;
+}
+
+.historial-contenido {
+  min-width: 0;
+}
+
+.historial-contenido strong {
+  display: block;
+  color: #183967;
+}
+
+.historial-contenido p {
+  margin: 5px 0;
+  color: #475569;
+}
+
+.historial-contenido time {
+  color: #64748b;
+  font-size: 13px;
+}
