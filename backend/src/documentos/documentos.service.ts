@@ -1,7 +1,8 @@
 import { BadRequestException, ConflictException, ForbiddenException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
-import { extname, join, resolve } from 'node:path';
+import { randomUUID } from 'node:crypto';
+import { extname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { DataSource } from 'typeorm';
 import { traducirErrorBd } from '../common/errores-bd.js';
 import { TIPOS_DOCUMENTO, type TipoDocumento } from './dto/subir-documento.dto.js';
@@ -58,8 +59,11 @@ export class DocumentosService {
       if (!trabajador) throw new ForbiddenException('Primero crea tu perfil de trabajador');
       const [actual] = await this.dataSource.query(SQL_DOCUMENTO_ACTUAL, [trabajadorId, tipo]);
       if (actual?.estado === 'aprobado') throw new ConflictException('Este documento ya fue aprobado');
+      if (actual?.estado === 'pendiente') {
+        throw new ConflictException('El documento está pendiente de revisión. Espera la respuesta del administrador.');
+      }
 
-      const relativa = join('documentos', String(trabajadorId), `${tipo}-${Date.now()}${extension}`);
+      const relativa = join('documentos', String(trabajadorId), `${tipo}-${randomUUID()}${extension}`);
       const destino = join(this.carpetaBase(), relativa);
       await mkdir(join(this.carpetaBase(), 'documentos', String(trabajadorId)), { recursive: true });
       await writeFile(destino, archivo.buffer);
@@ -93,6 +97,9 @@ export class DocumentosService {
   rutaSegura(archivoUrl: string): string | null {
     const base = this.carpetaBase();
     const ruta = resolve(base, archivoUrl);
-    return ruta.startsWith(base) && extname(ruta) ? ruta : null;
+    const segmento = relative(base, ruta);
+    return segmento.startsWith('..' + sep) || segmento === '..' || isAbsolute(segmento) || !extname(ruta)
+      ? null
+      : ruta;
   }
 }

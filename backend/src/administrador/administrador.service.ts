@@ -1,5 +1,6 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException, StreamableFile } from '@nestjs/common';
 import { createReadStream } from 'node:fs';
+import { access } from 'node:fs/promises';
 import { extname } from 'node:path';
 import { DataSource, type EntityManager } from 'typeorm';
 import { traducirErrorBd } from '../common/errores-bd.js';
@@ -57,6 +58,8 @@ export class AdministradorService {
   }
 
   async documentosDe(trabajadorId: number) {
+    const [trabajador] = await this.dataSource.query('SELECT 1 FROM trabajador WHERE cuenta_id = $1', [trabajadorId]);
+    if (!trabajador) throw new NotFoundException('El trabajador no existe');
     const filas = await this.dataSource.query(SQL_DOCUMENTOS_DE_TRABAJADOR, [trabajadorId]);
     return filas.map((d: { id: number }) => ({ ...d, archivo: `/api/admin/documentos/${d.id}/archivo` }));
   }
@@ -68,6 +71,7 @@ export class AdministradorService {
     const ruta = this.documentos.rutaSegura(doc.archivoUrl);
     if (!ruta) throw new NotFoundException('El archivo no está disponible');
     try {
+      await access(ruta);
       return new StreamableFile(createReadStream(ruta), {
         type: TIPOS_DE_ARCHIVO[extname(ruta)] ?? 'application/octet-stream',
         disposition: 'inline',
@@ -96,11 +100,15 @@ export class AdministradorService {
 
   /** RF-04: rechaza un documento con motivo; el trabajador puede volver a subirlo. */
   rechazarDocumento(adminId: number, documentoId: number, motivo: string) {
+    const observacion = motivo?.trim();
+    if (!observacion || observacion.length < 5 || observacion.length > 300) {
+      throw new BadRequestException('La observación debe tener entre 5 y 300 caracteres');
+    }
     return this.transaccion(adminId, async (m) => {
       const doc = await this.documentoPendiente(m, documentoId);
-      await m.query(SQL_RECHAZAR_DOCUMENTO, [documentoId, adminId, motivo.trim()]);
-      await m.query(SQL_NOTIFICAR, [doc.trabajadorId, null, `Tu documento de ${doc.tipo} fue rechazado: ${motivo.trim()}`.slice(0, 300)]);
-      return { documentoId, estado: 'rechazado', motivo: motivo.trim() };
+      await m.query(SQL_RECHAZAR_DOCUMENTO, [documentoId, adminId, observacion]);
+      await m.query(SQL_NOTIFICAR, [doc.trabajadorId, null, `Tu documento de ${doc.tipo} necesita corrección: ${observacion}`.slice(0, 300)]);
+      return { documentoId, estado: 'rechazado', motivo: observacion };
     });
   }
 
