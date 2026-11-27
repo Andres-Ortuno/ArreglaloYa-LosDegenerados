@@ -66,13 +66,13 @@ export const SQL_HISTORIAL_ESTADOS = `
          b.valor_nuevo AS "estadoNuevo",
          b.usuario_id AS "responsableId",
          COALESCE(c.nombre, 'Sistema') AS responsable,
-         b.creado_en AS "fechaCambio"
+         b.fecha AS "fechaCambio"
     FROM bitacora b
     LEFT JOIN cuenta c ON c.id = b.usuario_id
-   WHERE b.entidad = 'pedido'
-     AND b.entidad_id = $1
+   WHERE b.pedido_id = $1
+     AND b.entidad = 'pedido'
      AND b.campo = 'estado'
-   ORDER BY b.creado_en ASC`;
+   ORDER BY b.fecha ASC`;
 
 // ---------------------------------------------------------------- bloqueo para cambiar un pedido
 /**
