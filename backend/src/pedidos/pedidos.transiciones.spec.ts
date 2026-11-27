@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { permiteTransicionPedido } from './pedidos.transiciones.js';
 
 describe('permiteTransicionPedido', () => {
-  it('permite avanzar de bajo revisión a aprobado', () => {
+  it('permite pasar de pendiente a bajo revisión y luego a aprobado', () => {
+    expect(permiteTransicionPedido('pendiente', 'bajo_revision')).toBe(true);
     expect(permiteTransicionPedido('bajo_revision', 'aprobado')).toBe(true);
   });
 
