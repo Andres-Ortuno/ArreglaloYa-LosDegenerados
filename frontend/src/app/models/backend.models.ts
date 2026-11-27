@@ -227,6 +227,15 @@ export interface CambioMonto {
   respondidoEn: string | null;
 }
 
+/** Cambio de estado guardado en la bitácora del pedido (RF-22). */
+export interface HistorialEstadoPedido {
+  estadoAnterior: EstadoPedido | null;
+  estadoNuevo: EstadoPedido;
+  responsableId: number | null;
+  responsable: string;
+  fechaCambio: string;
+}
+
 export interface PedidoDetalle {
   id: number;
   estado: EstadoPedido;
@@ -254,6 +263,7 @@ export interface PedidoDetalle {
   qrPagoUrl: string | null;
   pagos: PagoPedido[];
   cambiosDeMonto: CambioMonto[];
+  historialEstados: HistorialEstadoPedido[];
 }
 
 export interface PagarPedido {
