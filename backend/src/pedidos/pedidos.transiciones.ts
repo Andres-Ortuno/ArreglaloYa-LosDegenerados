@@ -4,7 +4,7 @@
  * mantiene su trigger como segunda protección.
  */
 const TRANSICIONES_PERMITIDAS = {
-  pendiente: ['cancelado'],
+  pendiente: ['bajo_revision', 'cancelado'],
   bajo_revision: ['aprobado', 'cancelado'],
   aprobado: ['en_proceso', 'cancelado'],
   en_proceso: ['finalizado'],
