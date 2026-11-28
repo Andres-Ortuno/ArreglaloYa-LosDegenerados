@@ -98,27 +98,83 @@ export class TrabajadoresService {
   ) {}
 
   /** RF-07: busca trabajadores Activos por zona y especialidad. */
-  async buscar(filtros: BuscarTrabajadoresDto) {
-    const condiciones: string[] = [];
-    const parametros: number[] = [];
-    if (filtros.zonaId) {
-      parametros.push(filtros.zonaId);
-      condiciones.push(`v.zona_id = $${parametros.length}`);
-    }
-    if (filtros.especialidadId) {
-      parametros.push(filtros.especialidadId);
-      condiciones.push(
-        `EXISTS (SELECT 1 FROM trabajador_especialidad x
-                  WHERE x.trabajador_id = v.cuenta_id AND x.especialidad_id = $${parametros.length})`,
-      );
-    }
-    const donde = condiciones.length ? ` WHERE ${condiciones.join(' AND ')}` : '';
-    const filas: FilaPublica[] = await this.dataSource.query(
-      SQL_PUBLICO + donde + ORDEN_PUBLICO,
-      parametros,
-    );
-    return filas.map(perfilPublico);
+  
+async buscar(filtros: BuscarTrabajadoresDto) {
+  const condiciones: string[] = [];
+  const parametros: (number | string)[] = [];
+
+  if (filtros.zonaId) {
+    parametros.push(filtros.zonaId);
+    condiciones.push(`v.zona_id = $${parametros.length}`);
   }
+
+  if (filtros.especialidadId) {
+    parametros.push(filtros.especialidadId);
+    condiciones.push(`
+      EXISTS (
+        SELECT 1
+        FROM trabajador_especialidad x
+        WHERE x.trabajador_id = v.cuenta_id
+          AND x.especialidad_id = $${parametros.length}
+      )
+    `);
+  }
+
+  if (filtros.calificacionMinima !== undefined) {
+    parametros.push(filtros.calificacionMinima);
+    condiciones.push(
+      `COALESCE(v.calificacion_promedio, 0) >= $${parametros.length}`,
+    );
+  }
+
+  const where = condiciones.length
+    ? ` WHERE ${condiciones.join(' AND ')}`
+    : '';
+
+  const ordenamientos = {
+    calificacion: 'v.calificacion_promedio DESC, v.cantidad_opiniones DESC',
+    opiniones: 'v.cantidad_opiniones DESC, v.calificacion_promedio DESC',
+    nombre: 'v.nombre ASC',
+  };
+
+  const ordenarPor = filtros.ordenarPor ?? 'calificacion';
+  const orden = ordenamientos[ordenarPor];
+
+  const pagina = filtros.pagina ?? 1;
+  const limite = filtros.limite ?? 10;
+  const offset = (pagina - 1) * limite;
+
+  const consulta = `
+    ${SQL_PUBLICO}
+    ${where}
+    ORDER BY ${orden}, v.cuenta_id ASC
+    LIMIT $${parametros.length + 1}
+    OFFSET $${parametros.length + 2}
+  `;
+
+  const consultaTotal = `
+    SELECT COUNT(*)::int AS total
+    FROM v_trabajador_publico v
+    JOIN trabajador t ON t.cuenta_id = v.cuenta_id
+    ${where}
+  `;
+
+  const [trabajadores, resultadoTotal] = await Promise.all([
+    this.dataSource.query(consulta, [...parametros, limite, offset]),
+    this.dataSource.query(consultaTotal, parametros),
+  ]);
+
+  const total = Number(resultadoTotal[0].total);
+
+  return {
+   datos: trabajadores.map((fila: FilaPublica) => perfilPublico(fila)),
+    total,
+    pagina,
+    limite,
+    totalPaginas: Math.ceil(total / limite),
+  };
+}
+
 
   async obtenerPublico(id: number) {
     const filas: FilaPublica[] = await this.dataSource.query(

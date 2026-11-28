@@ -24,6 +24,14 @@ export class Buscar implements OnInit {
   especialidadId: string = '';
   busqueda: string = '';
 
+calificacionMinima: string = '';
+pagina: number = 1;
+limite: number = 10;
+total: number = 0;
+totalPaginas: number = 0;
+
+ordenarPor: 'calificacion' | 'opiniones' | 'nombre' = 'calificacion';
+
   zonas: Zona[] = [];
   especialidades: Especialidad[] = [];
   trabajadores: TrabajadorPublico[] = [];
@@ -39,22 +47,43 @@ export class Buscar implements OnInit {
 
   /** Pide al backend los trabajadores activos de la zona y especialidad elegidas (RF-07). */
   buscar(): void {
-    this.cargando = true;
-    this.error = '';
-    this.trabajadoresApi.buscar({
-      zonaId: this.zonaId ? Number(this.zonaId) : null,
-      especialidadId: this.especialidadId ? Number(this.especialidadId) : null
-    }).subscribe({
-      next: (lista) => {
-        this.trabajadores = lista;
-        this.cargando = false;
-      },
-      error: (e) => {
-        this.error = mensajeDeError(e);
-        this.cargando = false;
-      }
-    });
+  this.cargando = true;
+  this.error = '';
+
+  this.trabajadoresApi.buscar({
+    zonaId: this.zonaId ? Number(this.zonaId) : null,
+    especialidadId: this.especialidadId
+      ? Number(this.especialidadId)
+      : null,
+    calificacionMinima: this.calificacionMinima
+      ? Number(this.calificacionMinima)
+      : null,
+    pagina: this.pagina,
+    limite: this.limite,
+    ordenarPor: this.ordenarPor
+  }).subscribe({
+    next: (respuesta) => {
+      this.trabajadores = respuesta.datos;
+      this.total = respuesta.total;
+      this.totalPaginas = respuesta.totalPaginas;
+      this.cargando = false;
+    },
+    error: (e) => {
+      this.error = mensajeDeError(e);
+      this.cargando = false;
+    }
+  });
+}
+
+cambiarPagina(nuevaPagina: number): void {
+  if (nuevaPagina < 1 || nuevaPagina > this.totalPaginas) {
+    return;
   }
+
+  this.pagina = nuevaPagina;
+  this.buscar();
+}
+
 
   /** Filtro por texto (nombre, zona o especialidad) sobre lo que ya llegó */
   get trabajadoresFiltrados(): TrabajadorPublico[] {

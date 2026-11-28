@@ -20,6 +20,7 @@ import { TrabajadoresModule } from './trabajadores/trabajadores.module.js';
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
+        
         type: 'postgres' as const,
         host: config.get<string>('DB_HOST', 'localhost'),
         port: Number(config.get<string>('DB_PORT', '5432')),

@@ -9,6 +9,13 @@ import type {
   OpinionesTrabajador,
   TrabajadorPublico,
 } from '../../models/backend.models';
+export interface ResultadoBusquedaTrabajadores {
+  datos: TrabajadorPublico[];
+  total: number;
+  pagina: number;
+  limite: number;
+  totalPaginas: number;
+}
 
 @Injectable({ providedIn: 'root' })
 export class ApiTrabajadores {
@@ -16,12 +23,44 @@ export class ApiTrabajadores {
   private readonly url = `${API_BASE_URL}/trabajadores`;
 
   /** Buscar trabajadores activos (RF-07). Sin filtros devuelve todos. */
-  buscar(filtros: { zonaId?: number | null; especialidadId?: number | null } = {}): Observable<TrabajadorPublico[]> {
-    let params = new HttpParams();
-    if (filtros.zonaId) params = params.set('zonaId', filtros.zonaId);
-    if (filtros.especialidadId) params = params.set('especialidadId', filtros.especialidadId);
-    return this.http.get<TrabajadorPublico[]>(this.url, { params });
+  buscar(
+  filtros: {
+    zonaId?: number | null;
+    especialidadId?: number | null;
+    calificacionMinima?: number | null;
+    pagina?: number;
+    limite?: number;
+    ordenarPor?: 'calificacion' | 'opiniones' | 'nombre';
+  } = {},
+): Observable<ResultadoBusquedaTrabajadores> {
+  let params = new HttpParams();
+
+  if (filtros.zonaId) {
+    params = params.set('zonaId', filtros.zonaId);
   }
+
+  if (filtros.especialidadId) {
+    params = params.set('especialidadId', filtros.especialidadId);
+  }
+
+  if (filtros.calificacionMinima != null) {
+    params = params.set('calificacionMinima', filtros.calificacionMinima);
+  }
+
+  if (filtros.pagina) {
+    params = params.set('pagina', filtros.pagina);
+  }
+
+  if (filtros.limite) {
+    params = params.set('limite', filtros.limite);
+  }
+
+  if (filtros.ordenarPor) {
+    params = params.set('ordenarPor', filtros.ordenarPor);
+  }
+
+  return this.http.get<ResultadoBusquedaTrabajadores>(this.url, { params });
+}
 
   perfilPublico(id: number): Observable<TrabajadorPublico> {
     return this.http.get<TrabajadorPublico>(`${this.url}/${id}`);
