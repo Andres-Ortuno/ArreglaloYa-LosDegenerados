@@ -49,7 +49,8 @@ export const SQL_MIS_SOLICITUDES = `
          s.creada_en AS "creadaEn", s.vence_en AS "venceEn",
          e.nombre AS especialidad, z.nombre AS zona,
          (SELECT count(*) FROM postulacion p
-           WHERE p.solicitud_id = s.id AND p.estado <> 'descartada') AS "cantidadPostulaciones",
+           WHERE p.solicitud_id = s.id
+             AND (p.estado = 'elegida' OR (p.estado = 'enviada' AND p.vence_en > now()))) AS "cantidadPostulaciones",
          (SELECT pe.id FROM pedido pe WHERE pe.solicitud_id = s.id) AS "pedidoId"
     FROM solicitud s
     JOIN especialidad e ON e.id = s.especialidad_id
@@ -75,7 +76,9 @@ export const SQL_SOLICITUD_DETALLE = `
 export const SQL_POSTULACIONES_DE_SOLICITUD = `
   SELECT p.id, p.trabajador_id AS "trabajadorId", c.nombre AS trabajador, z.nombre AS zona,
          p.monto, p.tipo_trabajo AS "tipoTrabajo", p.costo_visita AS "costoVisita",
-         p.incluye_materiales AS "incluyeMateriales", p.estado, p.creada_en AS "creadaEn",
+         p.incluye_materiales AS "incluyeMateriales",
+         CASE WHEN p.estado = 'enviada' AND p.vence_en <= now() THEN 'vencida' ELSE p.estado::text END AS estado,
+         p.creada_en AS "creadaEn", p.vence_en AS "venceEn", p.renovaciones,
          COALESCE(r.calificacion_promedio, 0) AS "calificacionPromedio",
          COALESCE(r.cantidad_opiniones, 0)    AS "cantidadOpiniones"
     FROM postulacion p
@@ -110,7 +113,10 @@ export const SQL_DISPONIBLES = `
 export const SQL_MIS_POSTULACIONES = `
   SELECT p.id, p.solicitud_id AS "solicitudId", p.monto, p.tipo_trabajo AS "tipoTrabajo",
          p.costo_visita AS "costoVisita", p.incluye_materiales AS "incluyeMateriales",
-         p.estado, p.creada_en AS "creadaEn",
+         CASE WHEN p.estado = 'enviada' AND p.vence_en <= now() THEN 'vencida' ELSE p.estado::text END AS estado,
+         p.creada_en AS "creadaEn", p.vence_en AS "venceEn", p.renovaciones,
+         (p.estado IN ('enviada', 'vencida') AND p.vence_en <= now()
+            AND p.renovaciones < 2 AND s.estado = 'pendiente' AND s.vence_en > now()) AS "puedeRenovar",
          s.descripcion, e.nombre AS especialidad, z.nombre AS zona, s.estado AS "estadoSolicitud",
          (SELECT pe.id FROM pedido pe WHERE pe.postulacion_id = p.id) AS "pedidoId"
     FROM postulacion p
@@ -130,9 +136,11 @@ export const SQL_TIENE_ESPECIALIDAD = `
   SELECT 1 FROM trabajador_especialidad WHERE trabajador_id = $1 AND especialidad_id = $2`;
 
 export const SQL_INSERT_POSTULACION = `
-  INSERT INTO postulacion (solicitud_id, trabajador_id, monto, tipo_trabajo, costo_visita, incluye_materiales)
-       VALUES ($1, $2, $3::numeric, $4::tipo_trabajo, $5::numeric, $6::boolean)
-    RETURNING id, estado, creada_en AS "creadaEn"`;
+  INSERT INTO postulacion (solicitud_id, trabajador_id, monto, tipo_trabajo, costo_visita, incluye_materiales, vence_en)
+       SELECT $1, $2, $3::numeric, $4::tipo_trabajo, $5::numeric, $6::boolean,
+              LEAST(now() + make_interval(hours => $7::int), s.vence_en)
+         FROM solicitud s WHERE s.id = $1
+    RETURNING id, estado, creada_en AS "creadaEn", vence_en AS "venceEn", renovaciones`;
 
 /** RF-17: queda en la tabla "notificacion" (enviada = false) hasta que exista el envío por WhatsApp. */
 export const SQL_NOTIFICAR_POSTULACION = `
@@ -147,12 +155,13 @@ export const SQL_BLOQUEAR_SOLICITUD = `
 
 export const SQL_POSTULACION_A_ELEGIR = `
   SELECT p.id, p.trabajador_id AS "trabajadorId", p.monto,
+         (p.estado = 'vencida' OR p.vence_en <= now()) AS vencida, p.vence_en AS "venceEn",
          t.margen_minutos AS "margenMinutos",
          (t.estado = 'activo' AND NOT t.bloqueado_permanente
             AND (t.suspendido_hasta IS NULL OR t.suspendido_hasta <= now())) AS "disponible"
     FROM postulacion p
     JOIN trabajador t ON t.cuenta_id = p.trabajador_id
-   WHERE p.id = $1 AND p.solicitud_id = $2 AND p.estado = 'enviada'`;
+   WHERE p.id = $1 AND p.solicitud_id = $2 AND p.estado IN ('enviada', 'vencida')`;
 
 export const SQL_HORARIO_DE_SOLICITUD = `
   SELECT id, inicio, fin FROM solicitud_horario WHERE id = $1 AND solicitud_id = $2`;
@@ -205,3 +214,48 @@ export const SQL_ANULAR_VENCIDAS = `
        SELECT cliente_id, 'Tu solicitud #' || id || ' venció a los 30 días sin aceptación y fue cancelada'
          FROM vencidas
     RETURNING id`;
+
+// ---------------------------------------------------------------- vencimiento y renovación de postulaciones
+/** Marca como «vencida» toda postulación enviada cuyo plazo pasó y avisa al trabajador. Solo si la solicitud sigue pendiente. */
+export const SQL_VENCER_POSTULACIONES = `
+  WITH vencidas AS (
+         UPDATE postulacion p SET estado = 'vencida'
+           FROM solicitud s
+          WHERE s.id = p.solicitud_id AND s.estado = 'pendiente'
+            AND p.estado = 'enviada' AND p.vence_en <= now()
+      RETURNING p.id, p.trabajador_id, p.solicitud_id, p.renovaciones)
+  INSERT INTO notificacion (cuenta_id, mensaje)
+       SELECT trabajador_id,
+              'Tu postulación a la solicitud #' || solicitud_id || ' venció.'
+              || CASE WHEN renovaciones < 2 THEN ' Puedes renovarla.' ELSE ' Ya no se puede renovar más.' END
+         FROM vencidas
+    RETURNING id`;
+
+/** Bloquea la postulación mientras se renueva, con los datos de su solicitud. */
+export const SQL_POSTULACION_A_RENOVAR = `
+  SELECT p.id, p.trabajador_id AS "trabajadorId", p.solicitud_id AS "solicitudId",
+         p.estado::text AS estado, p.renovaciones,
+         (p.estado = 'vencida' OR p.vence_en <= now()) AS vencida,
+         s.estado::text AS "estadoSolicitud", (s.vence_en <= now()) AS "solicitudVencida",
+         s.cliente_id AS "clienteId"
+    FROM postulacion p
+    JOIN solicitud s ON s.id = p.solicitud_id
+   WHERE p.id = $1
+     FOR UPDATE OF p`;
+
+/** El plazo nuevo nunca pasa del vencimiento de la solicitud. Si se manda un monto nuevo, reemplaza al anterior. */
+export const SQL_RENOVAR_POSTULACION = `
+  UPDATE postulacion p
+     SET estado = 'enviada',
+         vence_en = LEAST(now() + make_interval(hours => $2::int), s.vence_en),
+         renovaciones = p.renovaciones + 1,
+         monto = COALESCE($3::numeric, p.monto)
+    FROM solicitud s
+   WHERE p.id = $1 AND s.id = p.solicitud_id
+RETURNING p.id, p.estado::text AS estado, p.vence_en AS "venceEn", p.renovaciones, p.monto`;
+
+export const SQL_NOTIFICAR_RENOVACION = `
+  INSERT INTO notificacion (cuenta_id, mensaje)
+       SELECT s.cliente_id, c.nombre || ' renovó su postulación en tu solicitud #' || s.id
+         FROM solicitud s, cuenta c
+        WHERE s.id = $1 AND c.id = $2`;

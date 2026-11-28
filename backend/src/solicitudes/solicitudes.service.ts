@@ -156,6 +156,12 @@ export class SolicitudesService {
         if (!p) {
           throw new NotFoundException('La postulación no existe o ya no está disponible');
         }
+        if (p.vencida) {
+          // La base de datos también lo impide (trigger tg_pedido_postulacion_vigente)
+          throw new ConflictException(
+            'Esa postulación venció. El trabajador debe renovarla para que puedas elegirla.',
+          );
+        }
         if (!p.disponible) {
           throw new ConflictException('Ese trabajador ya no está disponible. Elige otra postulación.');
         }
