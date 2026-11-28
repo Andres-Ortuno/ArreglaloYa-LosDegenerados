@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import type { Observable } from 'rxjs';
@@ -27,6 +27,7 @@ import { mensajeDeError } from '../../services/backend/errores';
 export class Pedidos implements OnInit {
 
   private readonly api = inject(ApiPedidos);
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly solicitudesApi = inject(ApiSolicitudes);
 
   pedidos: PedidoResumen[] = [];
@@ -73,8 +74,14 @@ export class Pedidos implements OnInit {
   // ------------------------------------------------------------ mis solicitudes
   cargarSolicitudes(): void {
     this.solicitudesApi.mias().subscribe({
-      next: (lista) => (this.solicitudes = lista.filter((s) => s.estado === 'pendiente')),
-      error: () => (this.solicitudes = [])
+      next: (lista) => {
+        this.solicitudes = lista.filter((s) => s.estado === 'pendiente');
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.solicitudes = [];
+        this.cdr.markForCheck();
+      }
     });
   }
 
@@ -93,8 +100,12 @@ export class Pedidos implements OnInit {
         this.detalleSolicitud = d;
         // Si solo ofreció un horario, ya queda elegido
         if (d.horarios?.length === 1) this.horarioElegido = String(d.horarios[0].id);
+        this.cdr.markForCheck();
       },
-      error: (e) => this.avisarSolicitud(mensajeDeError(e), false)
+      error: (e) => {
+        this.avisarSolicitud(mensajeDeError(e), false);
+        this.cdr.markForCheck();
+      }
     });
   }
 
@@ -125,10 +136,12 @@ export class Pedidos implements OnInit {
         this.abierto = pedido.pedidoId;
         this.recargarDetalle(pedido.pedidoId);
         this.avisar('Elegiste la propuesta. Paga el anticipo para aprobar el pedido.', true);
+        this.cdr.markForCheck();
       },
       error: (e) => {
         this.ocupado = false;
         this.avisarSolicitud(mensajeDeError(e), false);
+        this.cdr.markForCheck();
       }
     });
   }
@@ -142,10 +155,12 @@ export class Pedidos implements OnInit {
         this.solicitudAbierta = null;
         this.detalleSolicitud = null;
         this.cargarSolicitudes();
+        this.cdr.markForCheck();
       },
       error: (e) => {
         this.ocupado = false;
         this.avisarSolicitud(mensajeDeError(e), false);
+        this.cdr.markForCheck();
       }
     });
   }
@@ -158,10 +173,12 @@ export class Pedidos implements OnInit {
       next: (lista) => {
         this.pedidos = lista;
         this.cargando = false;
+        this.cdr.markForCheck();
       },
       error: (e) => {
         this.errorLista = mensajeDeError(e);
         this.cargando = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -193,14 +210,24 @@ export class Pedidos implements OnInit {
     this.api.detalle(id).subscribe({
       next: (d) => {
         this.detalle = d;
+        this.cdr.markForCheck();
         if (d.estado === 'finalizado') {
           this.api.calificaciones(id).subscribe({
-            next: (r) => (this.puedoCalificar = r.puedoCalificar),
-            error: () => (this.puedoCalificar = false)
+            next: (r) => {
+              this.puedoCalificar = r.puedoCalificar;
+              this.cdr.markForCheck();
+            },
+            error: () => {
+              this.puedoCalificar = false;
+              this.cdr.markForCheck();
+            }
           });
         }
       },
-      error: (e) => this.avisar(mensajeDeError(e), false)
+      error: (e) => {
+        this.avisar(mensajeDeError(e), false);
+        this.cdr.markForCheck();
+      }
     });
   }
 
@@ -230,11 +257,18 @@ export class Pedidos implements OnInit {
         alTerminar?.();
         this.recargarDetalle(id, true);
         this.avisar(textoExito, true);
-        this.api.mios().subscribe({ next: (lista) => (this.pedidos = lista) });
+        this.cdr.markForCheck();
+        this.api.mios().subscribe({
+          next: (lista) => {
+            this.pedidos = lista;
+            this.cdr.markForCheck();
+          }
+        });
       },
       error: (e) => {
         this.ocupado = false;
         this.avisar(mensajeDeError(e), false);
+        this.cdr.markForCheck();
       }
     });
   }
