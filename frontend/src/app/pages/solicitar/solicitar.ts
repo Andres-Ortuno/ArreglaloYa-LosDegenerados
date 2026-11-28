@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
@@ -27,6 +27,7 @@ export class Solicitar implements OnInit {
 
   private readonly catalogos = inject(ApiCatalogos);
   private readonly solicitudes = inject(ApiSolicitudes);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   // Listas que llegan del backend
   zonas: Zona[] = [];
@@ -47,8 +48,26 @@ export class Solicitar implements OnInit {
   creada: SolicitudCreada | null = null;
 
   ngOnInit(): void {
-    this.catalogos.zonas().subscribe({ next: (l) => (this.zonas = l), error: (e) => (this.mensaje = mensajeDeError(e)) });
-    this.catalogos.especialidades().subscribe({ next: (l) => (this.especialidades = l), error: (e) => (this.mensaje = mensajeDeError(e)) });
+    this.catalogos.zonas().subscribe({
+      next: (l) => {
+        this.zonas = l;
+        this.cdr.markForCheck();
+      },
+      error: (e) => {
+        this.mensaje = mensajeDeError(e);
+        this.cdr.markForCheck();
+      }
+    });
+    this.catalogos.especialidades().subscribe({
+      next: (l) => {
+        this.especialidades = l;
+        this.cdr.markForCheck();
+      },
+      error: (e) => {
+        this.mensaje = mensajeDeError(e);
+        this.cdr.markForCheck();
+      }
+    });
   }
 
   /** Hoy en formato AAAA-MM-DD (hora local), para no permitir fechas pasadas */
@@ -146,10 +165,12 @@ export class Solicitar implements OnInit {
         this.especialidad = '';
         this.zona = '';
         this.horarios = [{ fecha: '', horaInicio: '', horaFin: '' }];
+        this.cdr.markForCheck();
       },
       error: (e) => {
         this.enviando = false;
         this.mensaje = mensajeDeError(e, 'No se pudo crear la solicitud. Inténtalo de nuevo.');
+        this.cdr.markForCheck();
       }
     });
   }
