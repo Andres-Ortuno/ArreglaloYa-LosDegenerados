@@ -1,3 +1,4 @@
+
 <main class="section">
   <div class="container">
 
@@ -14,15 +15,13 @@
 
     <div class="buscador">
 
-      <label for="filtro-zona">
-        Zona
-      </label>
+      <label for="filtro-zona">Zona</label>
 
       <select
         id="filtro-zona"
         name="zona"
         [(ngModel)]="zonaId"
-        (ngModelChange)="buscar()"
+        (ngModelChange)="pagina = 1; buscar()"
       >
         <option value="">Todas las zonas</option>
         @for (z of zonas; track z.id) {
@@ -30,20 +29,49 @@
         }
       </select>
 
-      <label for="filtro-especialidad">
-        Especialidad
-      </label>
+      <label for="filtro-especialidad">Especialidad</label>
 
       <select
         id="filtro-especialidad"
         name="especialidad"
         [(ngModel)]="especialidadId"
-        (ngModelChange)="buscar()"
+        (ngModelChange)="pagina = 1; buscar()"
       >
         <option value="">Todas las especialidades</option>
         @for (e of especialidades; track e.id) {
           <option [value]="e.id">{{ e.nombre }}</option>
         }
+      </select>
+
+      <label for="filtro-calificacion">
+        Calificación mínima
+      </label>
+
+      <select
+        id="filtro-calificacion"
+        name="calificacion"
+        [(ngModel)]="calificacionMinima"
+        (ngModelChange)="pagina = 1; buscar()"
+      >
+        <option value="">Todas las calificaciones</option>
+        <option value="3">3 estrellas o más</option>
+        <option value="4">4 estrellas o más</option>
+        <option value="5">5 estrellas</option>
+      </select>
+
+      <label for="ordenar-trabajadores">
+        Ordenar por
+      </label>
+
+      <select
+        id="ordenar-trabajadores"
+        name="ordenar"
+        [(ngModel)]="ordenarPor"
+        (ngModelChange)="pagina = 1; buscar()"
+      >
+        <option value="calificacion">Mejor calificación</option>
+        <option value="opiniones">Mayor cantidad de opiniones</option>
+        <option value="nombre">Nombre (A-Z)</option>
       </select>
 
       <label for="buscar-trabajador">
@@ -66,9 +94,13 @@
       <p>Buscando trabajadores...</p>
     } @else {
       <p>
-        Resultados encontrados:
-        {{ trabajadoresFiltrados.length }}
-      </p>
+      Resultados encontrados: {{ total }}
+     </p>
+
+     <p>
+     Página actual: {{ pagina }} |
+     Total de páginas: {{ totalPaginas }}
+     </p>
     }
 
     <div class="fichas">
@@ -117,6 +149,32 @@
       }
 
     </div>
+
+    @if (totalPaginas > 1) {
+      <div class="paginacion">
+
+        <button
+          type="button"
+          [disabled]="pagina === 1"
+          (click)="cambiarPagina(pagina - 1)"
+        >
+          Anterior
+        </button>
+
+        <span>
+          Página {{ pagina }} de {{ totalPaginas }}
+        </span>
+
+        <button
+          type="button"
+          [disabled]="pagina === totalPaginas"
+          (click)="cambiarPagina(pagina + 1)"
+        >
+          Siguiente
+        </button>
+
+      </div>
+    }
 
   </div>
 </main>
