@@ -132,13 +132,32 @@
                       }
                     </p>
 
+                    @if (po.estado === 'vencida') {
+
+                      <p>
+                        <span class="estado estado-cancelado">Vencida</span>
+                        Venció el {{ po.venceEn | date: 'dd/MM/yyyy HH:mm' }}.
+                        El trabajador debe renovarla para que puedas elegirla.
+                      </p>
+
+                    } @else {
+
+                      <p>
+                        <strong>Vigente hasta:</strong> {{ po.venceEn | date: 'dd/MM/yyyy HH:mm' }}
+                        @if (po.renovaciones > 0) {
+                          · renovada {{ po.renovaciones }} {{ po.renovaciones === 1 ? 'vez' : 'veces' }}
+                        }
+                      </p>
+
+                    }
+
                     <button
                       type="button"
                       class="boton-principal"
-                      [disabled]="ocupado"
+                      [disabled]="ocupado || po.estado === 'vencida'"
                       (click)="elegirPostulacion(po.id)"
                     >
-                      Elegir esta propuesta
+                      {{ po.estado === 'vencida' ? 'No disponible (vencida)' : 'Elegir esta propuesta' }}
                     </button>
 
                   </section>

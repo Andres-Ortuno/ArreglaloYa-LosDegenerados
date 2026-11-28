@@ -215,3 +215,16 @@
     width: 100%;
   }
 }
+
+/* Propuestas vencidas y renovación */
+.etiqueta-vencida {
+  color: #a12020;
+}
+
+.renovar {
+  margin-top: 10px;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+}

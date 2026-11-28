@@ -1,8 +1,8 @@
 import { DatePipe } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import type { Observable } from 'rxjs';
+import { finalize, type Observable } from 'rxjs';
 
 import {
   ETIQUETA_ESTADO_PEDIDO,
@@ -28,6 +28,16 @@ export class Pedidos implements OnInit {
 
   private readonly api = inject(ApiPedidos);
   private readonly solicitudesApi = inject(ApiSolicitudes);
+
+  private readonly cdr = inject(ChangeDetectorRef);
+
+  /**
+   * Esta aplicación no usa zone.js (Angular 22 trabaja sin zonas). Cuando llega una respuesta
+   * del servidor, Angular no redibuja solo: hay que avisarle con markForCheck().
+   */
+  private refrescar(): void {
+    this.cdr.markForCheck();
+  }
 
   pedidos: PedidoResumen[] = [];
   cargando: boolean = true;
@@ -72,7 +82,7 @@ export class Pedidos implements OnInit {
 
   // ------------------------------------------------------------ mis solicitudes
   cargarSolicitudes(): void {
-    this.solicitudesApi.mias().subscribe({
+    this.solicitudesApi.mias().pipe(finalize(() => this.refrescar())).subscribe({
       next: (lista) => (this.solicitudes = lista.filter((s) => s.estado === 'pendiente')),
       error: () => (this.solicitudes = [])
     });
@@ -88,7 +98,7 @@ export class Pedidos implements OnInit {
     this.detalleSolicitud = null;
     this.horarioElegido = '';
     this.mensajeSolicitud = '';
-    this.solicitudesApi.detalle(id).subscribe({
+    this.solicitudesApi.detalle(id).pipe(finalize(() => this.refrescar())).subscribe({
       next: (d) => {
         this.detalleSolicitud = d;
         // Si solo ofreció un horario, ya queda elegido
@@ -107,6 +117,11 @@ export class Pedidos implements OnInit {
   elegirPostulacion(postulacionId: number): void {
     const solicitud = this.detalleSolicitud;
     if (!solicitud || this.ocupado) return;
+    // Una propuesta vencida no se elige (el backend también lo rechaza con 409)
+    if (solicitud.postulaciones.find((p) => p.id === postulacionId)?.estado === 'vencida') {
+      this.avisarSolicitud('Esa propuesta venció. El trabajador debe renovarla para que puedas elegirla.', false);
+      return;
+    }
     if (!this.horarioElegido) {
       this.avisarSolicitud('Elige primero el horario en que recibirás al trabajador.', false);
       return;
@@ -115,7 +130,7 @@ export class Pedidos implements OnInit {
     this.solicitudesApi.elegir(solicitud.id, {
       postulacionId,
       horarioId: Number(this.horarioElegido)
-    }).subscribe({
+    }).pipe(finalize(() => this.refrescar())).subscribe({
       next: (pedido) => {
         this.ocupado = false;
         this.solicitudAbierta = null;
@@ -129,6 +144,11 @@ export class Pedidos implements OnInit {
       error: (e) => {
         this.ocupado = false;
         this.avisarSolicitud(mensajeDeError(e), false);
+        // El estado pudo cambiar (por ejemplo, una propuesta venció): se vuelve a pedir el detalle
+        this.solicitudesApi.detalle(solicitud.id).pipe(finalize(() => this.refrescar())).subscribe({
+          next: (d) => (this.detalleSolicitud = d),
+          error: () => undefined
+        });
       }
     });
   }
@@ -136,7 +156,7 @@ export class Pedidos implements OnInit {
   cancelarSolicitud(id: number): void {
     if (this.ocupado) return;
     this.ocupado = true;
-    this.solicitudesApi.cancelar(id).subscribe({
+    this.solicitudesApi.cancelar(id).pipe(finalize(() => this.refrescar())).subscribe({
       next: () => {
         this.ocupado = false;
         this.solicitudAbierta = null;
@@ -154,7 +174,7 @@ export class Pedidos implements OnInit {
   cargarLista(): void {
     this.cargando = true;
     this.errorLista = '';
-    this.api.mios().subscribe({
+    this.api.mios().pipe(finalize(() => this.refrescar())).subscribe({
       next: (lista) => {
         this.pedidos = lista;
         this.cargando = false;
@@ -190,11 +210,11 @@ export class Pedidos implements OnInit {
     if (!conservarMensaje) this.mensaje = '';
     this.detalle = null;
     this.puedoCalificar = false;
-    this.api.detalle(id).subscribe({
+    this.api.detalle(id).pipe(finalize(() => this.refrescar())).subscribe({
       next: (d) => {
         this.detalle = d;
         if (d.estado === 'finalizado') {
-          this.api.calificaciones(id).subscribe({
+          this.api.calificaciones(id).pipe(finalize(() => this.refrescar())).subscribe({
             next: (r) => (this.puedoCalificar = r.puedoCalificar),
             error: () => (this.puedoCalificar = false)
           });
@@ -224,13 +244,13 @@ export class Pedidos implements OnInit {
     const id = this.detalle.id;
     this.ocupado = true;
     this.mensaje = '';
-    accion$.subscribe({
+    accion$.pipe(finalize(() => this.refrescar())).subscribe({
       next: () => {
         this.ocupado = false;
         alTerminar?.();
         this.recargarDetalle(id, true);
         this.avisar(textoExito, true);
-        this.api.mios().subscribe({ next: (lista) => (this.pedidos = lista) });
+        this.api.mios().pipe(finalize(() => this.refrescar())).subscribe({ next: (lista) => (this.pedidos = lista) });
       },
       error: (e) => {
         this.ocupado = false;

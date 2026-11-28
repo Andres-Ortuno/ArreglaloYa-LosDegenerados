@@ -11,6 +11,7 @@ import type {
   MiSolicitud,
   PedidoNuevo,
   Postularse,
+  RenovarPostulacion,
   SolicitudCreada,
   SolicitudDisponible,
 } from '../../models/backend.models';
@@ -59,5 +60,13 @@ export class ApiSolicitudes {
 
   misPostulaciones(): Observable<MiPostulacion[]> {
     return this.http.get<MiPostulacion[]>(`${API_BASE_URL}/postulaciones/mias`);
+  }
+
+  /**
+   * Renovar una propuesta vencida: vuelve a «enviada» con un plazo nuevo (y, si se quiere, otro monto).
+   * El backend responde 409 si no cumple las condiciones (vigente, solicitud cerrada, ya renovó 2 veces).
+   */
+  renovarPostulacion(postulacionId: number, datos: RenovarPostulacion = {}): Observable<unknown> {
+    return this.http.post(`${API_BASE_URL}/postulaciones/${postulacionId}/renovar`, datos);
   }
 }

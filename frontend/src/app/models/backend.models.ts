@@ -98,7 +98,12 @@ export interface PostulacionRecibida {
   tipoTrabajo: TipoTrabajo;
   costoVisita: number;
   incluyeMateriales: boolean;
+  /** 'vencida' cuando pasó el plazo: el cliente no puede elegirla hasta que el trabajador la renueve. */
+  estado: EstadoPostulacion;
   creadaEn: string;
+  /** Hasta cuándo el cliente puede elegir esta propuesta. */
+  venceEn: string;
+  renovaciones: number;
   calificacionPromedio: number;
   cantidadOpiniones: number;
   [campoExtra: string]: unknown;
@@ -142,9 +147,23 @@ export interface Postularse {
   tipoTrabajo: TipoTrabajo;
   costoVisita: number;
   incluyeMateriales: boolean;
+  /** Horas que el cliente tiene para elegir la propuesta (opcional; por defecto 48). */
+  plazoHoras?: number;
 }
 
-export type EstadoPostulacion = 'enviada' | 'elegida' | 'descartada';
+/** Reglas de plazo y renovación. Deben coincidir con las del backend (solicitudes.reglas.ts). */
+export const PLAZO_POR_DEFECTO_HORAS = 48;
+export const PLAZO_MINIMO_HORAS = 1;
+export const PLAZO_MAXIMO_HORAS = 168;
+export const MAX_RENOVACIONES = 2;
+
+export type EstadoPostulacion = 'enviada' | 'elegida' | 'descartada' | 'vencida';
+
+/** Renovar una postulación vencida: los dos datos son opcionales. */
+export interface RenovarPostulacion {
+  plazoHoras?: number;
+  monto?: number;
+}
 
 export interface MiPostulacion {
   id: number;
@@ -155,6 +174,10 @@ export interface MiPostulacion {
   incluyeMateriales: boolean;
   estado: EstadoPostulacion;
   creadaEn: string;
+  venceEn: string;
+  renovaciones: number;
+  /** El backend ya comprobó las condiciones: vencida, solicitud pendiente y menos de 2 renovaciones. */
+  puedeRenovar: boolean;
   descripcion: string;
   especialidad: string;
   zona: string;

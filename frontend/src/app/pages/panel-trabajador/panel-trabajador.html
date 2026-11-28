@@ -308,6 +308,30 @@
 
         </div>
 
+        <div class="campo">
+
+          <label for="plazoHoras">
+            Plazo para que el cliente elija (horas)
+          </label>
+
+          <input
+            id="plazoHoras"
+            type="number"
+            name="plazoHoras"
+            [min]="plazoMinimo"
+            [max]="plazoMaximo"
+            step="1"
+            [(ngModel)]="plazoHoras"
+            placeholder="48"
+          />
+
+          <small>
+            Entre {{ plazoMinimo }} y {{ plazoMaximo }} horas. Si no se elige a tiempo,
+            la propuesta vence y puedes renovarla hasta {{ maxRenovaciones }} veces.
+          </small>
+
+        </div>
+
         <button
           type="submit"
           class="boton-principal"
@@ -335,6 +359,12 @@
 
       <h2>Mis propuestas enviadas</h2>
 
+      @if (mensajePropuestas) {
+        <p class="mensaje" [class.mensaje-correcto]="mensajePropuestasCorrecto" role="status">
+          {{ mensajePropuestas }}
+        </p>
+      }
+
       @for (post of postulaciones; track post.id) {
 
         <article class="propuesta-item">
@@ -349,13 +379,77 @@
             · {{ post.incluyeMateriales ? 'con materiales' : 'sin materiales' }}
           </p>
 
-          <span class="etiqueta">
+          <span class="etiqueta" [class.etiqueta-vencida]="post.estado === 'vencida'">
             @switch (post.estado) {
               @case ('elegida') { Elegida por el cliente }
               @case ('descartada') { No elegida }
+              @case ('vencida') { Vencida }
               @default { Esperando respuesta }
             }
           </span>
+
+          @if (post.estado === 'enviada') {
+            <p class="ayuda">
+              Vigente hasta el {{ post.venceEn | date: 'dd/MM/yyyy HH:mm' }}
+              @if (post.renovaciones > 0) {
+                · renovada {{ post.renovaciones }} {{ post.renovaciones === 1 ? 'vez' : 'veces' }}
+              }
+            </p>
+          }
+
+          @if (post.estado === 'vencida') {
+
+            <p class="ayuda">
+              Venció el {{ post.venceEn | date: 'dd/MM/yyyy HH:mm' }}. El cliente no puede elegirla hasta que la renueves.
+            </p>
+
+            @if (post.puedeRenovar) {
+
+              <div class="renovar">
+
+                <div class="campo">
+                  <label [for]="'plazo-renovacion-' + post.id">Nuevo plazo (horas)</label>
+                  <input
+                    [id]="'plazo-renovacion-' + post.id"
+                    type="number"
+                    [min]="plazoMinimo"
+                    [max]="plazoMaximo"
+                    step="1"
+                    [(ngModel)]="plazoRenovacion[post.id]"
+                    placeholder="48"
+                  />
+                </div>
+
+                <div class="campo">
+                  <label [for]="'monto-renovacion-' + post.id">Nuevo monto en Bs (opcional)</label>
+                  <input
+                    [id]="'monto-renovacion-' + post.id"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    [(ngModel)]="montoRenovacion[post.id]"
+                    [placeholder]="'Actual: ' + post.monto"
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  class="boton-principal"
+                  [disabled]="renovando"
+                  (click)="renovar(post)"
+                >
+                  {{ renovando ? 'Renovando...' : 'Renovar propuesta' }}
+                </button>
+
+              </div>
+
+            } @else {
+
+              <p class="ayuda">{{ motivoSinRenovar(post) }}</p>
+
+            }
+
+          }
 
           @if (post.pedidoId) {
             <p>

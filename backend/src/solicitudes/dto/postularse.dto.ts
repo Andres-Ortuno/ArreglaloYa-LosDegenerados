@@ -1,5 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsIn, IsNumber, IsPositive, Max, Min } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsBoolean, IsIn, IsInt, IsNumber, IsOptional, IsPositive, Max, Min } from 'class-validator';
+import { PLAZO_MAXIMO_HORAS, PLAZO_MINIMO_HORAS, PLAZO_POR_DEFECTO_HORAS } from '../solicitudes.reglas.js';
 
 /** Los cuatro datos son obligatorios: sin alguno no se guarda la postulación (RF-08). */
 export class PostularseDto {
@@ -22,4 +23,16 @@ export class PostularseDto {
   @ApiProperty({ example: false, description: '¿El monto incluye los materiales?' })
   @IsBoolean()
   incluyeMateriales: boolean;
+
+  @ApiPropertyOptional({
+    example: 48,
+    description: `Horas que el cliente tiene para elegir tu postulación (por defecto ${PLAZO_POR_DEFECTO_HORAS}). Si vence, puedes renovarla.`,
+    minimum: PLAZO_MINIMO_HORAS,
+    maximum: PLAZO_MAXIMO_HORAS,
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(PLAZO_MINIMO_HORAS)
+  @Max(PLAZO_MAXIMO_HORAS)
+  plazoHoras?: number;
 }
