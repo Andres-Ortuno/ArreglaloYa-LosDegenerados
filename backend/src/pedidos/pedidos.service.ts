@@ -4,6 +4,7 @@ import { traducirErrorBd } from '../common/errores-bd.js';
 import { num } from '../solicitudes/solicitudes.reglas.js';
 import { CambioMontoDto, MotivoDto, PagarDto, ResponderCambioDto } from './dto/pedidos.dto.js';
 import { calcularAnticipo, calcularComision, redondear2, repartirRetenido } from './pedidos.calculos.js';
+import { permiteTransicionPedido } from './pedidos.transiciones.js';
 import {
   SQL_ACTUALIZAR_MONTO,
   SQL_BLOQUEAR_PEDIDO,
@@ -13,6 +14,7 @@ import {
   SQL_CAMBIOS_DE_PEDIDO,
   SQL_CONFIGURACION,
   SQL_FINALIZAR,
+  SQL_HISTORIAL_ESTADOS,
   SQL_HAY_ANTICIPO,
   SQL_INSERT_CAMBIO,
   SQL_INSERT_PAGO,
@@ -71,9 +73,10 @@ export class PedidosService {
     const esCliente = p.clienteId === usuarioId;
     if (!esCliente && p.trabajadorId !== usuarioId) throw new ForbiddenException('Este pedido no es tuyo');
 
-    const [pagos, cambios, [{ aportado }], cfg] = await Promise.all([
+    const [pagos, cambios, historialEstados, [{ aportado }], cfg] = await Promise.all([
       this.dataSource.query(SQL_PAGOS_DE_PEDIDO, [pedidoId]),
       this.dataSource.query(SQL_CAMBIOS_DE_PEDIDO, [pedidoId]),
+      this.dataSource.query(SQL_HISTORIAL_ESTADOS, [pedidoId]),
       this.dataSource.query(SQL_TOTAL_APORTADO, [pedidoId]),
       this.configuracion(this.dataSource.manager),
     ]);
@@ -120,6 +123,10 @@ export class PedidosService {
         montoAnterior: Number(x.montoAnterior),
         montoNuevo: Number(x.montoNuevo),
       })),
+      historialEstados: historialEstados.map((x: Record<string, unknown>) => ({
+        ...x,
+        responsableId: x.responsableId === null ? null : Number(x.responsableId),
+      })),
     };
   }
 
@@ -141,6 +148,7 @@ export class PedidosService {
       const cfg = await this.configuracion(m);
       const anticipo = calcularAnticipo(p.montoVigente, Number(cfg.anticipo_porcentaje ?? 25), p.anticipoMinimo);
       const [pago] = await m.query(SQL_INSERT_PAGO, [pedidoId, 'anticipo', anticipo, dto.medio, dto.referencia ?? null]);
+      this.exigirTransicion(p.estado, 'aprobado');
       await m.query(SQL_CAMBIAR_ESTADO, [pedidoId, 'aprobado', null]);
       await this.avisar(m, p.trabajadorId, pedidoId, `El cliente pagó el anticipo de Bs ${anticipo} del pedido #${pedidoId}. Ya puedes iniciar el trabajo.`);
 
@@ -225,6 +233,7 @@ export class PedidosService {
       this.exigirTrabajador(p, trabajadorId);
       this.exigirEstado(p, ['aprobado'], 'se puede iniciar el trabajo');
       await this.exigirSinCambioPendiente(m, pedidoId);
+      this.exigirTransicion(p.estado, 'en_proceso');
       await m.query(SQL_CAMBIAR_ESTADO, [pedidoId, 'en_proceso', null]);
       await this.avisar(m, p.clienteId, pedidoId, `El trabajo del pedido #${pedidoId} comenzó.`);
       return { pedidoId, estado: 'en_proceso' };
@@ -246,6 +255,7 @@ export class PedidosService {
         throw new ConflictException(`El cliente aún debe pagar el saldo de Bs ${saldo} para poder finalizar`);
       }
 
+      this.exigirTransicion(p.estado, 'finalizado');
       const cfg = await this.configuracion(m);
       const comision = calcularComision(p.montoVigente, cfg.comision_activa === 'true', Number(cfg.comision_porcentaje ?? 3));
       await m.query(SQL_FINALIZAR, [pedidoId, comision]);
@@ -296,6 +306,7 @@ export class PedidosService {
    *  - rechazo_monto: si era visita, el trabajador recibe el costo de la visita (RN-05, RF-29).
    */
   private async cancelarPedido(m: EntityManager, p: Pedido, causa: Causa, motivo: string) {
+    this.exigirTransicion(p.estado, 'cancelado');
     const cfg = await this.configuracion(m);
     const retenidos: { id: number; monto: string }[] = await m.query(SQL_PAGOS_RETENIDOS, [p.id]);
     const pagos = retenidos.map((x) => ({ id: x.id, monto: Number(x.monto) }));
@@ -338,6 +349,15 @@ export class PedidosService {
 
   private exigirTrabajador(p: Pedido, usuarioId: number) {
     if (p.trabajadorId !== usuarioId) throw new ForbiddenException('No eres el trabajador asignado a este pedido');
+  }
+
+  /** Comprueba la máquina de estados antes de ejecutar cualquier cambio. */
+  private exigirTransicion(estadoActual: string, estadoNuevo: string) {
+    if (!permiteTransicionPedido(estadoActual, estadoNuevo)) {
+      const desde = ETIQUETA[estadoActual] ?? estadoActual;
+      const hacia = ETIQUETA[estadoNuevo] ?? estadoNuevo;
+      throw new ConflictException(`Transición de estado no permitida: «${desde}» → «${hacia}».`);
+    }
   }
 
   private exigirEstado(p: Pedido, permitidos: string[], accion: string) {
