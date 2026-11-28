@@ -72,7 +72,7 @@ export const SQL_HISTORIAL_ESTADOS = `
    WHERE b.pedido_id = $1
      AND b.entidad = 'pedido'
      AND b.campo = 'estado'
-   ORDER BY b.fecha ASC`;
+   ORDER BY b.fecha ASC, b.id ASC`;
 
 // ---------------------------------------------------------------- bloqueo para cambiar un pedido
 /**
