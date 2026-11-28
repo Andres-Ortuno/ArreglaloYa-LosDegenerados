@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
@@ -22,6 +22,7 @@ import { mensajeDeError } from '../../services/backend/errores';
 export class PanelTrabajador implements OnInit {
 
   private readonly trabajadores = inject(ApiTrabajadores);
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly solicitudesApi = inject(ApiSolicitudes);
 
   // MI PERFIL (se edita en la pantalla «Editar perfil»)
@@ -59,10 +60,14 @@ export class PanelTrabajador implements OnInit {
   // ------------------------------------------------------------ carga
   private cargarPerfil(): void {
     this.trabajadores.miPerfil().subscribe({
-      next: (p) => (this.perfil = p),
+      next: (p) => {
+        this.perfil = p;
+        this.cdr.markForCheck();
+      },
       error: (e) => {
         if (e?.status === 404) this.sinPerfil = true;
         else this.errorPerfil = mensajeDeError(e);
+        this.cdr.markForCheck();
       }
     });
   }
@@ -73,18 +78,26 @@ export class PanelTrabajador implements OnInit {
       next: (lista) => {
         this.solicitudes = lista;
         this.cargandoSolicitudes = false;
+        this.cdr.markForCheck();
       },
       error: (e) => {
         this.errorSolicitudes = mensajeDeError(e);
         this.cargandoSolicitudes = false;
+        this.cdr.markForCheck();
       }
     });
   }
 
   private cargarPostulaciones(): void {
     this.solicitudesApi.misPostulaciones().subscribe({
-      next: (lista) => (this.postulaciones = lista),
-      error: () => (this.postulaciones = [])
+      next: (lista) => {
+        this.postulaciones = lista;
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.postulaciones = [];
+        this.cdr.markForCheck();
+      }
     });
   }
 
@@ -155,10 +168,12 @@ export class PanelTrabajador implements OnInit {
         formulario.resetForm({ tipoTrabajo: 'visita', costoVisita: 0, incluyeMateriales: false });
         this.cargarSolicitudes();
         this.cargarPostulaciones();
+        this.cdr.markForCheck();
       },
       error: (e) => {
         this.enviando = false;
         this.mensajePostulacion = mensajeDeError(e, 'No se pudo enviar la propuesta.');
+        this.cdr.markForCheck();
       }
     });
   }
